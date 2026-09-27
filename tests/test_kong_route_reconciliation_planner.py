@@ -242,3 +242,14 @@ def test_planner_cli_propagates_private_control_plane_selection(monkeypatch, cap
     assert all(kwargs["container"] == "selected-kong-cp" for kwargs in selected)
     assert all(kwargs["traditional_approval"] is None for kwargs in selected)
     assert json.loads(capsys.readouterr().out)["runtime_apply_authorized"] is False
+
+def test_already_retired_routes_are_converged_when_prerequisites_hold():
+    routes, services, plugins = live_rows()
+    authority, blocked = authority_inputs()
+    retired={row["name"] for row in manifest()["routes"] if row["decision"]=="RETIRE"}
+    routes=[row for row in routes if row["name"] not in retired]
+    plan=MOD.build_plan(manifest(),routes,services,plugins,authority,blocked)
+    rows=[row for row in plan["plan"] if row["route"] in retired]
+    assert len(rows)==4
+    assert all(row["action"]=="KEEP" and row["reason"]=="already_retired" for row in rows)
+    assert not any(row["action"]=="ERROR" for row in plan["plan"])

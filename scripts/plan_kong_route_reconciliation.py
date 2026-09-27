@@ -127,6 +127,20 @@ def build_plan(
     plan = []
     for spec in sorted(manifest["routes"], key=lambda item: item["name"]):
         matches = by_route.get(spec["name"], [])
+        if not matches and spec["decision"] == "RETIRE":
+            item={"route":spec["name"],"decision":"RETIRE","action":"KEEP","reason":"already_retired"}
+            if spec.get("successor"):
+                item["successor"]=spec["successor"]
+                item["successor_present"]=len(by_route.get(spec["successor"], []))==1
+                if not item["successor_present"]:
+                    item.update(action="ERROR",reason="required_successor_missing")
+            else:
+                item["deny_authority"]=spec.get("deny_authority")
+                item["deny_authority_present"]=spec["name"] in activation_blocked_routes
+                if not item["deny_authority_present"]:
+                    item.update(action="ERROR",reason="required_deny_authority_missing")
+            plan.append(item)
+            continue
         if len(matches) != 1:
             plan.append({
                 "route": spec["name"],
