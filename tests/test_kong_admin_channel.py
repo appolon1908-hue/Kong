@@ -167,8 +167,9 @@ def test_channel_and_read_only_capture_require_the_same_admin_contract():
     assert channel.DOCKER == capture.DOCKER
     assert channel.ADMIN_ORIGIN == HOST_ADMIN
     assert channel.ADMIN_PORTS == ("8001/tcp", "8444/tcp", "8002/tcp", "8445/tcp")
-    environment = yaml.safe_load((ROOT / "deploy/kong/compose.kong.yaml").read_text())[
-        "services"]["kong-gateway"]["environment"]
+    # Administrative capture belongs to the hybrid CP; the DP has no Admin API.
+    environment = yaml.safe_load((ROOT / "deploy/gateway-platform/compose.hybrid.yaml").read_text())[
+        "services"]["kong-cp"]["environment"]
     assert channel.REQUIRED_LISTENERS == {
         f"KONG_ADMIN_LISTEN={environment['KONG_ADMIN_LISTEN']}",
         f"KONG_ADMIN_GUI_LISTEN={environment['KONG_ADMIN_GUI_LISTEN']}"}
@@ -575,3 +576,19 @@ def test_collection_rejects_pagination_traversal_before_second_fetch(monkeypatch
     with pytest.raises(RuntimeError):
         client.all_rows(HOST_ADMIN, "/routes")
     assert len(calls) == 1
+
+def test_hybrid_control_plane_is_accepted_by_admin_validator(monkeypatch):
+    channel = module()
+    info = metadata()
+    info["service"] = "kong-cp"
+    monkeypatch.setattr(channel, "run_json", lambda args: info)
+    assert channel.verify_container("codestra-gateway-hybrid-kong-cp-1") == "a" * 64
+
+def test_hybrid_data_plane_is_rejected_by_admin_validator(monkeypatch):
+    channel = module()
+    info = metadata()
+    info["service"] = "kong-dp-1"
+    info["listeners"] = ["KONG_ADMIN_LISTEN=off", "KONG_ADMIN_GUI_LISTEN=off", None]
+    monkeypatch.setattr(channel, "run_json", lambda args: info)
+    with pytest.raises(channel.AdminError):
+        channel.verify_container("codestra-gateway-hybrid-kong-dp-1")

@@ -54,6 +54,12 @@ from urllib.parse import urlsplit
 
 import yaml
 
+try:
+    from scripts.validate_kong_runtime_mode import validate_authority as validate_runtime_authority
+except ModuleNotFoundError:
+    # Direct CLI invocation places scripts/, rather than the repo root, on sys.path.
+    from validate_kong_runtime_mode import validate_authority as validate_runtime_authority
+
 ROOT = Path(__file__).resolve().parents[1]
 FOUNDATION = ROOT / "config/kong-gateway-foundation.v1.json"
 SCHEMA = "codestra.kong.gateway-foundation.v1"
@@ -1126,7 +1132,14 @@ def validate_source_discovery(foundation: dict, root: Path = ROOT) -> None:
         for match in sorted(root.glob(pattern)):
             if match.is_file():
                 found.add(match.relative_to(root).as_posix())
-    unregistered = sorted(found - registered - set(excluded))
+    # K1 is a typed runtime authority, not a route/plugin manifest. Validate it
+    # rather than silently excluding it from the route-source discovery gate.
+    runtime_path = "config/kong-runtime-config-mode.v1.json"
+    try:
+        validate_runtime_authority(load_json(root / runtime_path))
+    except (ValueError, OSError) as error:
+        raise FoundationError(f"K1 runtime authority invalid: {error}") from error
+    unregistered = sorted(found - registered - set(excluded) - {runtime_path})
     _require(not unregistered, f"unregistered Kong source files (register them in sources[] or exclude with a reason): {unregistered}")
     stale = sorted(set(excluded) - found)
     _require(not stale, f"sourceDiscovery exclusions for files that no longer exist: {stale}")
@@ -1545,12 +1558,14 @@ def validate_node(foundation: dict, root: Path = ROOT) -> None:
     compose = load_yaml(root / node["compose"])
     gateway = compose["services"][node["composeService"]]
     environment = gateway["environment"]
-    _require(environment.get("KONG_ADMIN_LISTEN") == "127.0.0.1:8001", "Admin API must remain container-loopback only")
+    _require(environment.get("KONG_ADMIN_LISTEN") == "off", "Admin API must remain disabled on data planes")
     _require(environment.get("KONG_ADMIN_GUI_LISTEN") == "off", "Kong Manager must remain off")
     ports = [str(p) for p in gateway.get("ports", [])]
     _require(all(p.startswith("127.0.0.1:") for p in ports), "every published port must bind host loopback")
     _require(not any(":8001" in p or ":8100" in p or ":8002" in p for p in ports), "Admin, Manager and Status must not be published")
-    _require(environment.get("KONG_PG_SSL") == "on" and environment.get("KONG_PG_SSL_VERIFY") == "on", "database TLS verification must be enabled")
+    _require(environment.get("KONG_ROLE") == "data_plane" and environment.get("KONG_DATABASE") == "off",
+             "K1 requires a hybrid data plane")
+    _require(not any(key.startswith("KONG_PG_") for key in environment), "data plane database settings forbidden")
     _require("@${KONG_IMAGE_DIGEST:?" in gateway.get("image", ""), "gateway image must use an immutable digest")
     _require(str(environment.get("KONG_TRUSTED_IPS", "")).startswith("${KONG_TRUSTED_IPS:?"), "trusted_ips must be required from the deployment with no default")
     _require(environment.get("KONG_REAL_IP_HEADER") == "X-Forwarded-For" and environment.get("KONG_REAL_IP_RECURSIVE") == "on",
@@ -1568,7 +1583,7 @@ def validate_node(foundation: dict, root: Path = ROOT) -> None:
     _require("healthcheck" in gateway, "a health check is required")
     _require("docker.sock" not in json.dumps(gateway), "the Docker socket must never be mounted")
     _require(not gateway.get("privileged") and not gateway.get("network_mode"), "privileged and host networking are forbidden")
-    for secret in ("kong_license", "kong_database_runtime_password"):
+    for secret in ("kong_license", "cluster_ca", "dp_cert", "dp_key"):
         _require(secret in gateway.get("secrets", []), f"secret {secret} must be mounted as a file")
     for name, definition in compose.get("secrets", {}).items():
         _require(set(definition) == {"file"} and definition["file"].startswith("/etc/codestra/secrets/"), f"secret {name} must be a root-owned host file path")
@@ -1576,7 +1591,13 @@ def validate_node(foundation: dict, root: Path = ROOT) -> None:
         _require(network.get("external") is True, "every network must be an existing external network")
     conf = (root / node["confExample"]).read_text(encoding="utf-8")
     settings = dict(re.findall(r"^([a-z_]+)\s*=\s*(\S+)", conf, flags=re.MULTILINE))
-    for key, expected in node["confMustEqual"].items():
+    # Frozen K1 mode authority supersedes the earlier node's combined DB/Admin
+    # topology only; all route, identity and sandbox foundation policy remains.
+    expected_conf = dict(node["confMustEqual"])
+    expected_conf.pop("pg_ssl", None)
+    expected_conf.pop("pg_ssl_verify", None)
+    expected_conf.update(admin_listen="off", role="data_plane", database="off", cluster_mtls="pki")
+    for key, expected in expected_conf.items():
         _require(settings.get(key) == expected, f"kong.conf.example {key} must be {expected!r} (found {settings.get(key)!r})")
     # env template completeness
     declared = set(re.findall(r"^([A-Z0-9_]+)=", (root / node["runtimeEnvExample"]).read_text(encoding="utf-8"), flags=re.MULTILINE))

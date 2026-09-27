@@ -51,6 +51,7 @@ services:
       KONG_LICENSE_PATH: /run/secrets/kong_license
       KONG_STATUS_ACCESS_LOG: 'off'
       KONG_VAULTS: env
+      CODESTRA_RUNTIME_APPLY_AUTHORIZED: 'false'
     networks:
       kong_admin: null
       kong_database: null
@@ -74,9 +75,32 @@ services:
     - docker-start
     volumes:
     - type: bind
-      source: ${GATEWAY_WEBHOOK_SECRET_DIRECTORY:?approved per-integration webhook secret directory required}
+      source: ${GATEWAY_WEBHOOK_SECRET_DIRECTORY:?approved per-integration webhook
+        secret directory required}
       target: /run/secrets/webhooks
       read_only: true
+    - type: bind
+      source: ./runtime-guard.sh
+      target: /etc/codestra/runtime-guard.sh
+      read_only: true
+    - type: bind
+      source: ./codestra-kong-entrypoint.sh
+      target: /usr/local/bin/codestra-kong-entrypoint
+      read_only: true
+    healthcheck:
+      test: &id003
+      - CMD
+      - curl
+      - --fail
+      - --silent
+      - --show-error
+      - --max-time
+      - '3'
+      - http://127.0.0.1:8100/status/ready
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 30s
   kong-dp-1:
     read_only: true
     user: 1000:1000
@@ -125,6 +149,7 @@ services:
         source CIDRs required}
       KONG_REAL_IP_HEADER: X-Forwarded-For
       KONG_REAL_IP_RECURSIVE: 'on'
+      CODESTRA_RUNTIME_APPLY_AUTHORIZED: 'false'
     networks:
     - kong_proxy
     - kong_cluster
@@ -149,9 +174,24 @@ services:
     volumes:
     - dp1_prefix:/usr/local/kong
     - type: bind
-      source: ${GATEWAY_WEBHOOK_SECRET_DIRECTORY:?approved per-integration webhook secret directory required}
+      source: ${GATEWAY_WEBHOOK_SECRET_DIRECTORY:?approved per-integration webhook
+        secret directory required}
       target: /run/secrets/webhooks
       read_only: true
+    - type: bind
+      source: ./runtime-guard.sh
+      target: /etc/codestra/runtime-guard.sh
+      read_only: true
+    - type: bind
+      source: ./codestra-kong-entrypoint.sh
+      target: /usr/local/bin/codestra-kong-entrypoint
+      read_only: true
+    healthcheck:
+      test: *id003
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 30s
   kong-dp-2:
     read_only: true
     user: 1000:1000
@@ -200,6 +240,7 @@ services:
         source CIDRs required}
       KONG_REAL_IP_HEADER: X-Forwarded-For
       KONG_REAL_IP_RECURSIVE: 'on'
+      CODESTRA_RUNTIME_APPLY_AUTHORIZED: 'false'
     networks:
     - kong_proxy
     - kong_cluster
@@ -224,9 +265,24 @@ services:
     volumes:
     - dp2_prefix:/usr/local/kong
     - type: bind
-      source: ${GATEWAY_WEBHOOK_SECRET_DIRECTORY:?approved per-integration webhook secret directory required}
+      source: ${GATEWAY_WEBHOOK_SECRET_DIRECTORY:?approved per-integration webhook
+        secret directory required}
       target: /run/secrets/webhooks
       read_only: true
+    - type: bind
+      source: ./runtime-guard.sh
+      target: /etc/codestra/runtime-guard.sh
+      read_only: true
+    - type: bind
+      source: ./codestra-kong-entrypoint.sh
+      target: /usr/local/bin/codestra-kong-entrypoint
+      read_only: true
+    healthcheck:
+      test: *id003
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 30s
 networks:
   edge_internal:
     external: true

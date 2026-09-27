@@ -245,7 +245,7 @@ def test_logging_policy_and_admin_isolation_are_preserved():
     assert logging["logPluginsRegistered"] == []
     assert not {p["plugin"] for p in result["foundation"]["plugins"]} & {"file-log", "http-log", "tcp-log", "udp-log", "syslog"}
     compose = read_yaml(ROOT, "deploy/kong/compose.kong.yaml")["services"]["kong-gateway"]
-    assert compose["environment"]["KONG_ADMIN_LISTEN"] == "127.0.0.1:8001"
+    assert compose["environment"]["KONG_ADMIN_LISTEN"] == "off"
     assert compose["environment"]["KONG_ADMIN_GUI_LISTEN"] == "off"
     assert all(str(p).startswith("127.0.0.1:8000:") for p in compose["ports"])
 
