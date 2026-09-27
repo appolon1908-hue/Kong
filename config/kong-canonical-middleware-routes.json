@@ -27,7 +27,7 @@
         "api.codestra.co"
       ],
       "paths": [
-        "~^/api/v1/automation/policy\\-check$"
+        "~/api/v1/automation/policy\\-check$"
       ],
       "pathTemplate": "/api/v1/automation/policy-check",
       "regexPriority": 4,
@@ -56,7 +56,7 @@
         "api.codestra.co"
       ],
       "paths": [
-        "~^/api/v1/callbacks$"
+        "~/api/v1/callbacks$"
       ],
       "pathTemplate": "/api/v1/callbacks",
       "regexPriority": 3,
@@ -85,7 +85,7 @@
         "api.codestra.co"
       ],
       "paths": [
-        "~^/api/v1/control/callbacks$"
+        "~/api/v1/control/callbacks$"
       ],
       "pathTemplate": "/api/v1/control/callbacks",
       "regexPriority": 4,
@@ -114,7 +114,7 @@
         "api.codestra.co"
       ],
       "paths": [
-        "~^/api/v1/integrations/n8n/results$"
+        "~/api/v1/integrations/n8n/results$"
       ],
       "pathTemplate": "/api/v1/integrations/n8n/results",
       "regexPriority": 5,
@@ -143,7 +143,7 @@
         "api.codestra.co"
       ],
       "paths": [
-        "~^/api/v1/integrations/n8n/results/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
+        "~/api/v1/integrations/n8n/results/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
       ],
       "pathTemplate": "/api/v1/integrations/n8n/results/{event_id}",
       "regexPriority": 5,
@@ -172,7 +172,7 @@
         "api.codestra.co"
       ],
       "paths": [
-        "~^/api/v1/integrations/odoo/campaigns/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
+        "~/api/v1/integrations/odoo/campaigns/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
       ],
       "pathTemplate": "/api/v1/integrations/odoo/campaigns/{campaign_id}",
       "regexPriority": 5,
@@ -201,7 +201,7 @@
         "api.codestra.co"
       ],
       "paths": [
-        "~^/api/v1/integrations/odoo/campaigns/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/desired\\-state$"
+        "~/api/v1/integrations/odoo/campaigns/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/desired\\-state$"
       ],
       "pathTemplate": "/api/v1/integrations/odoo/campaigns/{campaign_id}/desired-state",
       "regexPriority": 6,
@@ -230,7 +230,7 @@
         "api.codestra.co"
       ],
       "paths": [
-        "~^/api/v1/odoo/events$"
+        "~/api/v1/odoo/events$"
       ],
       "pathTemplate": "/api/v1/odoo/events",
       "regexPriority": 4,
@@ -259,7 +259,7 @@
         "api.codestra.co"
       ],
       "paths": [
-        "~^/platform/v1/activity$"
+        "~/platform/v1/activity$"
       ],
       "pathTemplate": "/platform/v1/activity",
       "regexPriority": 3,
@@ -288,7 +288,7 @@
         "api.codestra.co"
       ],
       "paths": [
-        "~^/platform/v1/activity/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
+        "~/platform/v1/activity/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
       ],
       "pathTemplate": "/platform/v1/activity/{activity_id}",
       "regexPriority": 3,
@@ -317,7 +317,7 @@
         "api.codestra.co"
       ],
       "paths": [
-        "~^/platform/v1/agent\\-provisioning/requests$"
+        "~/platform/v1/agent\\-provisioning/requests$"
       ],
       "pathTemplate": "/platform/v1/agent-provisioning/requests",
       "regexPriority": 4,
@@ -346,7 +346,7 @@
         "api.codestra.co"
       ],
       "paths": [
-        "~^/platform/v1/agent\\-provisioning/requests/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
+        "~/platform/v1/agent\\-provisioning/requests/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
       ],
       "pathTemplate": "/platform/v1/agent-provisioning/requests/{request_id}",
       "regexPriority": 4,
@@ -375,7 +375,7 @@
         "api.codestra.co"
       ],
       "paths": [
-        "~^/platform/v1/agent\\-provisioning/requests/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/reactivate$"
+        "~/platform/v1/agent\\-provisioning/requests/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/reactivate$"
       ],
       "pathTemplate": "/platform/v1/agent-provisioning/requests/{request_id}/reactivate",
       "regexPriority": 5,
@@ -404,7 +404,7 @@
         "api.codestra.co"
       ],
       "paths": [
-        "~^/platform/v1/agent\\-provisioning/requests/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/reconcile$"
+        "~/platform/v1/agent\\-provisioning/requests/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/reconcile$"
       ],
       "pathTemplate": "/platform/v1/agent-provisioning/requests/{request_id}/reconcile",
       "regexPriority": 5,
@@ -433,7 +433,7 @@
         "api.codestra.co"
       ],
       "paths": [
-        "~^/platform/v1/agent\\-provisioning/requests/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/revoke$"
+        "~/platform/v1/agent\\-provisioning/requests/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/revoke$"
       ],
       "pathTemplate": "/platform/v1/agent-provisioning/requests/{request_id}/revoke",
       "regexPriority": 5,
@@ -462,7 +462,7 @@
         "api.codestra.co"
       ],
       "paths": [
-        "~^/platform/v1/agent\\-provisioning/requests/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/suspend$"
+        "~/platform/v1/agent\\-provisioning/requests/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/suspend$"
       ],
       "pathTemplate": "/platform/v1/agent-provisioning/requests/{request_id}/suspend",
       "regexPriority": 5,
@@ -491,7 +491,7 @@
         "api.codestra.co"
       ],
       "paths": [
-        "~^/platform/v1/agents/presence$"
+        "~/platform/v1/agents/presence$"
       ],
       "pathTemplate": "/platform/v1/agents/presence",
       "regexPriority": 4,
@@ -520,7 +520,7 @@
         "api.codestra.co"
       ],
       "paths": [
-        "~^/platform/v1/agents/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/presence$"
+        "~/platform/v1/agents/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/presence$"
       ],
       "pathTemplate": "/platform/v1/agents/{user_id}/presence",
       "regexPriority": 4,
@@ -549,7 +549,7 @@
         "api.codestra.co"
       ],
       "paths": [
-        "~^/platform/v1/calls$"
+        "~/platform/v1/calls$"
       ],
       "pathTemplate": "/platform/v1/calls",
       "regexPriority": 3,
@@ -578,7 +578,7 @@
         "api.codestra.co"
       ],
       "paths": [
-        "~^/platform/v1/calls/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
+        "~/platform/v1/calls/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
       ],
       "pathTemplate": "/platform/v1/calls/{call_id}",
       "regexPriority": 3,
@@ -607,7 +607,7 @@
         "api.codestra.co"
       ],
       "paths": [
-        "~^/platform/v1/campaigns$"
+        "~/platform/v1/campaigns$"
       ],
       "pathTemplate": "/platform/v1/campaigns",
       "regexPriority": 3,
@@ -636,7 +636,7 @@
         "api.codestra.co"
       ],
       "paths": [
-        "~^/platform/v1/campaigns/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
+        "~/platform/v1/campaigns/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
       ],
       "pathTemplate": "/platform/v1/campaigns/{campaign_id}",
       "regexPriority": 3,
@@ -665,7 +665,7 @@
         "api.codestra.co"
       ],
       "paths": [
-        "~^/platform/v1/campaigns/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/channels$"
+        "~/platform/v1/campaigns/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/channels$"
       ],
       "pathTemplate": "/platform/v1/campaigns/{campaign_id}/channels",
       "regexPriority": 4,
@@ -694,7 +694,7 @@
         "api.codestra.co"
       ],
       "paths": [
-        "~^/platform/v1/campaigns/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/health$"
+        "~/platform/v1/campaigns/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/health$"
       ],
       "pathTemplate": "/platform/v1/campaigns/{campaign_id}/health",
       "regexPriority": 4,
@@ -723,7 +723,7 @@
         "api.codestra.co"
       ],
       "paths": [
-        "~^/platform/v1/campaigns/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/members$"
+        "~/platform/v1/campaigns/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/members$"
       ],
       "pathTemplate": "/platform/v1/campaigns/{campaign_id}/members",
       "regexPriority": 4,
@@ -752,7 +752,7 @@
         "api.codestra.co"
       ],
       "paths": [
-        "~^/platform/v1/commands$"
+        "~/platform/v1/commands$"
       ],
       "pathTemplate": "/platform/v1/commands",
       "regexPriority": 3,
@@ -781,7 +781,7 @@
         "api.codestra.co"
       ],
       "paths": [
-        "~^/platform/v1/contacts$"
+        "~/platform/v1/contacts$"
       ],
       "pathTemplate": "/platform/v1/contacts",
       "regexPriority": 3,
@@ -810,7 +810,7 @@
         "api.codestra.co"
       ],
       "paths": [
-        "~^/platform/v1/contacts$"
+        "~/platform/v1/contacts$"
       ],
       "pathTemplate": "/platform/v1/contacts",
       "regexPriority": 3,
@@ -839,7 +839,7 @@
         "api.codestra.co"
       ],
       "paths": [
-        "~^/platform/v1/contacts/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
+        "~/platform/v1/contacts/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
       ],
       "pathTemplate": "/platform/v1/contacts/{contact_id}",
       "regexPriority": 3,
@@ -868,7 +868,7 @@
         "api.codestra.co"
       ],
       "paths": [
-        "~^/platform/v1/contacts/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
+        "~/platform/v1/contacts/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
       ],
       "pathTemplate": "/platform/v1/contacts/{contact_id}",
       "regexPriority": 3,
@@ -897,7 +897,7 @@
         "api.codestra.co"
       ],
       "paths": [
-        "~^/platform/v1/contacts/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/notes$"
+        "~/platform/v1/contacts/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/notes$"
       ],
       "pathTemplate": "/platform/v1/contacts/{contact_id}/notes",
       "regexPriority": 4,
@@ -926,7 +926,7 @@
         "api.codestra.co"
       ],
       "paths": [
-        "~^/platform/v1/contacts/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/notes$"
+        "~/platform/v1/contacts/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/notes$"
       ],
       "pathTemplate": "/platform/v1/contacts/{contact_id}/notes",
       "regexPriority": 4,
@@ -955,7 +955,7 @@
         "api.codestra.co"
       ],
       "paths": [
-        "~^/platform/v1/contacts/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/notes/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
+        "~/platform/v1/contacts/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/notes/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
       ],
       "pathTemplate": "/platform/v1/contacts/{contact_id}/notes/{note_id}",
       "regexPriority": 4,
@@ -984,7 +984,7 @@
         "api.codestra.co"
       ],
       "paths": [
-        "~^/platform/v1/contacts/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/tasks$"
+        "~/platform/v1/contacts/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/tasks$"
       ],
       "pathTemplate": "/platform/v1/contacts/{contact_id}/tasks",
       "regexPriority": 4,
@@ -1013,7 +1013,7 @@
         "api.codestra.co"
       ],
       "paths": [
-        "~^/platform/v1/contacts/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/tasks$"
+        "~/platform/v1/contacts/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/tasks$"
       ],
       "pathTemplate": "/platform/v1/contacts/{contact_id}/tasks",
       "regexPriority": 4,
@@ -1042,7 +1042,7 @@
         "api.codestra.co"
       ],
       "paths": [
-        "~^/platform/v1/email/identities$"
+        "~/platform/v1/email/identities$"
       ],
       "pathTemplate": "/platform/v1/email/identities",
       "regexPriority": 4,
@@ -1071,7 +1071,7 @@
         "api.codestra.co"
       ],
       "paths": [
-        "~^/platform/v1/email/production/activate$"
+        "~/platform/v1/email/production/activate$"
       ],
       "pathTemplate": "/platform/v1/email/production/activate",
       "regexPriority": 5,
@@ -1100,7 +1100,7 @@
         "api.codestra.co"
       ],
       "paths": [
-        "~^/platform/v1/email/production/audit$"
+        "~/platform/v1/email/production/audit$"
       ],
       "pathTemplate": "/platform/v1/email/production/audit",
       "regexPriority": 5,
@@ -1129,7 +1129,7 @@
         "api.codestra.co"
       ],
       "paths": [
-        "~^/platform/v1/email/production/authorize$"
+        "~/platform/v1/email/production/authorize$"
       ],
       "pathTemplate": "/platform/v1/email/production/authorize",
       "regexPriority": 5,
@@ -1158,7 +1158,7 @@
         "api.codestra.co"
       ],
       "paths": [
-        "~^/platform/v1/email/production/kill\\-switch$"
+        "~/platform/v1/email/production/kill\\-switch$"
       ],
       "pathTemplate": "/platform/v1/email/production/kill-switch",
       "regexPriority": 5,
@@ -1187,7 +1187,7 @@
         "api.codestra.co"
       ],
       "paths": [
-        "~^/platform/v1/email/production/quotas$"
+        "~/platform/v1/email/production/quotas$"
       ],
       "pathTemplate": "/platform/v1/email/production/quotas",
       "regexPriority": 5,
@@ -1216,7 +1216,7 @@
         "api.codestra.co"
       ],
       "paths": [
-        "~^/platform/v1/email/production/readiness$"
+        "~/platform/v1/email/production/readiness$"
       ],
       "pathTemplate": "/platform/v1/email/production/readiness",
       "regexPriority": 5,
@@ -1245,7 +1245,7 @@
         "api.codestra.co"
       ],
       "paths": [
-        "~^/platform/v1/email/production/revoke$"
+        "~/platform/v1/email/production/revoke$"
       ],
       "pathTemplate": "/platform/v1/email/production/revoke",
       "regexPriority": 5,
@@ -1274,7 +1274,7 @@
         "api.codestra.co"
       ],
       "paths": [
-        "~^/platform/v1/email/production/status$"
+        "~/platform/v1/email/production/status$"
       ],
       "pathTemplate": "/platform/v1/email/production/status",
       "regexPriority": 5,
@@ -1303,7 +1303,7 @@
         "api.codestra.co"
       ],
       "paths": [
-        "~^/platform/v1/hosts$"
+        "~/platform/v1/hosts$"
       ],
       "pathTemplate": "/platform/v1/hosts",
       "regexPriority": 3,
@@ -1332,7 +1332,7 @@
         "api.codestra.co"
       ],
       "paths": [
-        "~^/platform/v1/hosts/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
+        "~/platform/v1/hosts/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
       ],
       "pathTemplate": "/platform/v1/hosts/{host_id}",
       "regexPriority": 3,
@@ -1361,7 +1361,7 @@
         "api.codestra.co"
       ],
       "paths": [
-        "~^/platform/v1/integrations/github/events$"
+        "~/platform/v1/integrations/github/events$"
       ],
       "pathTemplate": "/platform/v1/integrations/github/events",
       "regexPriority": 5,
@@ -1390,7 +1390,7 @@
         "api.codestra.co"
       ],
       "paths": [
-        "~^/platform/v1/kernel/describe$"
+        "~/platform/v1/kernel/describe$"
       ],
       "pathTemplate": "/platform/v1/kernel/describe",
       "regexPriority": 4,
@@ -1419,7 +1419,7 @@
         "api.codestra.co"
       ],
       "paths": [
-        "~^/platform/v1/me/presence$"
+        "~/platform/v1/me/presence$"
       ],
       "pathTemplate": "/platform/v1/me/presence",
       "regexPriority": 4,
@@ -1448,7 +1448,7 @@
         "api.codestra.co"
       ],
       "paths": [
-        "~^/platform/v1/operations/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
+        "~/platform/v1/operations/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
       ],
       "pathTemplate": "/platform/v1/operations/{operation_id}",
       "regexPriority": 3,
@@ -1477,7 +1477,7 @@
         "api.codestra.co"
       ],
       "paths": [
-        "~^/platform/v1/operations/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/cancel$"
+        "~/platform/v1/operations/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/cancel$"
       ],
       "pathTemplate": "/platform/v1/operations/{operation_id}/cancel",
       "regexPriority": 4,
@@ -1506,7 +1506,7 @@
         "api.codestra.co"
       ],
       "paths": [
-        "~^/platform/v1/operations/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/replay$"
+        "~/platform/v1/operations/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/replay$"
       ],
       "pathTemplate": "/platform/v1/operations/{operation_id}/replay",
       "regexPriority": 4,
@@ -1535,7 +1535,7 @@
         "api.codestra.co"
       ],
       "paths": [
-        "~^/platform/v1/operations/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/timeline$"
+        "~/platform/v1/operations/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/timeline$"
       ],
       "pathTemplate": "/platform/v1/operations/{operation_id}/timeline",
       "regexPriority": 4,
@@ -1564,7 +1564,7 @@
         "api.codestra.co"
       ],
       "paths": [
-        "~^/platform/v1/opportunities$"
+        "~/platform/v1/opportunities$"
       ],
       "pathTemplate": "/platform/v1/opportunities",
       "regexPriority": 3,
@@ -1593,7 +1593,7 @@
         "api.codestra.co"
       ],
       "paths": [
-        "~^/platform/v1/opportunities$"
+        "~/platform/v1/opportunities$"
       ],
       "pathTemplate": "/platform/v1/opportunities",
       "regexPriority": 3,
@@ -1622,7 +1622,7 @@
         "api.codestra.co"
       ],
       "paths": [
-        "~^/platform/v1/opportunities/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
+        "~/platform/v1/opportunities/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
       ],
       "pathTemplate": "/platform/v1/opportunities/{opportunity_id}",
       "regexPriority": 3,
@@ -1651,7 +1651,7 @@
         "api.codestra.co"
       ],
       "paths": [
-        "~^/platform/v1/opportunities/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
+        "~/platform/v1/opportunities/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
       ],
       "pathTemplate": "/platform/v1/opportunities/{opportunity_id}",
       "regexPriority": 3,
@@ -1680,7 +1680,7 @@
         "api.codestra.co"
       ],
       "paths": [
-        "~^/platform/v1/queues$"
+        "~/platform/v1/queues$"
       ],
       "pathTemplate": "/platform/v1/queues",
       "regexPriority": 3,
@@ -1709,7 +1709,7 @@
         "api.codestra.co"
       ],
       "paths": [
-        "~^/platform/v1/queues/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
+        "~/platform/v1/queues/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
       ],
       "pathTemplate": "/platform/v1/queues/{queue_id}",
       "regexPriority": 3,
@@ -1738,7 +1738,7 @@
         "api.codestra.co"
       ],
       "paths": [
-        "~^/platform/v1/queues/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/calls$"
+        "~/platform/v1/queues/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/calls$"
       ],
       "pathTemplate": "/platform/v1/queues/{queue_id}/calls",
       "regexPriority": 4,
@@ -1767,7 +1767,7 @@
         "api.codestra.co"
       ],
       "paths": [
-        "~^/platform/v1/queues/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/members$"
+        "~/platform/v1/queues/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/members$"
       ],
       "pathTemplate": "/platform/v1/queues/{queue_id}/members",
       "regexPriority": 4,
@@ -1796,7 +1796,7 @@
         "api.codestra.co"
       ],
       "paths": [
-        "~^/platform/v1/queues/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/metrics$"
+        "~/platform/v1/queues/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/metrics$"
       ],
       "pathTemplate": "/platform/v1/queues/{queue_id}/metrics",
       "regexPriority": 4,
@@ -1825,7 +1825,7 @@
         "api.codestra.co"
       ],
       "paths": [
-        "~^/platform/v1/repositories$"
+        "~/platform/v1/repositories$"
       ],
       "pathTemplate": "/platform/v1/repositories",
       "regexPriority": 3,
@@ -1854,7 +1854,7 @@
         "api.codestra.co"
       ],
       "paths": [
-        "~^/platform/v1/runtime/observations$"
+        "~/platform/v1/runtime/observations$"
       ],
       "pathTemplate": "/platform/v1/runtime/observations",
       "regexPriority": 4,
@@ -1883,7 +1883,7 @@
         "api.codestra.co"
       ],
       "paths": [
-        "~^/platform/v1/services/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/contract\\-refresh$"
+        "~/platform/v1/services/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/contract\\-refresh$"
       ],
       "pathTemplate": "/platform/v1/services/{service_id}/contract-refresh",
       "regexPriority": 4,
@@ -1912,7 +1912,7 @@
         "api.codestra.co"
       ],
       "paths": [
-        "~^/platform/v1/services/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/coverage$"
+        "~/platform/v1/services/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/coverage$"
       ],
       "pathTemplate": "/platform/v1/services/{service_id}/coverage",
       "regexPriority": 4,
@@ -1941,7 +1941,7 @@
         "api.codestra.co"
       ],
       "paths": [
-        "~^/platform/v1/services/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/dependencies$"
+        "~/platform/v1/services/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/dependencies$"
       ],
       "pathTemplate": "/platform/v1/services/{service_id}/dependencies",
       "regexPriority": 4,
@@ -1970,7 +1970,7 @@
         "api.codestra.co"
       ],
       "paths": [
-        "~^/platform/v1/services/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/deployments$"
+        "~/platform/v1/services/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/deployments$"
       ],
       "pathTemplate": "/platform/v1/services/{service_id}/deployments",
       "regexPriority": 4,
@@ -1999,7 +1999,7 @@
         "api.codestra.co"
       ],
       "paths": [
-        "~^/platform/v1/services/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/endpoints$"
+        "~/platform/v1/services/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/endpoints$"
       ],
       "pathTemplate": "/platform/v1/services/{service_id}/endpoints",
       "regexPriority": 4,
@@ -2028,7 +2028,7 @@
         "api.codestra.co"
       ],
       "paths": [
-        "~^/platform/v1/services/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/telemetry\\-profile$"
+        "~/platform/v1/services/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/telemetry\\-profile$"
       ],
       "pathTemplate": "/platform/v1/services/{service_id}/telemetry-profile",
       "regexPriority": 4,
@@ -2057,7 +2057,7 @@
         "api.codestra.co"
       ],
       "paths": [
-        "~^/platform/v1/session/context$"
+        "~/platform/v1/session/context$"
       ],
       "pathTemplate": "/platform/v1/session/context",
       "regexPriority": 4,
@@ -2086,7 +2086,7 @@
         "api.codestra.co"
       ],
       "paths": [
-        "~^/platform/v1/session/context/select$"
+        "~/platform/v1/session/context/select$"
       ],
       "pathTemplate": "/platform/v1/session/context/select",
       "regexPriority": 5,
@@ -2115,7 +2115,7 @@
         "api.codestra.co"
       ],
       "paths": [
-        "~^/platform/v1/sms/identities$"
+        "~/platform/v1/sms/identities$"
       ],
       "pathTemplate": "/platform/v1/sms/identities",
       "regexPriority": 4,
@@ -2144,7 +2144,7 @@
         "api.codestra.co"
       ],
       "paths": [
-        "~^/platform/v1/sync/reconciliations$"
+        "~/platform/v1/sync/reconciliations$"
       ],
       "pathTemplate": "/platform/v1/sync/reconciliations",
       "regexPriority": 4,
@@ -2173,7 +2173,7 @@
         "api.codestra.co"
       ],
       "paths": [
-        "~^/platform/v1/sync/reconciliations/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
+        "~/platform/v1/sync/reconciliations/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
       ],
       "pathTemplate": "/platform/v1/sync/reconciliations/{reconciliation_id}",
       "regexPriority": 4,
@@ -2202,7 +2202,7 @@
         "api.codestra.co"
       ],
       "paths": [
-        "~^/platform/v1/sync/status$"
+        "~/platform/v1/sync/status$"
       ],
       "pathTemplate": "/platform/v1/sync/status",
       "regexPriority": 4,
@@ -2231,7 +2231,7 @@
         "api.codestra.co"
       ],
       "paths": [
-        "~^/platform/v1/tasks/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
+        "~/platform/v1/tasks/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
       ],
       "pathTemplate": "/platform/v1/tasks/{task_id}",
       "regexPriority": 3,
@@ -2260,7 +2260,7 @@
         "api.codestra.co"
       ],
       "paths": [
-        "~^/platform/v1/tasks/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/complete$"
+        "~/platform/v1/tasks/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/complete$"
       ],
       "pathTemplate": "/platform/v1/tasks/{task_id}/complete",
       "regexPriority": 4,
@@ -2289,7 +2289,7 @@
         "api.codestra.co"
       ],
       "paths": [
-        "~^/platform/v1/telemetry/heartbeats$"
+        "~/platform/v1/telemetry/heartbeats$"
       ],
       "pathTemplate": "/platform/v1/telemetry/heartbeats",
       "regexPriority": 4,
@@ -2318,7 +2318,7 @@
         "api.codestra.co"
       ],
       "paths": [
-        "~^/platform/v1/telephony/assignments$"
+        "~/platform/v1/telephony/assignments$"
       ],
       "pathTemplate": "/platform/v1/telephony/assignments",
       "regexPriority": 4,
@@ -2347,7 +2347,7 @@
         "api.codestra.co"
       ],
       "paths": [
-        "~^/platform/v1/tenants$"
+        "~/platform/v1/tenants$"
       ],
       "pathTemplate": "/platform/v1/tenants",
       "regexPriority": 3,
@@ -2376,7 +2376,7 @@
         "api.codestra.co"
       ],
       "paths": [
-        "~^/platform/v1/tenants/authorized$"
+        "~/platform/v1/tenants/authorized$"
       ],
       "pathTemplate": "/platform/v1/tenants/authorized",
       "regexPriority": 4,
@@ -2405,7 +2405,7 @@
         "api.codestra.co"
       ],
       "paths": [
-        "~^/platform/v1/tenants/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
+        "~/platform/v1/tenants/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
       ],
       "pathTemplate": "/platform/v1/tenants/{tenant_id}",
       "regexPriority": 3,
@@ -2434,7 +2434,7 @@
         "api.codestra.co"
       ],
       "paths": [
-        "~^/platform/v1/tenants/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/campaigns$"
+        "~/platform/v1/tenants/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/campaigns$"
       ],
       "pathTemplate": "/platform/v1/tenants/{tenant_id}/campaigns",
       "regexPriority": 4,
@@ -2463,7 +2463,7 @@
         "api.codestra.co"
       ],
       "paths": [
-        "~^/platform/v1/tenants/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/health$"
+        "~/platform/v1/tenants/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/health$"
       ],
       "pathTemplate": "/platform/v1/tenants/{tenant_id}/health",
       "regexPriority": 4,
@@ -2492,7 +2492,7 @@
         "api.codestra.co"
       ],
       "paths": [
-        "~^/platform/v1/tickets$"
+        "~/platform/v1/tickets$"
       ],
       "pathTemplate": "/platform/v1/tickets",
       "regexPriority": 3,
@@ -2521,7 +2521,7 @@
         "api.codestra.co"
       ],
       "paths": [
-        "~^/platform/v1/tickets$"
+        "~/platform/v1/tickets$"
       ],
       "pathTemplate": "/platform/v1/tickets",
       "regexPriority": 3,
@@ -2550,7 +2550,7 @@
         "api.codestra.co"
       ],
       "paths": [
-        "~^/platform/v1/tickets/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
+        "~/platform/v1/tickets/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
       ],
       "pathTemplate": "/platform/v1/tickets/{ticket_id}",
       "regexPriority": 3,
@@ -2579,7 +2579,7 @@
         "api.codestra.co"
       ],
       "paths": [
-        "~^/platform/v1/tickets/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
+        "~/platform/v1/tickets/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
       ],
       "pathTemplate": "/platform/v1/tickets/{ticket_id}",
       "regexPriority": 3,
@@ -2608,7 +2608,7 @@
         "api.codestra.co"
       ],
       "paths": [
-        "~^/platform/v1/users/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
+        "~/platform/v1/users/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
       ],
       "pathTemplate": "/platform/v1/users/{employee_id}",
       "regexPriority": 3,
@@ -2637,7 +2637,7 @@
         "api.codestra.co"
       ],
       "paths": [
-        "~^/platform/v1/users/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/campaigns$"
+        "~/platform/v1/users/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/campaigns$"
       ],
       "pathTemplate": "/platform/v1/users/{employee_id}/campaigns",
       "regexPriority": 4,
@@ -2666,7 +2666,7 @@
         "api.codestra.co"
       ],
       "paths": [
-        "~^/platform/v1/users/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/entitlements$"
+        "~/platform/v1/users/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/entitlements$"
       ],
       "pathTemplate": "/platform/v1/users/{employee_id}/entitlements",
       "regexPriority": 4,
@@ -2695,7 +2695,7 @@
         "api.codestra.co"
       ],
       "paths": [
-        "~^/v2/automation/approvals$"
+        "~/v2/automation/approvals$"
       ],
       "pathTemplate": "/v2/automation/approvals",
       "regexPriority": 3,
@@ -2724,7 +2724,7 @@
         "api.codestra.co"
       ],
       "paths": [
-        "~^/v2/automation/approvals/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
+        "~/v2/automation/approvals/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
       ],
       "pathTemplate": "/v2/automation/approvals/{approval_id}",
       "regexPriority": 3,
@@ -2753,7 +2753,7 @@
         "api.codestra.co"
       ],
       "paths": [
-        "~^/v2/automation/capabilities/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
+        "~/v2/automation/capabilities/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
       ],
       "pathTemplate": "/v2/automation/capabilities/{capability}",
       "regexPriority": 3,
@@ -2782,7 +2782,7 @@
         "api.codestra.co"
       ],
       "paths": [
-        "~^/v2/automation/commands$"
+        "~/v2/automation/commands$"
       ],
       "pathTemplate": "/v2/automation/commands",
       "regexPriority": 3,
@@ -2811,7 +2811,7 @@
         "api.codestra.co"
       ],
       "paths": [
-        "~^/v2/automation/commands/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
+        "~/v2/automation/commands/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
       ],
       "pathTemplate": "/v2/automation/commands/{command_id}",
       "regexPriority": 3,
@@ -2840,7 +2840,7 @@
         "api.codestra.co"
       ],
       "paths": [
-        "~^/v2/automation/dead\\-letters/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/replay$"
+        "~/v2/automation/dead\\-letters/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/replay$"
       ],
       "pathTemplate": "/v2/automation/dead-letters/{dead_letter_id}/replay",
       "regexPriority": 4,
@@ -2869,7 +2869,7 @@
         "api.codestra.co"
       ],
       "paths": [
-        "~^/v2/automation/jobs/claim$"
+        "~/v2/automation/jobs/claim$"
       ],
       "pathTemplate": "/v2/automation/jobs/claim",
       "regexPriority": 4,
@@ -2898,7 +2898,7 @@
         "api.codestra.co"
       ],
       "paths": [
-        "~^/v2/automation/jobs/reconcile$"
+        "~/v2/automation/jobs/reconcile$"
       ],
       "pathTemplate": "/v2/automation/jobs/reconcile",
       "regexPriority": 4,
@@ -2927,7 +2927,7 @@
         "api.codestra.co"
       ],
       "paths": [
-        "~^/v2/automation/jobs/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
+        "~/v2/automation/jobs/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
       ],
       "pathTemplate": "/v2/automation/jobs/{job_id}",
       "regexPriority": 3,
@@ -2956,7 +2956,7 @@
         "api.codestra.co"
       ],
       "paths": [
-        "~^/v2/automation/jobs/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/complete$"
+        "~/v2/automation/jobs/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/complete$"
       ],
       "pathTemplate": "/v2/automation/jobs/{job_id}/complete",
       "regexPriority": 4,
@@ -2985,7 +2985,7 @@
         "api.codestra.co"
       ],
       "paths": [
-        "~^/v2/automation/jobs/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/fail$"
+        "~/v2/automation/jobs/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/fail$"
       ],
       "pathTemplate": "/v2/automation/jobs/{job_id}/fail",
       "regexPriority": 4,
@@ -3014,7 +3014,7 @@
         "api.codestra.co"
       ],
       "paths": [
-        "~^/v2/automation/jobs/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/heartbeat$"
+        "~/v2/automation/jobs/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/heartbeat$"
       ],
       "pathTemplate": "/v2/automation/jobs/{job_id}/heartbeat",
       "regexPriority": 4,
@@ -3043,7 +3043,7 @@
         "api.codestra.co"
       ],
       "paths": [
-        "~^/v2/automation/jobs/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/steps$"
+        "~/v2/automation/jobs/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/steps$"
       ],
       "pathTemplate": "/v2/automation/jobs/{job_id}/steps",
       "regexPriority": 4,
@@ -3130,7 +3130,7 @@
       "name": "middleware-deny-retired-campaign-actions",
       "method": "POST",
       "pathTemplate": "/api/v1/integration/campaign-actions",
-      "path": "~^/api/v1/integration/campaign\\-actions$",
+      "path": "~/api/v1/integration/campaign\\-actions$",
       "regexPriority": 4,
       "statusCode": 404
     },
@@ -3138,7 +3138,7 @@
       "name": "middleware-deny-retired-integration-campaign-actions",
       "method": "POST",
       "pathTemplate": "/api/v1/integrations/odoo/campaign-actions",
-      "path": "~^/api/v1/integrations/odoo/campaign\\-actions$",
+      "path": "~/api/v1/integrations/odoo/campaign\\-actions$",
       "regexPriority": 5,
       "statusCode": 404
     },
@@ -3146,7 +3146,7 @@
       "name": "middleware-deny-retired-odoo-campaign-commands",
       "method": "POST",
       "pathTemplate": "/api/v1/integrations/odoo/campaign-commands",
-      "path": "~^/api/v1/integrations/odoo/campaign\\-commands$",
+      "path": "~/api/v1/integrations/odoo/campaign\\-commands$",
       "regexPriority": 5,
       "statusCode": 404
     },
@@ -3154,7 +3154,7 @@
       "name": "middleware-deny-retired-odoo-campaign-command-read",
       "method": "GET",
       "pathTemplate": "/api/v1/integrations/odoo/campaign-commands/{command_id}",
-      "path": "~^/api/v1/integrations/odoo/campaign\\-commands/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+      "path": "~/api/v1/integrations/odoo/campaign\\-commands/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
       "regexPriority": 5,
       "statusCode": 404
     },
@@ -3162,7 +3162,7 @@
       "name": "middleware-deny-retired-odoo-campaign-actions",
       "method": "POST",
       "pathTemplate": "/api/v1/odoo/campaign-actions",
-      "path": "~^/api/v1/odoo/campaign\\-actions$",
+      "path": "~/api/v1/odoo/campaign\\-actions$",
       "regexPriority": 4,
       "statusCode": 404
     },
@@ -3170,7 +3170,7 @@
       "name": "middleware-deny-deprecated-n8n-commands",
       "method": "POST",
       "pathTemplate": "/v1/integrations/n8n/commands",
-      "path": "~^/v1/integrations/n8n/commands$",
+      "path": "~/v1/integrations/n8n/commands$",
       "regexPriority": 4,
       "statusCode": 404
     },
@@ -3178,7 +3178,7 @@
       "name": "middleware-deny-deprecated-n8n-operations",
       "method": "GET",
       "pathTemplate": "/v1/integrations/n8n/operations",
-      "path": "~^/v1/integrations/n8n/operations$",
+      "path": "~/v1/integrations/n8n/operations$",
       "regexPriority": 4,
       "statusCode": 404
     },
@@ -3186,7 +3186,7 @@
       "name": "middleware-deny-deprecated-n8n-operation",
       "method": "GET",
       "pathTemplate": "/v1/integrations/n8n/operations/{command_id}",
-      "path": "~^/v1/integrations/n8n/operations/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
+      "path": "~/v1/integrations/n8n/operations/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$",
       "regexPriority": 4,
       "statusCode": 404
     },
@@ -3194,7 +3194,7 @@
       "name": "middleware-deny-deprecated-n8n-cancel",
       "method": "POST",
       "pathTemplate": "/v1/integrations/n8n/operations/{command_id}/cancel",
-      "path": "~^/v1/integrations/n8n/operations/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/cancel$",
+      "path": "~/v1/integrations/n8n/operations/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/cancel$",
       "regexPriority": 5,
       "statusCode": 404
     },
@@ -3202,7 +3202,7 @@
       "name": "middleware-deny-deprecated-n8n-reconcile",
       "method": "POST",
       "pathTemplate": "/v1/integrations/n8n/operations/{command_id}/reconcile",
-      "path": "~^/v1/integrations/n8n/operations/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/reconcile$",
+      "path": "~/v1/integrations/n8n/operations/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/reconcile$",
       "regexPriority": 5,
       "statusCode": 404
     }

@@ -111,7 +111,10 @@ def route_regex(path_template: str) -> str:
         parts.append(PATH_VALUE_PATTERN)
         cursor = match.end()
     parts.append(re.escape(path_template[cursor:]))
-    return "~^" + "".join(parts) + "$"
+    # Kong Gateway 3.14 declarative config requires regex paths to begin with `~/`.
+    # Kong anchors regex route matching at the path start, so preserving the trailing `$`
+    # keeps exact contract matching without the runtime-invalid leading `^`.
+    return "~" + "".join(parts) + "$"
 
 
 def safe_name(operation_id: str) -> str:

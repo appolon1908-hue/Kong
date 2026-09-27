@@ -61,7 +61,7 @@ def test_vendored_contract_hash_and_complete_route_generation():
         assert row["serviceHost"] == "middleware-integration-api", key
         assert row["servicePort"] == 8095, key
         assert row["methods"] == [expected[key]["method"]], key
-        assert row["paths"][0].startswith("~^") and row["paths"][0].endswith("$"), key
+        assert row["paths"][0].startswith("~/") and row["paths"][0].endswith("$"), key
         assert {
             "openid-connect",
             "post-function",

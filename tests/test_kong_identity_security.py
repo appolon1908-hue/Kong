@@ -323,7 +323,7 @@ def test_v2_shared_edge_routes_are_governed_from_the_authority():
             assert {b["source"] for b in entry["bindings"]} == sources and all(b["role"] == "DESIRED" for b in entry["bindings"])
             assert entry["lifecycle"] == "CANONICAL" and entry["activation"] == "SOURCE_CANDIDATE" and entry["mechanism"] == "OIDC_BEARER"
             assert (route.upstream_host, route.upstream_port) == ("middleware-integration-api", 8095)
-            assert route.hosts == ("api.codestra.co",) and route.paths[0].startswith("~^") and route.paths[0].endswith("$")
+            assert route.hosts == ("api.codestra.co",) and route.paths[0].startswith("~/") and route.paths[0].endswith("$")
             assert V2_PLUGINS <= set(route.plugins) and route.issuer == issuer
             assert route.audience == operation["audience"] and route.required_scope == operation["scope"]
             assert route.expected_azp == validator.canonical_azp(operation["azp"])
@@ -366,7 +366,7 @@ def test_denied_aliases_are_fail_closed_404_terminations():
         assert entry["authentication"] == "PUBLIC" and entry["mechanism"] == "NONE" and entry["deniedStatus"] == 404
         assert entry["lifecycle"] == "CANONICAL" and entry["routeId"] in allow
         assert route.upstream_host is None and route.upstream_port is None and route.plugins == ("request-termination",)
-        assert route.hosts == ("api.codestra.co",) and route.paths[0].startswith("~^") and "*" not in route.paths[0]
+        assert route.hosts == ("api.codestra.co",) and route.paths[0].startswith("~/") and "*" not in route.paths[0]
         assert policy[entry["routeId"]]["authenticationProfile"] == "DENIED_TERMINATION_V1"
         assert policy[entry["routeId"]]["identityPropagation"] == "NONE_TERMINATED"
         templates.add(entry["deniedTemplate"].split("{")[0].rstrip("/"))

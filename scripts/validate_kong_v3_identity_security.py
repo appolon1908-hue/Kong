@@ -18,7 +18,7 @@ PROFILES_PATH = ROOT / "config" / "kong-authentication-profiles.v1.json"
 POLICY_PATH = ROOT / "config" / "kong-access-policy.v1.json"
 
 EXPECTED_MIDDLEWARE_DIGEST = "9c32daecd4a15104c6f9ff60ce19c8f7e78707fb31d9fd9fcb55b1b8dfa3512b"
-EXPECTED_MIDDLEWARE_COMMIT = "2862af0aa97367b18cb360af69212abe4243a1ac"
+EXPECTED_MIDDLEWARE_COMMIT = "bd406a6508c8095a3f23b35149a2eebcb94c94c6"
 EXPECTED_IDENTITY_SOURCE_COMMIT = "45a487d71a516ae3039b00c250752897469ffe7a"
 EXPECTED_PRODUCTION_ISSUER = "https://auth.codestra.co/realms/codestra"
 EXPECTED_STAGING_ISSUER = "https://auth-staging.codestra.co/realms/codestra"

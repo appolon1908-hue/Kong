@@ -15,9 +15,9 @@ The user's existing local repositories were used; no duplicate repository clone 
 - Lane C branch: `mission/kong-v3-integration-parity-20260920`
 - frozen base: `ee86cdf870aebaac550a78a9617321ee48324589`
 - Middleware exact-main worktree: `C:\Users\agent\Documents\GitHub\Middleware-.worktrees\main-current-20260920`
-- Middleware SHA: `2862af0aa97367b18cb360af69212abe4243a1ac`
-- Caddy exact PR-175 worktree used for parity: `C:\Users\agent\Documents\GitHub\Caddy.worktrees\v3-addendum-20260920`
-- Caddy SHA: `56fd73d1647f7023cb07bdb14b1f72522c7b48d8`
+- Middleware SHA: `bd406a6508c8095a3f23b35149a2eebcb94c94c6`
+- Caddy source used for parity: protected `main` after PR #175 (digest chain), #177/#178/#180 (PAS-145 certification) and #179 (PAS-146 staging prep) merged
+- Caddy SHA: `22c6d51ed2f5340139177131fb810e787f0f7550`
 - Keycloak exact-source worktree used for caller/token readback: `C:\Users\agent\Documents\GitHub\Keycloak.worktrees\kong-lane-c-keycloak-45a487d`
 - Identity source revision: `45a487d71a516ae3039b00c250752897469ffe7a`
 

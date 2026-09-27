@@ -19,7 +19,7 @@ services:
     hosts:
     - api.codestra.co
     paths:
-    - ~^/api/v1/automation/policy\-check$
+    - ~/api/v1/automation/policy\-check$
     regex_priority: 4
     methods:
     - POST
@@ -73,7 +73,7 @@ services:
     hosts:
     - api.codestra.co
     paths:
-    - ~^/api/v1/callbacks$
+    - ~/api/v1/callbacks$
     regex_priority: 3
     methods:
     - GET
@@ -127,7 +127,7 @@ services:
     hosts:
     - api.codestra.co
     paths:
-    - ~^/api/v1/control/callbacks$
+    - ~/api/v1/control/callbacks$
     regex_priority: 4
     methods:
     - POST
@@ -181,7 +181,7 @@ services:
     hosts:
     - api.codestra.co
     paths:
-    - ~^/api/v1/integrations/n8n/results$
+    - ~/api/v1/integrations/n8n/results$
     regex_priority: 5
     methods:
     - POST
@@ -235,7 +235,7 @@ services:
     hosts:
     - api.codestra.co
     paths:
-    - ~^/api/v1/integrations/n8n/results/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
+    - ~/api/v1/integrations/n8n/results/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
     regex_priority: 5
     methods:
     - GET
@@ -289,7 +289,7 @@ services:
     hosts:
     - api.codestra.co
     paths:
-    - ~^/api/v1/integrations/odoo/campaigns/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
+    - ~/api/v1/integrations/odoo/campaigns/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
     regex_priority: 5
     methods:
     - GET
@@ -343,7 +343,7 @@ services:
     hosts:
     - api.codestra.co
     paths:
-    - ~^/api/v1/integrations/odoo/campaigns/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/desired\-state$
+    - ~/api/v1/integrations/odoo/campaigns/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/desired\-state$
     regex_priority: 6
     methods:
     - GET
@@ -397,7 +397,7 @@ services:
     hosts:
     - api.codestra.co
     paths:
-    - ~^/api/v1/odoo/events$
+    - ~/api/v1/odoo/events$
     regex_priority: 4
     methods:
     - POST
@@ -451,7 +451,7 @@ services:
     hosts:
     - api.codestra.co
     paths:
-    - ~^/platform/v1/activity$
+    - ~/platform/v1/activity$
     regex_priority: 3
     methods:
     - GET
@@ -505,7 +505,7 @@ services:
     hosts:
     - api.codestra.co
     paths:
-    - ~^/platform/v1/activity/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
+    - ~/platform/v1/activity/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
     regex_priority: 3
     methods:
     - GET
@@ -559,7 +559,7 @@ services:
     hosts:
     - api.codestra.co
     paths:
-    - ~^/platform/v1/agent\-provisioning/requests$
+    - ~/platform/v1/agent\-provisioning/requests$
     regex_priority: 4
     methods:
     - POST
@@ -613,7 +613,7 @@ services:
     hosts:
     - api.codestra.co
     paths:
-    - ~^/platform/v1/agent\-provisioning/requests/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
+    - ~/platform/v1/agent\-provisioning/requests/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
     regex_priority: 4
     methods:
     - GET
@@ -667,7 +667,7 @@ services:
     hosts:
     - api.codestra.co
     paths:
-    - ~^/platform/v1/agent\-provisioning/requests/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/reactivate$
+    - ~/platform/v1/agent\-provisioning/requests/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/reactivate$
     regex_priority: 5
     methods:
     - POST
@@ -721,7 +721,7 @@ services:
     hosts:
     - api.codestra.co
     paths:
-    - ~^/platform/v1/agent\-provisioning/requests/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/reconcile$
+    - ~/platform/v1/agent\-provisioning/requests/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/reconcile$
     regex_priority: 5
     methods:
     - POST
@@ -775,7 +775,7 @@ services:
     hosts:
     - api.codestra.co
     paths:
-    - ~^/platform/v1/agent\-provisioning/requests/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/revoke$
+    - ~/platform/v1/agent\-provisioning/requests/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/revoke$
     regex_priority: 5
     methods:
     - POST
@@ -829,7 +829,7 @@ services:
     hosts:
     - api.codestra.co
     paths:
-    - ~^/platform/v1/agent\-provisioning/requests/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/suspend$
+    - ~/platform/v1/agent\-provisioning/requests/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/suspend$
     regex_priority: 5
     methods:
     - POST
@@ -883,7 +883,7 @@ services:
     hosts:
     - api.codestra.co
     paths:
-    - ~^/platform/v1/agents/presence$
+    - ~/platform/v1/agents/presence$
     regex_priority: 4
     methods:
     - GET
@@ -937,7 +937,7 @@ services:
     hosts:
     - api.codestra.co
     paths:
-    - ~^/platform/v1/agents/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/presence$
+    - ~/platform/v1/agents/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/presence$
     regex_priority: 4
     methods:
     - GET
@@ -991,7 +991,7 @@ services:
     hosts:
     - api.codestra.co
     paths:
-    - ~^/platform/v1/calls$
+    - ~/platform/v1/calls$
     regex_priority: 3
     methods:
     - GET
@@ -1045,7 +1045,7 @@ services:
     hosts:
     - api.codestra.co
     paths:
-    - ~^/platform/v1/calls/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
+    - ~/platform/v1/calls/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
     regex_priority: 3
     methods:
     - GET
@@ -1099,7 +1099,7 @@ services:
     hosts:
     - api.codestra.co
     paths:
-    - ~^/platform/v1/campaigns$
+    - ~/platform/v1/campaigns$
     regex_priority: 3
     methods:
     - GET
@@ -1153,7 +1153,7 @@ services:
     hosts:
     - api.codestra.co
     paths:
-    - ~^/platform/v1/campaigns/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
+    - ~/platform/v1/campaigns/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
     regex_priority: 3
     methods:
     - GET
@@ -1207,7 +1207,7 @@ services:
     hosts:
     - api.codestra.co
     paths:
-    - ~^/platform/v1/campaigns/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/channels$
+    - ~/platform/v1/campaigns/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/channels$
     regex_priority: 4
     methods:
     - GET
@@ -1261,7 +1261,7 @@ services:
     hosts:
     - api.codestra.co
     paths:
-    - ~^/platform/v1/campaigns/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/health$
+    - ~/platform/v1/campaigns/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/health$
     regex_priority: 4
     methods:
     - GET
@@ -1315,7 +1315,7 @@ services:
     hosts:
     - api.codestra.co
     paths:
-    - ~^/platform/v1/campaigns/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/members$
+    - ~/platform/v1/campaigns/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/members$
     regex_priority: 4
     methods:
     - GET
@@ -1369,7 +1369,7 @@ services:
     hosts:
     - api.codestra.co
     paths:
-    - ~^/platform/v1/commands$
+    - ~/platform/v1/commands$
     regex_priority: 3
     methods:
     - POST
@@ -1423,7 +1423,7 @@ services:
     hosts:
     - api.codestra.co
     paths:
-    - ~^/platform/v1/contacts$
+    - ~/platform/v1/contacts$
     regex_priority: 3
     methods:
     - GET
@@ -1477,7 +1477,7 @@ services:
     hosts:
     - api.codestra.co
     paths:
-    - ~^/platform/v1/contacts$
+    - ~/platform/v1/contacts$
     regex_priority: 3
     methods:
     - POST
@@ -1531,7 +1531,7 @@ services:
     hosts:
     - api.codestra.co
     paths:
-    - ~^/platform/v1/contacts/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
+    - ~/platform/v1/contacts/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
     regex_priority: 3
     methods:
     - GET
@@ -1585,7 +1585,7 @@ services:
     hosts:
     - api.codestra.co
     paths:
-    - ~^/platform/v1/contacts/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
+    - ~/platform/v1/contacts/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
     regex_priority: 3
     methods:
     - PATCH
@@ -1639,7 +1639,7 @@ services:
     hosts:
     - api.codestra.co
     paths:
-    - ~^/platform/v1/contacts/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/notes$
+    - ~/platform/v1/contacts/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/notes$
     regex_priority: 4
     methods:
     - GET
@@ -1693,7 +1693,7 @@ services:
     hosts:
     - api.codestra.co
     paths:
-    - ~^/platform/v1/contacts/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/notes$
+    - ~/platform/v1/contacts/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/notes$
     regex_priority: 4
     methods:
     - POST
@@ -1747,7 +1747,7 @@ services:
     hosts:
     - api.codestra.co
     paths:
-    - ~^/platform/v1/contacts/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/notes/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
+    - ~/platform/v1/contacts/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/notes/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
     regex_priority: 4
     methods:
     - PATCH
@@ -1801,7 +1801,7 @@ services:
     hosts:
     - api.codestra.co
     paths:
-    - ~^/platform/v1/contacts/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/tasks$
+    - ~/platform/v1/contacts/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/tasks$
     regex_priority: 4
     methods:
     - GET
@@ -1855,7 +1855,7 @@ services:
     hosts:
     - api.codestra.co
     paths:
-    - ~^/platform/v1/contacts/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/tasks$
+    - ~/platform/v1/contacts/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/tasks$
     regex_priority: 4
     methods:
     - POST
@@ -1909,7 +1909,7 @@ services:
     hosts:
     - api.codestra.co
     paths:
-    - ~^/platform/v1/email/identities$
+    - ~/platform/v1/email/identities$
     regex_priority: 4
     methods:
     - GET
@@ -1963,7 +1963,7 @@ services:
     hosts:
     - api.codestra.co
     paths:
-    - ~^/platform/v1/email/production/activate$
+    - ~/platform/v1/email/production/activate$
     regex_priority: 5
     methods:
     - POST
@@ -2017,7 +2017,7 @@ services:
     hosts:
     - api.codestra.co
     paths:
-    - ~^/platform/v1/email/production/audit$
+    - ~/platform/v1/email/production/audit$
     regex_priority: 5
     methods:
     - GET
@@ -2071,7 +2071,7 @@ services:
     hosts:
     - api.codestra.co
     paths:
-    - ~^/platform/v1/email/production/authorize$
+    - ~/platform/v1/email/production/authorize$
     regex_priority: 5
     methods:
     - POST
@@ -2125,7 +2125,7 @@ services:
     hosts:
     - api.codestra.co
     paths:
-    - ~^/platform/v1/email/production/kill\-switch$
+    - ~/platform/v1/email/production/kill\-switch$
     regex_priority: 5
     methods:
     - POST
@@ -2179,7 +2179,7 @@ services:
     hosts:
     - api.codestra.co
     paths:
-    - ~^/platform/v1/email/production/quotas$
+    - ~/platform/v1/email/production/quotas$
     regex_priority: 5
     methods:
     - GET
@@ -2233,7 +2233,7 @@ services:
     hosts:
     - api.codestra.co
     paths:
-    - ~^/platform/v1/email/production/readiness$
+    - ~/platform/v1/email/production/readiness$
     regex_priority: 5
     methods:
     - GET
@@ -2287,7 +2287,7 @@ services:
     hosts:
     - api.codestra.co
     paths:
-    - ~^/platform/v1/email/production/revoke$
+    - ~/platform/v1/email/production/revoke$
     regex_priority: 5
     methods:
     - POST
@@ -2341,7 +2341,7 @@ services:
     hosts:
     - api.codestra.co
     paths:
-    - ~^/platform/v1/email/production/status$
+    - ~/platform/v1/email/production/status$
     regex_priority: 5
     methods:
     - GET
@@ -2395,7 +2395,7 @@ services:
     hosts:
     - api.codestra.co
     paths:
-    - ~^/platform/v1/hosts$
+    - ~/platform/v1/hosts$
     regex_priority: 3
     methods:
     - GET
@@ -2449,7 +2449,7 @@ services:
     hosts:
     - api.codestra.co
     paths:
-    - ~^/platform/v1/hosts/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
+    - ~/platform/v1/hosts/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
     regex_priority: 3
     methods:
     - GET
@@ -2503,7 +2503,7 @@ services:
     hosts:
     - api.codestra.co
     paths:
-    - ~^/platform/v1/integrations/github/events$
+    - ~/platform/v1/integrations/github/events$
     regex_priority: 5
     methods:
     - POST
@@ -2557,7 +2557,7 @@ services:
     hosts:
     - api.codestra.co
     paths:
-    - ~^/platform/v1/kernel/describe$
+    - ~/platform/v1/kernel/describe$
     regex_priority: 4
     methods:
     - GET
@@ -2611,7 +2611,7 @@ services:
     hosts:
     - api.codestra.co
     paths:
-    - ~^/platform/v1/me/presence$
+    - ~/platform/v1/me/presence$
     regex_priority: 4
     methods:
     - GET
@@ -2665,7 +2665,7 @@ services:
     hosts:
     - api.codestra.co
     paths:
-    - ~^/platform/v1/operations/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
+    - ~/platform/v1/operations/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
     regex_priority: 3
     methods:
     - GET
@@ -2719,7 +2719,7 @@ services:
     hosts:
     - api.codestra.co
     paths:
-    - ~^/platform/v1/operations/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/cancel$
+    - ~/platform/v1/operations/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/cancel$
     regex_priority: 4
     methods:
     - POST
@@ -2773,7 +2773,7 @@ services:
     hosts:
     - api.codestra.co
     paths:
-    - ~^/platform/v1/operations/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/replay$
+    - ~/platform/v1/operations/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/replay$
     regex_priority: 4
     methods:
     - POST
@@ -2827,7 +2827,7 @@ services:
     hosts:
     - api.codestra.co
     paths:
-    - ~^/platform/v1/operations/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/timeline$
+    - ~/platform/v1/operations/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/timeline$
     regex_priority: 4
     methods:
     - GET
@@ -2881,7 +2881,7 @@ services:
     hosts:
     - api.codestra.co
     paths:
-    - ~^/platform/v1/opportunities$
+    - ~/platform/v1/opportunities$
     regex_priority: 3
     methods:
     - GET
@@ -2935,7 +2935,7 @@ services:
     hosts:
     - api.codestra.co
     paths:
-    - ~^/platform/v1/opportunities$
+    - ~/platform/v1/opportunities$
     regex_priority: 3
     methods:
     - POST
@@ -2989,7 +2989,7 @@ services:
     hosts:
     - api.codestra.co
     paths:
-    - ~^/platform/v1/opportunities/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
+    - ~/platform/v1/opportunities/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
     regex_priority: 3
     methods:
     - GET
@@ -3043,7 +3043,7 @@ services:
     hosts:
     - api.codestra.co
     paths:
-    - ~^/platform/v1/opportunities/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
+    - ~/platform/v1/opportunities/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
     regex_priority: 3
     methods:
     - PATCH
@@ -3097,7 +3097,7 @@ services:
     hosts:
     - api.codestra.co
     paths:
-    - ~^/platform/v1/queues$
+    - ~/platform/v1/queues$
     regex_priority: 3
     methods:
     - GET
@@ -3151,7 +3151,7 @@ services:
     hosts:
     - api.codestra.co
     paths:
-    - ~^/platform/v1/queues/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
+    - ~/platform/v1/queues/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
     regex_priority: 3
     methods:
     - GET
@@ -3205,7 +3205,7 @@ services:
     hosts:
     - api.codestra.co
     paths:
-    - ~^/platform/v1/queues/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/calls$
+    - ~/platform/v1/queues/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/calls$
     regex_priority: 4
     methods:
     - GET
@@ -3259,7 +3259,7 @@ services:
     hosts:
     - api.codestra.co
     paths:
-    - ~^/platform/v1/queues/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/members$
+    - ~/platform/v1/queues/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/members$
     regex_priority: 4
     methods:
     - GET
@@ -3313,7 +3313,7 @@ services:
     hosts:
     - api.codestra.co
     paths:
-    - ~^/platform/v1/queues/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/metrics$
+    - ~/platform/v1/queues/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/metrics$
     regex_priority: 4
     methods:
     - GET
@@ -3367,7 +3367,7 @@ services:
     hosts:
     - api.codestra.co
     paths:
-    - ~^/platform/v1/repositories$
+    - ~/platform/v1/repositories$
     regex_priority: 3
     methods:
     - GET
@@ -3421,7 +3421,7 @@ services:
     hosts:
     - api.codestra.co
     paths:
-    - ~^/platform/v1/runtime/observations$
+    - ~/platform/v1/runtime/observations$
     regex_priority: 4
     methods:
     - POST
@@ -3475,7 +3475,7 @@ services:
     hosts:
     - api.codestra.co
     paths:
-    - ~^/platform/v1/services/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/contract\-refresh$
+    - ~/platform/v1/services/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/contract\-refresh$
     regex_priority: 4
     methods:
     - POST
@@ -3529,7 +3529,7 @@ services:
     hosts:
     - api.codestra.co
     paths:
-    - ~^/platform/v1/services/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/coverage$
+    - ~/platform/v1/services/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/coverage$
     regex_priority: 4
     methods:
     - GET
@@ -3583,7 +3583,7 @@ services:
     hosts:
     - api.codestra.co
     paths:
-    - ~^/platform/v1/services/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/dependencies$
+    - ~/platform/v1/services/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/dependencies$
     regex_priority: 4
     methods:
     - GET
@@ -3637,7 +3637,7 @@ services:
     hosts:
     - api.codestra.co
     paths:
-    - ~^/platform/v1/services/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/deployments$
+    - ~/platform/v1/services/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/deployments$
     regex_priority: 4
     methods:
     - GET
@@ -3691,7 +3691,7 @@ services:
     hosts:
     - api.codestra.co
     paths:
-    - ~^/platform/v1/services/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/endpoints$
+    - ~/platform/v1/services/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/endpoints$
     regex_priority: 4
     methods:
     - GET
@@ -3745,7 +3745,7 @@ services:
     hosts:
     - api.codestra.co
     paths:
-    - ~^/platform/v1/services/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/telemetry\-profile$
+    - ~/platform/v1/services/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/telemetry\-profile$
     regex_priority: 4
     methods:
     - POST
@@ -3799,7 +3799,7 @@ services:
     hosts:
     - api.codestra.co
     paths:
-    - ~^/platform/v1/session/context$
+    - ~/platform/v1/session/context$
     regex_priority: 4
     methods:
     - GET
@@ -3853,7 +3853,7 @@ services:
     hosts:
     - api.codestra.co
     paths:
-    - ~^/platform/v1/session/context/select$
+    - ~/platform/v1/session/context/select$
     regex_priority: 5
     methods:
     - POST
@@ -3907,7 +3907,7 @@ services:
     hosts:
     - api.codestra.co
     paths:
-    - ~^/platform/v1/sms/identities$
+    - ~/platform/v1/sms/identities$
     regex_priority: 4
     methods:
     - GET
@@ -3961,7 +3961,7 @@ services:
     hosts:
     - api.codestra.co
     paths:
-    - ~^/platform/v1/sync/reconciliations$
+    - ~/platform/v1/sync/reconciliations$
     regex_priority: 4
     methods:
     - POST
@@ -4015,7 +4015,7 @@ services:
     hosts:
     - api.codestra.co
     paths:
-    - ~^/platform/v1/sync/reconciliations/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
+    - ~/platform/v1/sync/reconciliations/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
     regex_priority: 4
     methods:
     - GET
@@ -4069,7 +4069,7 @@ services:
     hosts:
     - api.codestra.co
     paths:
-    - ~^/platform/v1/sync/status$
+    - ~/platform/v1/sync/status$
     regex_priority: 4
     methods:
     - GET
@@ -4123,7 +4123,7 @@ services:
     hosts:
     - api.codestra.co
     paths:
-    - ~^/platform/v1/tasks/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
+    - ~/platform/v1/tasks/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
     regex_priority: 3
     methods:
     - PATCH
@@ -4177,7 +4177,7 @@ services:
     hosts:
     - api.codestra.co
     paths:
-    - ~^/platform/v1/tasks/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/complete$
+    - ~/platform/v1/tasks/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/complete$
     regex_priority: 4
     methods:
     - POST
@@ -4231,7 +4231,7 @@ services:
     hosts:
     - api.codestra.co
     paths:
-    - ~^/platform/v1/telemetry/heartbeats$
+    - ~/platform/v1/telemetry/heartbeats$
     regex_priority: 4
     methods:
     - POST
@@ -4285,7 +4285,7 @@ services:
     hosts:
     - api.codestra.co
     paths:
-    - ~^/platform/v1/telephony/assignments$
+    - ~/platform/v1/telephony/assignments$
     regex_priority: 4
     methods:
     - GET
@@ -4339,7 +4339,7 @@ services:
     hosts:
     - api.codestra.co
     paths:
-    - ~^/platform/v1/tenants$
+    - ~/platform/v1/tenants$
     regex_priority: 3
     methods:
     - GET
@@ -4393,7 +4393,7 @@ services:
     hosts:
     - api.codestra.co
     paths:
-    - ~^/platform/v1/tenants/authorized$
+    - ~/platform/v1/tenants/authorized$
     regex_priority: 4
     methods:
     - GET
@@ -4447,7 +4447,7 @@ services:
     hosts:
     - api.codestra.co
     paths:
-    - ~^/platform/v1/tenants/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
+    - ~/platform/v1/tenants/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
     regex_priority: 3
     methods:
     - GET
@@ -4501,7 +4501,7 @@ services:
     hosts:
     - api.codestra.co
     paths:
-    - ~^/platform/v1/tenants/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/campaigns$
+    - ~/platform/v1/tenants/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/campaigns$
     regex_priority: 4
     methods:
     - GET
@@ -4555,7 +4555,7 @@ services:
     hosts:
     - api.codestra.co
     paths:
-    - ~^/platform/v1/tenants/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/health$
+    - ~/platform/v1/tenants/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/health$
     regex_priority: 4
     methods:
     - GET
@@ -4609,7 +4609,7 @@ services:
     hosts:
     - api.codestra.co
     paths:
-    - ~^/platform/v1/tickets$
+    - ~/platform/v1/tickets$
     regex_priority: 3
     methods:
     - GET
@@ -4663,7 +4663,7 @@ services:
     hosts:
     - api.codestra.co
     paths:
-    - ~^/platform/v1/tickets$
+    - ~/platform/v1/tickets$
     regex_priority: 3
     methods:
     - POST
@@ -4717,7 +4717,7 @@ services:
     hosts:
     - api.codestra.co
     paths:
-    - ~^/platform/v1/tickets/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
+    - ~/platform/v1/tickets/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
     regex_priority: 3
     methods:
     - GET
@@ -4771,7 +4771,7 @@ services:
     hosts:
     - api.codestra.co
     paths:
-    - ~^/platform/v1/tickets/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
+    - ~/platform/v1/tickets/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
     regex_priority: 3
     methods:
     - PATCH
@@ -4825,7 +4825,7 @@ services:
     hosts:
     - api.codestra.co
     paths:
-    - ~^/platform/v1/users/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
+    - ~/platform/v1/users/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
     regex_priority: 3
     methods:
     - GET
@@ -4879,7 +4879,7 @@ services:
     hosts:
     - api.codestra.co
     paths:
-    - ~^/platform/v1/users/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/campaigns$
+    - ~/platform/v1/users/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/campaigns$
     regex_priority: 4
     methods:
     - GET
@@ -4933,7 +4933,7 @@ services:
     hosts:
     - api.codestra.co
     paths:
-    - ~^/platform/v1/users/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/entitlements$
+    - ~/platform/v1/users/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/entitlements$
     regex_priority: 4
     methods:
     - GET
@@ -4987,7 +4987,7 @@ services:
     hosts:
     - api.codestra.co
     paths:
-    - ~^/v2/automation/approvals$
+    - ~/v2/automation/approvals$
     regex_priority: 3
     methods:
     - POST
@@ -5041,7 +5041,7 @@ services:
     hosts:
     - api.codestra.co
     paths:
-    - ~^/v2/automation/approvals/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
+    - ~/v2/automation/approvals/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
     regex_priority: 3
     methods:
     - GET
@@ -5095,7 +5095,7 @@ services:
     hosts:
     - api.codestra.co
     paths:
-    - ~^/v2/automation/capabilities/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
+    - ~/v2/automation/capabilities/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
     regex_priority: 3
     methods:
     - GET
@@ -5149,7 +5149,7 @@ services:
     hosts:
     - api.codestra.co
     paths:
-    - ~^/v2/automation/commands$
+    - ~/v2/automation/commands$
     regex_priority: 3
     methods:
     - POST
@@ -5203,7 +5203,7 @@ services:
     hosts:
     - api.codestra.co
     paths:
-    - ~^/v2/automation/commands/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
+    - ~/v2/automation/commands/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
     regex_priority: 3
     methods:
     - GET
@@ -5257,7 +5257,7 @@ services:
     hosts:
     - api.codestra.co
     paths:
-    - ~^/v2/automation/dead\-letters/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/replay$
+    - ~/v2/automation/dead\-letters/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/replay$
     regex_priority: 4
     methods:
     - POST
@@ -5311,7 +5311,7 @@ services:
     hosts:
     - api.codestra.co
     paths:
-    - ~^/v2/automation/jobs/claim$
+    - ~/v2/automation/jobs/claim$
     regex_priority: 4
     methods:
     - POST
@@ -5365,7 +5365,7 @@ services:
     hosts:
     - api.codestra.co
     paths:
-    - ~^/v2/automation/jobs/reconcile$
+    - ~/v2/automation/jobs/reconcile$
     regex_priority: 4
     methods:
     - POST
@@ -5419,7 +5419,7 @@ services:
     hosts:
     - api.codestra.co
     paths:
-    - ~^/v2/automation/jobs/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
+    - ~/v2/automation/jobs/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
     regex_priority: 3
     methods:
     - GET
@@ -5473,7 +5473,7 @@ services:
     hosts:
     - api.codestra.co
     paths:
-    - ~^/v2/automation/jobs/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/complete$
+    - ~/v2/automation/jobs/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/complete$
     regex_priority: 4
     methods:
     - POST
@@ -5527,7 +5527,7 @@ services:
     hosts:
     - api.codestra.co
     paths:
-    - ~^/v2/automation/jobs/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/fail$
+    - ~/v2/automation/jobs/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/fail$
     regex_priority: 4
     methods:
     - POST
@@ -5581,7 +5581,7 @@ services:
     hosts:
     - api.codestra.co
     paths:
-    - ~^/v2/automation/jobs/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/heartbeat$
+    - ~/v2/automation/jobs/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/heartbeat$
     regex_priority: 4
     methods:
     - POST
@@ -5635,7 +5635,7 @@ services:
     hosts:
     - api.codestra.co
     paths:
-    - ~^/v2/automation/jobs/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/steps$
+    - ~/v2/automation/jobs/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/steps$
     regex_priority: 4
     methods:
     - POST
@@ -5690,7 +5690,7 @@ routes:
   hosts:
   - api.codestra.co
   paths:
-  - ~^/api/v1/integration/campaign\-actions$
+  - ~/api/v1/integration/campaign\-actions$
   regex_priority: 4
   methods:
   - POST
@@ -5710,7 +5710,7 @@ routes:
   hosts:
   - api.codestra.co
   paths:
-  - ~^/api/v1/integrations/odoo/campaign\-actions$
+  - ~/api/v1/integrations/odoo/campaign\-actions$
   regex_priority: 5
   methods:
   - POST
@@ -5730,7 +5730,7 @@ routes:
   hosts:
   - api.codestra.co
   paths:
-  - ~^/api/v1/integrations/odoo/campaign\-commands$
+  - ~/api/v1/integrations/odoo/campaign\-commands$
   regex_priority: 5
   methods:
   - POST
@@ -5750,7 +5750,7 @@ routes:
   hosts:
   - api.codestra.co
   paths:
-  - ~^/api/v1/integrations/odoo/campaign\-commands/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
+  - ~/api/v1/integrations/odoo/campaign\-commands/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
   regex_priority: 5
   methods:
   - GET
@@ -5770,7 +5770,7 @@ routes:
   hosts:
   - api.codestra.co
   paths:
-  - ~^/api/v1/odoo/campaign\-actions$
+  - ~/api/v1/odoo/campaign\-actions$
   regex_priority: 4
   methods:
   - POST
@@ -5790,7 +5790,7 @@ routes:
   hosts:
   - api.codestra.co
   paths:
-  - ~^/v1/integrations/n8n/commands$
+  - ~/v1/integrations/n8n/commands$
   regex_priority: 4
   methods:
   - POST
@@ -5810,7 +5810,7 @@ routes:
   hosts:
   - api.codestra.co
   paths:
-  - ~^/v1/integrations/n8n/operations$
+  - ~/v1/integrations/n8n/operations$
   regex_priority: 4
   methods:
   - GET
@@ -5830,7 +5830,7 @@ routes:
   hosts:
   - api.codestra.co
   paths:
-  - ~^/v1/integrations/n8n/operations/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
+  - ~/v1/integrations/n8n/operations/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
   regex_priority: 4
   methods:
   - GET
@@ -5850,7 +5850,7 @@ routes:
   hosts:
   - api.codestra.co
   paths:
-  - ~^/v1/integrations/n8n/operations/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/cancel$
+  - ~/v1/integrations/n8n/operations/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/cancel$
   regex_priority: 5
   methods:
   - POST
@@ -5870,7 +5870,7 @@ routes:
   hosts:
   - api.codestra.co
   paths:
-  - ~^/v1/integrations/n8n/operations/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/reconcile$
+  - ~/v1/integrations/n8n/operations/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/reconcile$
   regex_priority: 5
   methods:
   - POST
