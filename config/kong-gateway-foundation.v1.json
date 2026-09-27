@@ -1209,6 +1209,10 @@
         "reason": "the registry itself"
       },
       {
+        "path": "config/kong-route-reconciliation.pas236.json",
+        "reason": "PAS-244 source-only reconciliation disposition manifest; validated by the deterministic reconciliation planner and tests, not an activatable Kong route source"
+      },
+      {
         "path": "config/kong-access-policy.v1.json",
         "reason": "Mission 2 access policy overlay keyed by routeId; validated by validate_access_policy against this registry"
       },
