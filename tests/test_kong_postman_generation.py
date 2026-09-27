@@ -87,3 +87,34 @@ def test_collection_has_explicit_live_run_guard() -> None:
     rendered = "\n".join(prerequest["script"]["exec"])
     assert "RUN_KONG_V3_PARITY" in rendered
     assert "disabled" in rendered
+
+
+def _request_items(items):
+    for item in items:
+        if "item" in item:
+            yield from _request_items(item["item"])
+        if "request" in item:
+            yield item
+
+
+def test_every_generated_request_has_response_assertions() -> None:
+    items = list(_request_items(COLLECTION["item"]))
+    assert items
+    assert all(any(event["listen"] == "test" for event in item.get("event", [])) for item in items)
+    negative = next(folder for folder in COLLECTION["item"] if folder["name"] == "Negative Security & Edge")
+    for item in negative["item"]:
+        script = "\n".join(
+            line
+            for event in item["event"]
+            if event["listen"] == "test"
+            for line in event["script"]["exec"]
+        )
+        assert "fail-closed" in script
+
+
+def test_live_run_guard_skips_instead_of_throwing() -> None:
+    prerequest = next(event for event in COLLECTION["event"] if event["listen"] == "prerequest")
+    rendered = "\n".join(prerequest["script"]["exec"])
+    assert "RUN_KONG_V3_PARITY" in rendered
+    assert "pm.execution.skipRequest()" in rendered
+    assert "throw new Error" not in rendered

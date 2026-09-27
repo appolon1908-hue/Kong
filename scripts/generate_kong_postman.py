@@ -175,7 +175,23 @@ def request_item(case: dict[str, Any]) -> dict[str, Any]:
     }
     if method in {"POST", "PUT", "PATCH", "DELETE"}:
         request["body"] = {"mode": "raw", "raw": body_for(case), "options": {"raw": {"language": "json"}}}
-    return {"name": f"{method} {case['path']}", "request": request}
+    return {
+        "name": f"{method} {case['path']}",
+        "request": request,
+        "event": [
+            {
+                "listen": "test",
+                "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                        "pm.test('response is not 5xx',()=>pm.expect(pm.response.code).to.be.below(500));",
+                        "const correlation = pm.response.headers.get('X-Correlation-ID') || pm.response.headers.get('X-Request-ID');",
+                        "if (correlation) { pm.test('response correlation identifier is non-empty',()=>pm.expect(String(correlation).trim()).not.to.eql('')); }",
+                    ],
+                },
+            }
+        ],
+    }
 
 
 def negative_item(
@@ -208,7 +224,39 @@ def negative_item(
     }
     if body is not None:
         req["body"] = {"mode": "raw", "raw": body, "options": {"raw": {"language": "json"}}}
-    return {"name": name, "request": req}
+    expected_statuses = {
+        "missing-token": [401, 403],
+        "wrong-issuer": [401, 403],
+        "wrong-audience": [401, 403],
+        "wrong-azp": [401, 403],
+        "missing-scope": [401, 403],
+        "missing-idempotency": [400, 409, 422],
+        "wrong-method": [404, 405],
+        "oversize-body": [413],
+        "private-metrics": [404],
+        "private-internal": [404],
+        "pending-telnexa": [404],
+        "pending-vicidial": [404],
+        "pending-n8n-ack": [404],
+        "pending-observability": [404],
+        "pending-sms-inbound": [404],
+    }.get(name, [400, 401, 403, 404, 405, 409, 413, 422])
+    statuses = json.dumps(expected_statuses)
+    return {
+        "name": name,
+        "request": req,
+        "event": [
+            {
+                "listen": "test",
+                "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                        f"pm.test('negative request is fail-closed',()=>pm.expect(pm.response.code).to.be.oneOf({statuses}));",
+                    ],
+                },
+            }
+        ],
+    }
 
 
 def render_collection(cases: dict[str, Any]) -> dict[str, Any]:
@@ -258,7 +306,8 @@ def render_collection(cases: dict[str, Any]) -> dict[str, Any]:
             "type": "text/javascript",
             "exec": [
                 "if (pm.environment.get('RUN_KONG_V3_PARITY') !== 'true') {",
-                "  throw new Error('Live parity execution is disabled. Use an isolated local/staging gateway and set RUN_KONG_V3_PARITY=true explicitly.');",
+                "  // Live parity execution is disabled unless explicitly enabled.",
+                "  pm.execution.skipRequest();",
                 "}",
             ],
         },

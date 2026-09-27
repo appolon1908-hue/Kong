@@ -5,7 +5,8 @@
       "script": {
         "exec": [
           "if (pm.environment.get('RUN_KONG_V3_PARITY') !== 'true') {",
-          "  throw new Error('Live parity execution is disabled. Use an isolated local/staging gateway and set RUN_KONG_V3_PARITY=true explicitly.');",
+          "  // Live parity execution is disabled unless explicitly enabled.",
+          "  pm.execution.skipRequest();",
           "}"
         ],
         "type": "text/javascript"
@@ -22,6 +23,19 @@
     {
       "item": [
         {
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('response is not 5xx',()=>pm.expect(pm.response.code).to.be.below(500));",
+                  "const correlation = pm.response.headers.get('X-Correlation-ID') || pm.response.headers.get('X-Request-ID');",
+                  "if (correlation) { pm.test('response correlation identifier is non-empty',()=>pm.expect(String(correlation).trim()).not.to.eql('')); }"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "name": "POST /v2/automation/approvals",
           "request": {
             "body": {
@@ -66,6 +80,19 @@
           }
         },
         {
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('response is not 5xx',()=>pm.expect(pm.response.code).to.be.below(500));",
+                  "const correlation = pm.response.headers.get('X-Correlation-ID') || pm.response.headers.get('X-Request-ID');",
+                  "if (correlation) { pm.test('response correlation identifier is non-empty',()=>pm.expect(String(correlation).trim()).not.to.eql('')); }"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "name": "GET /v2/automation/approvals/{approval_id}",
           "request": {
             "description": "Contract probe only. Source operation=read_automation_approval_v2_automation_approvals__approval_id__get; caller=approval_job_family_client_only; audience=middleware-api; scope=automation.approval.read; auth=automation-service-jwt. Business payload validity/effects remain Middleware-owned.",
@@ -102,6 +129,19 @@
           }
         },
         {
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('response is not 5xx',()=>pm.expect(pm.response.code).to.be.below(500));",
+                  "const correlation = pm.response.headers.get('X-Correlation-ID') || pm.response.headers.get('X-Request-ID');",
+                  "if (correlation) { pm.test('response correlation identifier is non-empty',()=>pm.expect(String(correlation).trim()).not.to.eql('')); }"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "name": "GET /v2/automation/capabilities/{capability}",
           "request": {
             "description": "Contract probe only. Source operation=read_automation_capability_v2_automation_capabilities__capability__get; caller=all_declared_clients; audience=middleware-api; scope=automation.capability.read; auth=automation-service-jwt. Business payload validity/effects remain Middleware-owned.",
@@ -138,6 +178,19 @@
           }
         },
         {
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('response is not 5xx',()=>pm.expect(pm.response.code).to.be.below(500));",
+                  "const correlation = pm.response.headers.get('X-Correlation-ID') || pm.response.headers.get('X-Request-ID');",
+                  "if (correlation) { pm.test('response correlation identifier is non-empty',()=>pm.expect(String(correlation).trim()).not.to.eql('')); }"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "name": "POST /v2/automation/commands",
           "request": {
             "body": {
@@ -182,6 +235,19 @@
           }
         },
         {
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('response is not 5xx',()=>pm.expect(pm.response.code).to.be.below(500));",
+                  "const correlation = pm.response.headers.get('X-Correlation-ID') || pm.response.headers.get('X-Request-ID');",
+                  "if (correlation) { pm.test('response correlation identifier is non-empty',()=>pm.expect(String(correlation).trim()).not.to.eql('')); }"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "name": "GET /v2/automation/commands/{command_id}",
           "request": {
             "description": "Contract probe only. Source operation=read_automation_command_v2_automation_commands__command_id__get; caller=command_family_client_only; audience=middleware-api; scope=automation.command.read; auth=automation-service-jwt. Business payload validity/effects remain Middleware-owned.",
@@ -218,6 +284,19 @@
           }
         },
         {
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('response is not 5xx',()=>pm.expect(pm.response.code).to.be.below(500));",
+                  "const correlation = pm.response.headers.get('X-Correlation-ID') || pm.response.headers.get('X-Request-ID');",
+                  "if (correlation) { pm.test('response correlation identifier is non-empty',()=>pm.expect(String(correlation).trim()).not.to.eql('')); }"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "name": "POST /v2/automation/dead-letters/{dead_letter_id}/replay",
           "request": {
             "body": {
@@ -264,6 +343,19 @@
           }
         },
         {
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('response is not 5xx',()=>pm.expect(pm.response.code).to.be.below(500));",
+                  "const correlation = pm.response.headers.get('X-Correlation-ID') || pm.response.headers.get('X-Request-ID');",
+                  "if (correlation) { pm.test('response correlation identifier is non-empty',()=>pm.expect(String(correlation).trim()).not.to.eql('')); }"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "name": "POST /v2/automation/jobs/claim",
           "request": {
             "body": {
@@ -314,6 +406,19 @@
           }
         },
         {
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('response is not 5xx',()=>pm.expect(pm.response.code).to.be.below(500));",
+                  "const correlation = pm.response.headers.get('X-Correlation-ID') || pm.response.headers.get('X-Request-ID');",
+                  "if (correlation) { pm.test('response correlation identifier is non-empty',()=>pm.expect(String(correlation).trim()).not.to.eql('')); }"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "name": "POST /v2/automation/jobs/reconcile",
           "request": {
             "body": {
@@ -364,6 +469,19 @@
           }
         },
         {
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('response is not 5xx',()=>pm.expect(pm.response.code).to.be.below(500));",
+                  "const correlation = pm.response.headers.get('X-Correlation-ID') || pm.response.headers.get('X-Request-ID');",
+                  "if (correlation) { pm.test('response correlation identifier is non-empty',()=>pm.expect(String(correlation).trim()).not.to.eql('')); }"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "name": "GET /v2/automation/jobs/{job_id}",
           "request": {
             "description": "Contract probe only. Source operation=read_automation_job_v2_automation_jobs__job_id__get; caller=job_family_client_only; audience=middleware-api; scope=automation.job.read; auth=automation-service-jwt. Business payload validity/effects remain Middleware-owned.",
@@ -400,6 +518,19 @@
           }
         },
         {
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('response is not 5xx',()=>pm.expect(pm.response.code).to.be.below(500));",
+                  "const correlation = pm.response.headers.get('X-Correlation-ID') || pm.response.headers.get('X-Request-ID');",
+                  "if (correlation) { pm.test('response correlation identifier is non-empty',()=>pm.expect(String(correlation).trim()).not.to.eql('')); }"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "name": "POST /v2/automation/jobs/{job_id}/complete",
           "request": {
             "body": {
@@ -451,6 +582,19 @@
           }
         },
         {
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('response is not 5xx',()=>pm.expect(pm.response.code).to.be.below(500));",
+                  "const correlation = pm.response.headers.get('X-Correlation-ID') || pm.response.headers.get('X-Request-ID');",
+                  "if (correlation) { pm.test('response correlation identifier is non-empty',()=>pm.expect(String(correlation).trim()).not.to.eql('')); }"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "name": "POST /v2/automation/jobs/{job_id}/fail",
           "request": {
             "body": {
@@ -502,6 +646,19 @@
           }
         },
         {
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('response is not 5xx',()=>pm.expect(pm.response.code).to.be.below(500));",
+                  "const correlation = pm.response.headers.get('X-Correlation-ID') || pm.response.headers.get('X-Request-ID');",
+                  "if (correlation) { pm.test('response correlation identifier is non-empty',()=>pm.expect(String(correlation).trim()).not.to.eql('')); }"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "name": "POST /v2/automation/jobs/{job_id}/heartbeat",
           "request": {
             "body": {
@@ -553,6 +710,19 @@
           }
         },
         {
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('response is not 5xx',()=>pm.expect(pm.response.code).to.be.below(500));",
+                  "const correlation = pm.response.headers.get('X-Correlation-ID') || pm.response.headers.get('X-Request-ID');",
+                  "if (correlation) { pm.test('response correlation identifier is non-empty',()=>pm.expect(String(correlation).trim()).not.to.eql('')); }"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "name": "POST /v2/automation/jobs/{job_id}/steps",
           "request": {
             "body": {
@@ -604,6 +774,19 @@
     {
       "item": [
         {
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('response is not 5xx',()=>pm.expect(pm.response.code).to.be.below(500));",
+                  "const correlation = pm.response.headers.get('X-Correlation-ID') || pm.response.headers.get('X-Request-ID');",
+                  "if (correlation) { pm.test('response correlation identifier is non-empty',()=>pm.expect(String(correlation).trim()).not.to.eql('')); }"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "name": "GET /platform/v1/contacts",
           "request": {
             "description": "Contract probe only. Source operation=list_contacts_platform_v1_contacts_get; caller=authorized-provisioning-client; audience=middleware-api; scope=identity.request; auth=service-or-user-jwt. Business payload validity/effects remain Middleware-owned.",
@@ -639,6 +822,19 @@
           }
         },
         {
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('response is not 5xx',()=>pm.expect(pm.response.code).to.be.below(500));",
+                  "const correlation = pm.response.headers.get('X-Correlation-ID') || pm.response.headers.get('X-Request-ID');",
+                  "if (correlation) { pm.test('response correlation identifier is non-empty',()=>pm.expect(String(correlation).trim()).not.to.eql('')); }"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "name": "POST /platform/v1/contacts",
           "request": {
             "body": {
@@ -688,6 +884,19 @@
           }
         },
         {
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('response is not 5xx',()=>pm.expect(pm.response.code).to.be.below(500));",
+                  "const correlation = pm.response.headers.get('X-Correlation-ID') || pm.response.headers.get('X-Request-ID');",
+                  "if (correlation) { pm.test('response correlation identifier is non-empty',()=>pm.expect(String(correlation).trim()).not.to.eql('')); }"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "name": "GET /platform/v1/contacts/{contact_id}",
           "request": {
             "description": "Contract probe only. Source operation=get_contact_platform_v1_contacts__contact_id__get; caller=authorized-provisioning-client; audience=middleware-api; scope=identity.request; auth=service-or-user-jwt. Business payload validity/effects remain Middleware-owned.",
@@ -724,6 +933,19 @@
           }
         },
         {
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('response is not 5xx',()=>pm.expect(pm.response.code).to.be.below(500));",
+                  "const correlation = pm.response.headers.get('X-Correlation-ID') || pm.response.headers.get('X-Request-ID');",
+                  "if (correlation) { pm.test('response correlation identifier is non-empty',()=>pm.expect(String(correlation).trim()).not.to.eql('')); }"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "name": "PATCH /platform/v1/contacts/{contact_id}",
           "request": {
             "body": {
@@ -774,6 +996,19 @@
           }
         },
         {
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('response is not 5xx',()=>pm.expect(pm.response.code).to.be.below(500));",
+                  "const correlation = pm.response.headers.get('X-Correlation-ID') || pm.response.headers.get('X-Request-ID');",
+                  "if (correlation) { pm.test('response correlation identifier is non-empty',()=>pm.expect(String(correlation).trim()).not.to.eql('')); }"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "name": "GET /platform/v1/contacts/{contact_id}/notes",
           "request": {
             "description": "Contract probe only. Source operation=list_notes_platform_v1_contacts__contact_id__notes_get; caller=authorized-provisioning-client; audience=middleware-api; scope=identity.request; auth=service-or-user-jwt. Business payload validity/effects remain Middleware-owned.",
@@ -811,6 +1046,19 @@
           }
         },
         {
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('response is not 5xx',()=>pm.expect(pm.response.code).to.be.below(500));",
+                  "const correlation = pm.response.headers.get('X-Correlation-ID') || pm.response.headers.get('X-Request-ID');",
+                  "if (correlation) { pm.test('response correlation identifier is non-empty',()=>pm.expect(String(correlation).trim()).not.to.eql('')); }"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "name": "POST /platform/v1/contacts/{contact_id}/notes",
           "request": {
             "body": {
@@ -862,6 +1110,19 @@
           }
         },
         {
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('response is not 5xx',()=>pm.expect(pm.response.code).to.be.below(500));",
+                  "const correlation = pm.response.headers.get('X-Correlation-ID') || pm.response.headers.get('X-Request-ID');",
+                  "if (correlation) { pm.test('response correlation identifier is non-empty',()=>pm.expect(String(correlation).trim()).not.to.eql('')); }"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "name": "PATCH /platform/v1/contacts/{contact_id}/notes/{note_id}",
           "request": {
             "body": {
@@ -914,6 +1175,19 @@
           }
         },
         {
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('response is not 5xx',()=>pm.expect(pm.response.code).to.be.below(500));",
+                  "const correlation = pm.response.headers.get('X-Correlation-ID') || pm.response.headers.get('X-Request-ID');",
+                  "if (correlation) { pm.test('response correlation identifier is non-empty',()=>pm.expect(String(correlation).trim()).not.to.eql('')); }"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "name": "GET /platform/v1/contacts/{contact_id}/tasks",
           "request": {
             "description": "Contract probe only. Source operation=list_tasks_platform_v1_contacts__contact_id__tasks_get; caller=authorized-provisioning-client; audience=middleware-api; scope=identity.request; auth=service-or-user-jwt. Business payload validity/effects remain Middleware-owned.",
@@ -951,6 +1225,19 @@
           }
         },
         {
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('response is not 5xx',()=>pm.expect(pm.response.code).to.be.below(500));",
+                  "const correlation = pm.response.headers.get('X-Correlation-ID') || pm.response.headers.get('X-Request-ID');",
+                  "if (correlation) { pm.test('response correlation identifier is non-empty',()=>pm.expect(String(correlation).trim()).not.to.eql('')); }"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "name": "POST /platform/v1/contacts/{contact_id}/tasks",
           "request": {
             "body": {
@@ -1007,6 +1294,19 @@
     {
       "item": [
         {
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('response is not 5xx',()=>pm.expect(pm.response.code).to.be.below(500));",
+                  "const correlation = pm.response.headers.get('X-Correlation-ID') || pm.response.headers.get('X-Request-ID');",
+                  "if (correlation) { pm.test('response correlation identifier is non-empty',()=>pm.expect(String(correlation).trim()).not.to.eql('')); }"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "name": "GET /platform/v1/opportunities",
           "request": {
             "description": "Contract probe only. Source operation=list_opportunities_platform_v1_opportunities_get; caller=authorized-provisioning-client; audience=middleware-api; scope=identity.request; auth=service-or-user-jwt. Business payload validity/effects remain Middleware-owned.",
@@ -1042,6 +1342,19 @@
           }
         },
         {
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('response is not 5xx',()=>pm.expect(pm.response.code).to.be.below(500));",
+                  "const correlation = pm.response.headers.get('X-Correlation-ID') || pm.response.headers.get('X-Request-ID');",
+                  "if (correlation) { pm.test('response correlation identifier is non-empty',()=>pm.expect(String(correlation).trim()).not.to.eql('')); }"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "name": "POST /platform/v1/opportunities",
           "request": {
             "body": {
@@ -1091,6 +1404,19 @@
           }
         },
         {
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('response is not 5xx',()=>pm.expect(pm.response.code).to.be.below(500));",
+                  "const correlation = pm.response.headers.get('X-Correlation-ID') || pm.response.headers.get('X-Request-ID');",
+                  "if (correlation) { pm.test('response correlation identifier is non-empty',()=>pm.expect(String(correlation).trim()).not.to.eql('')); }"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "name": "GET /platform/v1/opportunities/{opportunity_id}",
           "request": {
             "description": "Contract probe only. Source operation=get_opportunity_platform_v1_opportunities__opportunity_id__get; caller=authorized-provisioning-client; audience=middleware-api; scope=identity.request; auth=service-or-user-jwt. Business payload validity/effects remain Middleware-owned.",
@@ -1127,6 +1453,19 @@
           }
         },
         {
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('response is not 5xx',()=>pm.expect(pm.response.code).to.be.below(500));",
+                  "const correlation = pm.response.headers.get('X-Correlation-ID') || pm.response.headers.get('X-Request-ID');",
+                  "if (correlation) { pm.test('response correlation identifier is non-empty',()=>pm.expect(String(correlation).trim()).not.to.eql('')); }"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "name": "PATCH /platform/v1/opportunities/{opportunity_id}",
           "request": {
             "body": {
@@ -1182,6 +1521,19 @@
     {
       "item": [
         {
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('response is not 5xx',()=>pm.expect(pm.response.code).to.be.below(500));",
+                  "const correlation = pm.response.headers.get('X-Correlation-ID') || pm.response.headers.get('X-Request-ID');",
+                  "if (correlation) { pm.test('response correlation identifier is non-empty',()=>pm.expect(String(correlation).trim()).not.to.eql('')); }"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "name": "PATCH /platform/v1/tasks/{task_id}",
           "request": {
             "body": {
@@ -1232,6 +1584,19 @@
           }
         },
         {
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('response is not 5xx',()=>pm.expect(pm.response.code).to.be.below(500));",
+                  "const correlation = pm.response.headers.get('X-Correlation-ID') || pm.response.headers.get('X-Request-ID');",
+                  "if (correlation) { pm.test('response correlation identifier is non-empty',()=>pm.expect(String(correlation).trim()).not.to.eql('')); }"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "name": "POST /platform/v1/tasks/{task_id}/complete",
           "request": {
             "body": {
@@ -1288,6 +1653,19 @@
     {
       "item": [
         {
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('response is not 5xx',()=>pm.expect(pm.response.code).to.be.below(500));",
+                  "const correlation = pm.response.headers.get('X-Correlation-ID') || pm.response.headers.get('X-Request-ID');",
+                  "if (correlation) { pm.test('response correlation identifier is non-empty',()=>pm.expect(String(correlation).trim()).not.to.eql('')); }"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "name": "GET /platform/v1/tickets",
           "request": {
             "description": "Contract probe only. Source operation=list_tickets_platform_v1_tickets_get; caller=authorized-provisioning-client; audience=middleware-api; scope=identity.request; auth=service-or-user-jwt. Business payload validity/effects remain Middleware-owned.",
@@ -1323,6 +1701,19 @@
           }
         },
         {
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('response is not 5xx',()=>pm.expect(pm.response.code).to.be.below(500));",
+                  "const correlation = pm.response.headers.get('X-Correlation-ID') || pm.response.headers.get('X-Request-ID');",
+                  "if (correlation) { pm.test('response correlation identifier is non-empty',()=>pm.expect(String(correlation).trim()).not.to.eql('')); }"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "name": "POST /platform/v1/tickets",
           "request": {
             "body": {
@@ -1372,6 +1763,19 @@
           }
         },
         {
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('response is not 5xx',()=>pm.expect(pm.response.code).to.be.below(500));",
+                  "const correlation = pm.response.headers.get('X-Correlation-ID') || pm.response.headers.get('X-Request-ID');",
+                  "if (correlation) { pm.test('response correlation identifier is non-empty',()=>pm.expect(String(correlation).trim()).not.to.eql('')); }"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "name": "GET /platform/v1/tickets/{ticket_id}",
           "request": {
             "description": "Contract probe only. Source operation=get_ticket_platform_v1_tickets__ticket_id__get; caller=authorized-provisioning-client; audience=middleware-api; scope=identity.request; auth=service-or-user-jwt. Business payload validity/effects remain Middleware-owned.",
@@ -1408,6 +1812,19 @@
           }
         },
         {
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('response is not 5xx',()=>pm.expect(pm.response.code).to.be.below(500));",
+                  "const correlation = pm.response.headers.get('X-Correlation-ID') || pm.response.headers.get('X-Request-ID');",
+                  "if (correlation) { pm.test('response correlation identifier is non-empty',()=>pm.expect(String(correlation).trim()).not.to.eql('')); }"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "name": "PATCH /platform/v1/tickets/{ticket_id}",
           "request": {
             "body": {
@@ -1463,6 +1880,19 @@
     {
       "item": [
         {
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('response is not 5xx',()=>pm.expect(pm.response.code).to.be.below(500));",
+                  "const correlation = pm.response.headers.get('X-Correlation-ID') || pm.response.headers.get('X-Request-ID');",
+                  "if (correlation) { pm.test('response correlation identifier is non-empty',()=>pm.expect(String(correlation).trim()).not.to.eql('')); }"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "name": "POST /api/v1/integrations/n8n/results",
           "request": {
             "body": {
@@ -1514,6 +1944,19 @@
           }
         },
         {
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('response is not 5xx',()=>pm.expect(pm.response.code).to.be.below(500));",
+                  "const correlation = pm.response.headers.get('X-Correlation-ID') || pm.response.headers.get('X-Request-ID');",
+                  "if (correlation) { pm.test('response correlation identifier is non-empty',()=>pm.expect(String(correlation).trim()).not.to.eql('')); }"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "name": "POST /api/v1/odoo/events",
           "request": {
             "body": {
@@ -1559,6 +2002,19 @@
           }
         },
         {
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('response is not 5xx',()=>pm.expect(pm.response.code).to.be.below(500));",
+                  "const correlation = pm.response.headers.get('X-Correlation-ID') || pm.response.headers.get('X-Request-ID');",
+                  "if (correlation) { pm.test('response correlation identifier is non-empty',()=>pm.expect(String(correlation).trim()).not.to.eql('')); }"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "name": "POST /platform/v1/integrations/github/events",
           "request": {
             "body": {
@@ -1615,6 +2071,17 @@
     {
       "item": [
         {
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('negative request is fail-closed',()=>pm.expect(pm.response.code).to.be.oneOf([401, 403]));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "name": "missing-token",
           "request": {
             "description": "Expect 401; no anonymous fallback.",
@@ -1645,6 +2112,17 @@
           }
         },
         {
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('negative request is fail-closed',()=>pm.expect(pm.response.code).to.be.oneOf([401, 403]));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "name": "wrong-issuer",
           "request": {
             "description": "Expect 401 for issuer mismatch.",
@@ -1680,6 +2158,17 @@
           }
         },
         {
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('negative request is fail-closed',()=>pm.expect(pm.response.code).to.be.oneOf([401, 403]));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "name": "wrong-audience",
           "request": {
             "description": "Expect 401 for audience mismatch.",
@@ -1715,6 +2204,17 @@
           }
         },
         {
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('negative request is fail-closed',()=>pm.expect(pm.response.code).to.be.oneOf([401, 403]));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "name": "wrong-azp",
           "request": {
             "description": "Expect 403/401 for unauthorized caller.",
@@ -1750,6 +2250,17 @@
           }
         },
         {
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('negative request is fail-closed',()=>pm.expect(pm.response.code).to.be.oneOf([401, 403]));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "name": "missing-scope",
           "request": {
             "description": "Expect 403 for missing required scope.",
@@ -1785,6 +2296,17 @@
           }
         },
         {
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('negative request is fail-closed',()=>pm.expect(pm.response.code).to.be.oneOf([400, 409, 422]));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "name": "missing-idempotency",
           "request": {
             "body": {
@@ -1829,6 +2351,17 @@
           }
         },
         {
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('negative request is fail-closed',()=>pm.expect(pm.response.code).to.be.oneOf([404, 405]));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "name": "wrong-method",
           "request": {
             "description": "Expect 404/405; no legacy fallback.",
@@ -1864,6 +2397,17 @@
           }
         },
         {
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('negative request is fail-closed',()=>pm.expect(pm.response.code).to.be.oneOf([413]));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "name": "oversize-body",
           "request": {
             "body": {
@@ -1913,6 +2457,17 @@
           }
         },
         {
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('negative request is fail-closed',()=>pm.expect(pm.response.code).to.be.oneOf([404]));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "name": "private-metrics",
           "request": {
             "description": "Expect public 404 before any upstream.",
@@ -1941,6 +2496,17 @@
           }
         },
         {
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('negative request is fail-closed',()=>pm.expect(pm.response.code).to.be.oneOf([404]));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "name": "private-internal",
           "request": {
             "description": "Expect public 404 before any upstream.",
@@ -1970,6 +2536,17 @@
           }
         },
         {
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('negative request is fail-closed',()=>pm.expect(pm.response.code).to.be.oneOf([404]));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "name": "pending-telnexa",
           "request": {
             "body": {
@@ -2010,6 +2587,17 @@
           }
         },
         {
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('negative request is fail-closed',()=>pm.expect(pm.response.code).to.be.oneOf([404]));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "name": "pending-vicidial",
           "request": {
             "body": {
@@ -2050,6 +2638,17 @@
           }
         },
         {
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('negative request is fail-closed',()=>pm.expect(pm.response.code).to.be.oneOf([404]));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "name": "pending-n8n-ack",
           "request": {
             "body": {
@@ -2090,6 +2689,17 @@
           }
         },
         {
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('negative request is fail-closed',()=>pm.expect(pm.response.code).to.be.oneOf([404]));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "name": "pending-observability",
           "request": {
             "body": {
@@ -2129,6 +2739,17 @@
           }
         },
         {
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('negative request is fail-closed',()=>pm.expect(pm.response.code).to.be.oneOf([404]));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
           "name": "pending-sms-inbound",
           "request": {
             "body": {
