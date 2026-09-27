@@ -42,7 +42,7 @@ vaults = env
 # openid-connect is a licensed Kong plugin. It is not present in Kong OSS and
 # it does not load on kong/kong-gateway in free mode. Without a valid license
 # the declarative config in deploy/kong/control-plane.yml is rejected at load.
-plugins = bundled
+plugins = bundled,codestra-authz,codestra-request-context,codestra-webhook-verifier,codestra-private-surface,codestra-resource-guard
 license_path = /run/secrets/kong_license
 
 # ---------------------------------------------------------------------------

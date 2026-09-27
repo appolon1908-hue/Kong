@@ -34,7 +34,7 @@ jobs:
       - name: Install validation dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y --no-install-recommends shellcheck lua5.4
+          sudo apt-get install -y --no-install-recommends shellcheck lua5.4 redis-server
           python3 -m pip install --disable-pip-version-check pytest PyYAML -r tools/gateway-test-requirements.txt
       - name: Validate structured source and calling policy
         run: |
@@ -121,7 +121,7 @@ jobs:
       - name: Install merge-result validation dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y --no-install-recommends lua5.4
+          sudo apt-get install -y --no-install-recommends lua5.4 redis-server
           python3 -m pip install --disable-pip-version-check pytest PyYAML -r tools/gateway-test-requirements.txt
       - name: Validate merge-result calling policy and manifests
         run: |

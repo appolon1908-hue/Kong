@@ -11,10 +11,33 @@ services:
   kong-gateway:
     image: kong/kong-gateway@${KONG_IMAGE_DIGEST:?KONG_IMAGE_DIGEST must be an immutable sha256 digest}
     restart: 'no'
+    stop_signal: SIGQUIT
+    stop_grace_period: 300s
     profiles: [hybrid-source]
     entrypoint: [sh, /etc/codestra/runtime-guard.sh]
     command: [kong, docker-start]
     volumes:
+      - type: bind
+        source: ./plugins/codestra-authz
+        target: /usr/local/share/lua/5.1/kong/plugins/codestra-authz
+        read_only: true
+      - type: bind
+        source: ./plugins/codestra-request-context
+        target: /usr/local/share/lua/5.1/kong/plugins/codestra-request-context
+        read_only: true
+      - type: bind
+        source: ./plugins/codestra-webhook-verifier
+        target: /usr/local/share/lua/5.1/kong/plugins/codestra-webhook-verifier
+        read_only: true
+      - type: bind
+        source: ./plugins/codestra-private-surface
+        target: /usr/local/share/lua/5.1/kong/plugins/codestra-private-surface
+        read_only: true
+      - type: bind
+        source: ./plugins/codestra-resource-guard
+        target: /usr/local/share/lua/5.1/kong/plugins/codestra-resource-guard
+        read_only: true
+      - dp_prefix:/var/run/kong
       - type: bind
         source: ../gateway-platform/runtime-guard.sh
         target: /etc/codestra/runtime-guard.sh
@@ -37,6 +60,7 @@ services:
       - ${CODESTRA_RUNTIME_ENV:?CODESTRA_RUNTIME_ENV must point at the root-owned runtime env file}
 
     environment:
+      KONG_PLUGINS: bundled,codestra-authz,codestra-request-context,codestra-webhook-verifier,codestra-private-surface,codestra-resource-guard
       # Rationale for each setting is in kong.conf.example. Kept as KONG_* env
       # rather than a mounted kong.conf so the running node's configuration is
       # visible in the compose source under review.
@@ -85,8 +109,10 @@ services:
       KONG_LICENSE_PATH: /run/secrets/kong_license
 
       # Kong writes its generated nginx configuration and pid files into the
-      # prefix. The container root stays read-only, so the prefix is a tmpfs.
+      # prefix. Retain it on a pre-provisioned private volume for CP outages.
       KONG_PREFIX: /var/run/kong
+      KONG_NGINX_DAEMON: "off"
+      KONG_NGINX_MAIN_WORKER_SHUTDOWN_TIMEOUT: 240s
 
     secrets:
       - kong_license
@@ -113,11 +139,10 @@ services:
     read_only: true
     tmpfs:
       - /tmp
-      - /var/run/kong
     cap_drop: [ALL]
     security_opt: [no-new-privileges:true]
     healthcheck:
-      test: [CMD, curl, --fail, --silent, --show-error, --max-time, '3', 'http://127.0.0.1:8100/status/ready']
+      test: [CMD, curl, --fail, --silent, --show-error, --noproxy, '*', --max-time, '3', 'http://127.0.0.1:8100/status/ready']
       interval: 10s
       timeout: 5s
       retries: 6
@@ -148,3 +173,8 @@ secrets:
     file: /etc/codestra/secrets/kong/dp.crt
   dp_key:
     file: /etc/codestra/secrets/kong/dp.key
+
+volumes:
+  dp_prefix:
+    external: true
+    name: ${KONG_DP_CACHE_VOLUME:?approved persistent private cache volume required}

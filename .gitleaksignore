@@ -2,3 +2,9 @@
 # documentation line that quotes a validator-enforced profile identifier, never a
 # credential; see .gitleaks.toml for the JSON-key allowlist.
 45b32862467e939b5c6e440e0388f8a158433a9b:docs/mission2-evidence-matrix.md:generic-api-key:33
+# Historical authority pins are immutable Git commit IDs, not credentials.
+aa4e996e79ad0f4f3ba33edac86ed93bfcec3c72:docs/KONG_V3_INTEGRATION_PARITY.md:generic-api-key:22
+83cdbe5cc10edbb15ca79264ba1fb5fbd49af4d0:scripts/validate_kong_v3_identity_security.py:generic-api-key:22
+83cdbe5cc10edbb15ca79264ba1fb5fbd49af4d0:config/kong-access-policy.v1.json:generic-api-key:8378
+# Fixed TEST_SYN request idempotency fixture in the generated Postman collection.
+aa4e996e79ad0f4f3ba33edac86ed93bfcec3c72:scripts/generate_kong_postman.py:generic-api-key:294

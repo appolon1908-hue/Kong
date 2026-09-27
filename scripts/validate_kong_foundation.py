@@ -363,6 +363,7 @@ def load_production_inventory(path: str, doc: dict) -> SourceDocument:
 
 def load_canonical_middleware_contract(path: str, doc: dict) -> SourceDocument:
     out = SourceDocument(path=path, format="canonical-middleware-contract")
+    out.global_plugins = tuple(sorted(doc.get("globalPlugins", [])))
     for route in doc["contractRoutes"]:
         out.routes[route["name"]] = SourceRoute(
             source=path, name=route["name"], hosts=_tuple(route["hosts"]), paths=_tuple(route["paths"]),
@@ -384,7 +385,8 @@ def load_canonical_middleware_contract(path: str, doc: dict) -> SourceDocument:
         # no upstream); host and transport come from the generated manifest.
         out.routes[route["name"]] = SourceRoute(
             source=path, name=route["name"], paths=(route["path"],), methods=_methods(route["method"]),
-            regex_priority=route.get("regexPriority", 0) or 0, plugins=("request-termination",),
+            regex_priority=route.get("regexPriority", 0) or 0,
+            plugins=tuple(sorted(set(out.global_plugins) | {"request-termination"})),
         )
     return out
 
@@ -1876,6 +1878,27 @@ def validate_token_settings(documents: dict[str, SourceDocument], profiles: dict
         for plugin in plugin_blocks:
             config = plugin.get("config", {}) or {}
             if plugin.get("name") == "openid-connect":
+                if path in {
+                    "config/kong-middleware-routes.production.yml",
+                    "config/staging/kong-middleware-routes.staging.yml",
+                    "kong/plugins/oidc/keycloak.yml",
+                }:
+                    _require(config.get("verify_signature") is True, f"{path}: token signature verification required")
+                    _require(config.get("verify_claims") is True and config.get("ssl_verify") is True,
+                             f"{path}: claim and TLS verification required")
+                    _require(config.get("audience_required") == config.get("audience"),
+                             f"{path}: token audience enforcement required")
+                    issuer = str(config.get("issuer", "")).removesuffix("/.well-known/openid-configuration")
+                    _require(config.get("issuers_allowed") == [issuer], f"{path}: exact token issuer required")
+                    _require(config.get("consumer_by") == ["username"] and config.get("consumer_optional") is False,
+                             f"{path}: mandatory consumer mapping required")
+                    _require(config.get("bearer_token_param_type") == ["header"],
+                             f"{path}: header-only bearer required")
+                    _require(config.get("cache_ttl") == 300 and config.get("cache_ttl_max") == 300
+                             and config.get("rediscovery_lifetime") == 30 and config.get("leeway") == 0,
+                             f"{path}: bounded identity cache and rediscovery required")
+                    _require(not config.get("extra_jwks_uris") and not config.get("ignore_signature"),
+                             f"{path}: additional identity authority forbidden")
                 _require(str(config.get("cache_tokens_salt", "")).startswith("{vault://env/"), f"{path}: openid-connect must reference cache_tokens_salt through the vault")
                 if document.format == "kong-declarative":
                     _require(bool(config.get("scopes_required")) and all(s not in ("*", "") for s in config["scopes_required"]),

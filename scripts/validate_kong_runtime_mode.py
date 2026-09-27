@@ -35,9 +35,11 @@ def trusted_sources(value):
     require(isinstance(value, str) and bool(value), "missing exact trusted proxy CIDRs")
     if re.fullmatch(r"\$\{KONG_TRUSTED_IPS:\?[^}]+\}", value):
         return  # Required source template; rendered values are checked by this same validator.
-    for item in value.split(","):
-        network = ipaddress.ip_network(item.strip(), strict=True)
-        require(network.prefixlen > 0, "universal proxy trust is forbidden")
+    networks = [ipaddress.ip_network(item.strip(), strict=True) for item in value.split(",")]
+    for version in (4, 6):
+        collapsed = ipaddress.collapse_addresses(n for n in networks if n.version == version)
+        require(all(network.prefixlen > 0 for network in collapsed),
+                "universal proxy trust is forbidden")
 
 
 def secret_reference(service, value):
@@ -46,6 +48,55 @@ def secret_reference(service, value):
     names = {s if isinstance(s, str) else s.get("target", s.get("source"))
              for s in service.get("secrets", [])}
     require(name in names and "/" not in name, "PKI secret not mounted")
+
+
+def validate_lifecycle(service, legacy=False):
+    """Check source/rollback startup and drain policy; never start a process."""
+    env = service["environment"]
+    require(service.get("restart") == "no", "boot failure must not trigger automatic restart")
+    require("build" not in service, "runtime must use the reviewed immutable image")
+    image = service.get("image")
+    template = ("kong/kong-gateway@${KONG_IMAGE_DIGEST:?KONG_IMAGE_DIGEST must be an immutable sha256 digest}"
+                if legacy else "${KONG_PLATFORM_IMAGE_REPOSITORY:?reviewed gateway image repository required}"
+                "@${KONG_PLATFORM_IMAGE_DIGEST:?immutable sha256 digest required}")
+    require(isinstance(image, str) and (image == template or re.fullmatch(
+        r"[a-z0-9][a-z0-9._:/-]*@sha256:[a-f0-9]{64}", image)),
+        "runtime and rollback images must use immutable sha256 digests")
+    require(service.get("stop_signal") == "SIGQUIT", "graceful shutdown must signal SIGQUIT")
+    require(service.get("stop_grace_period") == "300s"
+            and env.get("KONG_NGINX_MAIN_WORKER_SHUTDOWN_TIMEOUT") == "240s",
+            "shutdown must reserve 240s for workers and 300s before forced termination")
+    require(env.get("KONG_NGINX_DAEMON") == "off", "Kong must remain in the foreground")
+    healthcheck = service.get("healthcheck", {})
+    require(isinstance(healthcheck, dict), "healthcheck must be a mapping")
+    require(all(healthcheck.get(key) == value for key, value in {
+        "interval": "10s", "timeout": "5s", "retries": 6, "start_period": "30s",
+    }.items()) and type(healthcheck.get("retries")) is int,
+        "health failure detection must remain bounded")
+
+
+def validate_data_plane_cache(document, service, name, legacy=False):
+    """Retain per-node config across restart/CP loss without granting apply."""
+    prefix = "/var/run/kong" if legacy else "/usr/local/kong"
+    volume = "dp_prefix" if legacy else {"kong-dp-1": "dp1_prefix", "kong-dp-2": "dp2_prefix"}[name]
+    variable = "KONG_DP_CACHE_VOLUME" if legacy else {
+        "kong-dp-1": "GATEWAY_DP1_CACHE_VOLUME", "kong-dp-2": "GATEWAY_DP2_CACHE_VOLUME"}[name]
+    require(service["environment"].get("KONG_PREFIX") == prefix, "persistent data-plane prefix required")
+    mounts = service.get("volumes", [])
+    require(f"{volume}:{prefix}" in mounts, "persistent private configuration cache mount required")
+    tmpfs = service.get("tmpfs", [])
+    require(isinstance(tmpfs, list) and all(isinstance(item, str) and
+        not (item.split(":", 1)[0] == prefix or item.split(":", 1)[0].startswith(prefix + "/"))
+        for item in tmpfs), "data-plane cache cannot be ephemeral")
+    volumes = document.get("volumes", {})
+    require(isinstance(volumes, dict), "cache volumes must be a mapping")
+    authority = volumes.get(volume)
+    require(isinstance(authority, dict) and set(authority) == {"external", "name"}
+            and authority.get("external") is True, "pre-provisioned private cache volume required")
+    value = authority.get("name")
+    template = "${" + variable + ":?approved persistent private cache volume required}"
+    require(isinstance(value, str) and (value == template or re.fullmatch(r"[a-zA-Z0-9][a-zA-Z0-9_.-]*", value)),
+            "explicit private cache volume identity required")
 
 
 def validate_profile(document, mode, approval=None, legacy=False):
@@ -91,6 +142,7 @@ def validate_profile(document, mode, approval=None, legacy=False):
         require(isinstance(service, dict), "service must be a mapping")
         env = service.get("environment", {})
         require(isinstance(env, dict), "environment must be an explicit mapping")
+        validate_lifecycle(service, legacy)
         role = expected_roles[name]
         require(env.get("KONG_ROLE") == role, "role does not match selected profile")
         require(not service.get("network_mode") and not service.get("privileged"), "unsafe container network/privilege")
@@ -118,7 +170,7 @@ def validate_profile(document, mode, approval=None, legacy=False):
         require(isinstance(healthcheck, dict) and healthcheck.get("disable", False) is False,
                 "readiness must remain enabled")
         require(healthcheck.get("test") == [
-            "CMD", "curl", "--fail", "--silent", "--show-error", "--max-time", "3",
+            "CMD", "curl", "--fail", "--silent", "--show-error", "--noproxy", "*", "--max-time", "3",
             "http://127.0.0.1:8100/status/ready"], "readiness must check config and dependency readiness")
         mounts = service.get("volumes", [])
         guard = [v for v in mounts if isinstance(v, dict) and v.get("target") == "/etc/codestra/runtime-guard.sh"]
@@ -146,6 +198,7 @@ def validate_profile(document, mode, approval=None, legacy=False):
                              {"kong_proxy", "kong_database", "kong_rate_limit", "observability", "middleware_upstream"})
         require(networks == expected_networks, "runtime network separation violated")
         if role == "data_plane":
+            validate_data_plane_cache(document, service, name, legacy)
             require(env.get("KONG_DATABASE") == "off", "data plane must not have database authority")
             require(not any(k.startswith("KONG_PG_") for k in env), "data plane database settings forbidden")
             secret_names = {v if isinstance(v, str) else v.get("source") for v in service.get("secrets", [])}
@@ -156,7 +209,13 @@ def validate_profile(document, mode, approval=None, legacy=False):
             require(env.get("KONG_DATABASE") == "postgres", "standalone DB-less production is forbidden")
             require(env.get("KONG_PG_SSL") == "on" and env.get("KONG_PG_SSL_VERIFY") == "on",
                     "database TLS verification required")
-            require(bool(env.get("KONG_PG_HOST")), "database dependency must be explicit")
+            require(env.get("KONG_PG_SSL_REQUIRED") == "on", "database TLS downgrade is forbidden")
+            require(env.get("KONG_PG_HOST") == "kong-postgres.internal.codestra"
+                    and env.get("KONG_PG_USER") == "kong_runtime",
+                    "private database runtime authority required")
+            require(env.get("KONG_PG_TIMEOUT") == "5000"
+                    and env.get("KONG_PG_MAX_CONCURRENT_QUERIES") == "20",
+                    "database dependency timeout and concurrency must remain bounded")
         if mode == "hybrid":
             require("kong_cluster" in networks, "private cluster network required")
             require(env.get("KONG_CLUSTER_MTLS") == "pki", "private-PKI mTLS required")
@@ -186,20 +245,31 @@ def validate_profile(document, mode, approval=None, legacy=False):
                     "${CODESTRA_TRADITIONAL_APPROVAL:?explicit KONG fallback approval required}" or
                     env.get("CODESTRA_TRADITIONAL_APPROVAL") == approval,
                     "fallback approval must be carried by runtime configuration")
+    require(len({service["image"] for service in services.values()}) == 1,
+            "all runtime nodes must use one immutable image identity")
+    if mode == "hybrid" and not legacy:
+        require(document["volumes"]["dp1_prefix"]["name"] != document["volumes"]["dp2_prefix"]["name"],
+                "data planes require distinct private configuration caches")
 
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("authority", nargs="?", default=str(ROOT / "config/kong-runtime-config-mode.v1.json"))
     parser.add_argument("--compose", type=Path)
+    parser.add_argument("--rollback-compose", type=Path,
+                        help="validate a retained rollback profile with the same gates; never apply it")
     parser.add_argument("--mode", choices=["hybrid", "traditional"], default="hybrid")
     parser.add_argument("--traditional-approval")
     parser.add_argument("--legacy", action="store_true")
     args = parser.parse_args(argv)
     try:
         validate_authority(json.loads(Path(args.authority).read_text()))
+        require(not args.rollback_compose or args.compose, "rollback validation requires a current --compose")
         if args.compose:
             validate_profile(yaml.safe_load(args.compose.read_text()), args.mode, args.traditional_approval, args.legacy)
+            if args.rollback_compose:
+                validate_profile(yaml.safe_load(args.rollback_compose.read_text()), args.mode,
+                                 args.traditional_approval, args.legacy)
         else:
             validate_profile(yaml.safe_load((ROOT / "deploy/gateway-platform/compose.hybrid.yaml").read_text()), "hybrid")
             validate_profile(yaml.safe_load((ROOT / "deploy/kong/compose.kong.yaml").read_text()), "hybrid", legacy=True)
