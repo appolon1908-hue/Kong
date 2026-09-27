@@ -136,9 +136,9 @@ jobs:
         run: |
           set -Eeuo pipefail
           builder="kong-release-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          echo "builder=${builder}" >> "${GITHUB_OUTPUT}"
           docker buildx create --name "${builder}" --driver docker-container --use
           docker buildx inspect --bootstrap
-          echo "builder=${builder}" >> "${GITHUB_OUTPUT}"
           local_tag="kong-standby-auth:candidate-${EXPECTED_SHA}"
           docker buildx build \
             --file deploy/kong-production-standby/auth-middleware/Dockerfile \
