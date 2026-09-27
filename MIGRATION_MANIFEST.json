@@ -12,32 +12,32 @@
     },
     {
       "path": ".github/workflows/kong-config.yml",
-      "sha256": "68201716307f7baaf6a36b58e55206c6b15b05d961fd47c57d0aa0aa0130d01e",
-      "size": 2139
+      "sha256": "e351a750364dd0a8d0875f628e1f46bb13aac0580291c32630379dee96f44bd4",
+      "size": 2428
     },
     {
       "path": ".github/workflows/kong-v3-certification.yml",
-      "sha256": "c688e9ed8eb161e2eed7af5757aee735d2f6fb48a0054b9bf5a69b3970b622e8",
-      "size": 5650
+      "sha256": "add2897645e2007a7a4dee5a5cb1fc017ac1ed7d7f895f5e0a087bffd5cc1b14",
+      "size": 6304
     },
     {
       "path": ".github/workflows/manifest-sync.yml",
-      "sha256": "4f0dc10e4d8674cff07ebb34c36f25076ea1ccd7881461aad84cf018fa5ae1bf",
-      "size": 2530
+      "sha256": "4522efca82cc4e44555d060a1840439db5f91cefcc049a1c7641635a23f836bb",
+      "size": 3011
     },
     {
       "path": ".github/workflows/marketing-stage5-certification.yml",
-      "sha256": "e4b89f1903e190a767f95bf8a6dc0b1e0719c3aa69f382617a12b7d086565e49",
-      "size": 1737
+      "sha256": "62cc6befb9f2560b2d03844776f4fd16f4a9b10371390f84641aefc5f4325194",
+      "size": 1877
     },
     {
       "path": ".github/workflows/release-preflight.yml",
-      "sha256": "cb12272ceffa9fb86514139942c47b78da2325efea0821d60fdbb1ef282db489",
-      "size": 10241
+      "sha256": "04a7317c11b71a6d42fe7e6bd44b3befe05fc1439206c1bc69378fabe27a9c82",
+      "size": 10433
     },
     {
       "path": ".github/workflows/release.yml",
-      "sha256": "18dc79dec5e1c065d2821979db0014914681c19c312035f18493866d1fb2f230",
+      "sha256": "88736c97d2d4cce0642f0ab11735e87db6e8569bf91904aab577e24cda28daf7",
       "size": 15778
     },
     {
@@ -47,8 +47,8 @@
     },
     {
       "path": ".github/workflows/security.yml",
-      "sha256": "6f5b172ee32bf6f358bd6ea876eae2c2f1c71b771dc0b5192fd8c6fa9505f6cf",
-      "size": 4569
+      "sha256": "fe08edbb12edc650b0740ecad2cb2c81880e0621b4f5ee14856bc4eb87b95e4b",
+      "size": 5937
     },
     {
       "path": ".github/workflows/server-drift.yml",
@@ -62,8 +62,8 @@
     },
     {
       "path": ".github/workflows/validate.yml",
-      "sha256": "8b9a6c3680f1a975838a70813df0d091c9c5735d96da48e3616bdab09e20b632",
-      "size": 8158
+      "sha256": "9a76a18a26b01be0a974ce5dec71036e3411b28ef49dc58d25215a37a15aa5e8",
+      "size": 8982
     },
     {
       "path": ".gitignore",
@@ -271,11 +271,6 @@
       "size": 4380
     },
     {
-      "path": "config/kong-route-reconciliation.pas236.json",
-      "sha256": "42cd8507dee7cfb1e9fc0788828d21529b70ca298b8d75ff8cafeea0568dbac9",
-      "size": 4042
-    },
-    {
       "path": "config/kong-webhook-registry.v1.json",
       "sha256": "4f70c7fd835609c66b41d4af49d8cafd882cf769ceca0e4c9bfebf8c48609da2",
       "size": 4796
@@ -367,8 +362,8 @@
     },
     {
       "path": "deploy/kong-production-standby/auth-middleware/requirements.txt",
-      "sha256": "058a135d09c80f1152cfdbf734eb9726f27e762db1dd078db0323e2ad46bb9a6",
-      "size": 78
+      "sha256": "382707083450f4da08872d52fcba56347052ee55cc3f5c6f4cc0541cc7a7c57d",
+      "size": 79
     },
     {
       "path": "deploy/kong-production-standby/auth-middleware/test_body_limit.py",
@@ -966,21 +961,6 @@
       "size": 16318
     },
     {
-      "path": "scripts/kong_reconciliation_api.py",
-      "sha256": "3bc605105931fbe9ed82cef20d44367fbcf39806d57d90cf3752ce90a0ef246f",
-      "size": 6461
-    },
-    {
-      "path": "scripts/kong_reconciliation_executor.py",
-      "sha256": "fecff22f288d3404bf0f4782a843caa6b52167f9803a540bedab4351229a3597",
-      "size": 22242
-    },
-    {
-      "path": "scripts/plan_kong_route_reconciliation.py",
-      "sha256": "ae707bebb2be4487132aaf478f4a6b98f3f349c727bebd8dd5bcfe4bcf849f4f",
-      "size": 9057
-    },
-    {
       "path": "scripts/probe_n8n_production_routes.py",
       "sha256": "10aa8dc945108439d5ec45fc0b1834ab0d01c7455cd974cc63d947f452e606a0",
       "size": 1991
@@ -1171,11 +1151,6 @@
       "size": 6784
     },
     {
-      "path": "tests/test_kong_desired_state_executor.py",
-      "sha256": "806977c8f890f25f7ff9b47e2af23c06ee40eeb44ee449fabc4a229d6651e6bb",
-      "size": 10513
-    },
-    {
       "path": "tests/test_kong_foundation.py",
       "sha256": "b486ebcef89c2456e67acba5297f45fcb26567d0b07f785f0a95c986fae5e867",
       "size": 27632
@@ -1231,19 +1206,9 @@
       "size": 7913
     },
     {
-      "path": "tests/test_kong_reconciliation_api.py",
-      "sha256": "bdf99c8f11e4ff769e5bdb655f349a135e8550f963a4b78aad0a77c226671305",
-      "size": 3187
-    },
-    {
       "path": "tests/test_kong_route_authority_hardening.py",
       "sha256": "8c328a0936506a490dc4620e81304e01a9fa6f0e6c4279045a5e9cafb3d26ae9",
       "size": 25109
-    },
-    {
-      "path": "tests/test_kong_route_reconciliation_planner.py",
-      "sha256": "9ff540b4b8a869762bdd61c6a134f0dc97d2fac51f7df9dd765960d50f0b2f54",
-      "size": 7024
     },
     {
       "path": "tests/test_kong_runtime_certification.py",
@@ -1304,6 +1269,11 @@
       "path": "tests/test_release_supply_chain.py",
       "sha256": "308a009c242e2702fc77f919c4af8d3094f17fb39eca059cd9c50cf730bf4f30",
       "size": 24803
+    },
+    {
+      "path": "tests/test_runner_hardening.py",
+      "sha256": "0d51030f74e337116285ea072a45562dc0220776e94c7f1484a1c526116e6774",
+      "size": 1409
     },
     {
       "path": "tests/test_runtime_integration_preflight.py",
@@ -1387,12 +1357,12 @@
     },
     {
       "path": "tools/verify_standby_image.py",
-      "sha256": "8ce9988ecece68671509320205a44ea4db92fbad7db15fa32fe7425b5f447a1f",
-      "size": 5410
+      "sha256": "9346d7586c76f1386231236259325f17d7f36a1a1486a7ada454314a11d380f7",
+      "size": 6249
     }
   ],
   "generated_at": "2026-08-26T21:10:25.642865+00:00",
-  "manifest_generation_id": "280080aca97ee7a7a83d9fa6024ff5d8486f8bb8737b311211eefaa6e2f2eb9d",
+  "manifest_generation_id": "6228476cd83c75356c4ce5f2b0a928dda1df24806201c1a8f97dabbfd26b8043",
   "production_state_changed": false,
   "schema": "codestra.kong.repository-migration.v1",
   "source_files": [

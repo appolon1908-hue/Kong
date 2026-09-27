@@ -11,9 +11,12 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 import subprocess
 import sys
+import tempfile
+from pathlib import Path
 
 EXPECTED_USER = "65532:65532"
 EXPECTED_CMD_PREFIX = ["uvicorn", "standby_auth:app"]
@@ -21,13 +24,17 @@ SOURCE_LABEL_PREFIX = "https://github.com/"
 SECRET_ENV = re.compile(r"(SECRET|TOKEN|PASSWORD|PASSWD|PRIVATE|API_KEY|HMAC)", re.IGNORECASE)
 ALLOWED_ENV_PREFIXES = ("PATH=", "LANG=", "GPG_KEY=", "PYTHON_VERSION=", "PYTHON_SHA256=", "PYTHONUNBUFFERED=")
 SHA = re.compile(r"[0-9a-f]{40}\Z")
-SMOKE = (
-    "printf %s postgresql://synthetic.invalid/standby > /tmp/synthetic-db && "
-    "printf %s synthetic-webhook-hmac > /tmp/synthetic-hmac && "
-    "cd /app && DATABASE_URL_FILE=/tmp/synthetic-db WEBHOOK_HMAC_FILE=/tmp/synthetic-hmac "
-    "python -c 'import standby_auth, body_limit; print(\"STANDBY_IMPORT=OK\")' && "
-    "test \"$(id -u)\" = 65532 && test -d /data && test -f /app/standby_auth.py && test -f /app/body_limit.py"
-)
+SMOKE_PYTHON = """
+import os
+from pathlib import Path
+import standby_auth
+import body_limit
+assert os.getuid() == 65532
+assert Path("/data").is_dir()
+assert Path("/app/standby_auth.py").is_file()
+assert Path("/app/body_limit.py").is_file()
+print("STANDBY_IMPORT=OK")
+"""
 
 
 class ImageError(ValueError):
@@ -84,12 +91,29 @@ def main() -> int:
         # tmpfs /tmp, a writable /data state volume (the application opens its
         # SQLite state at import), all capabilities dropped, no new privileges,
         # no network. The tmpfs stands in for the standby_state volume.
-        smoke = docker("run", "--rm", "--network", "none", "--read-only",
-                       "--tmpfs", "/tmp:rw,size=4m",
-                       "--tmpfs", "/data:rw,size=8m,uid=65532,gid=65532,mode=0700",
-                       "--cap-drop", "ALL", "--security-opt", "no-new-privileges:true",
-                       "--env", "PYTHONDONTWRITEBYTECODE=1", "--env", "STATE_DB=/data/state.sqlite3",
-                       "--entrypoint", "sh", args.image, "-c", SMOKE)
+        with tempfile.TemporaryDirectory(prefix=".kong-standby-smoke-", dir=Path.cwd()) as secret_dir:
+            secret_root = Path(secret_dir)
+            database_secret = secret_root / "database-url"
+            webhook_secret = secret_root / "webhook-hmac"
+            database_secret.write_text("postgresql://synthetic.invalid/standby", encoding="utf-8")
+            webhook_secret.write_text("synthetic-webhook-hmac", encoding="utf-8")
+            os.chmod(database_secret, 0o444)
+            os.chmod(webhook_secret, 0o444)
+            smoke = docker(
+                "run", "--rm", "--network", "none", "--read-only",
+                "--tmpfs", "/tmp:rw,size=4m",
+                "--tmpfs", "/data:rw,size=8m,uid=65532,gid=65532,mode=0700",
+                "--cap-drop", "ALL", "--security-opt", "no-new-privileges:true",
+                "--mount", f"type=bind,src={database_secret},dst=/run/secrets/database-url,readonly",
+                "--mount", f"type=bind,src={webhook_secret},dst=/run/secrets/webhook-hmac,readonly",
+                "--env", "PYTHONDONTWRITEBYTECODE=1",
+                "--env", "STATE_DB=/data/state.sqlite3",
+                "--env", "DATABASE_URL_FILE=/run/secrets/database-url",
+                "--env", "WEBHOOK_HMAC_FILE=/run/secrets/webhook-hmac",
+                "--workdir", "/app",
+                "--entrypoint", "python",
+                args.image, "-c", SMOKE_PYTHON,
+            )
         require("STANDBY_IMPORT=OK" in smoke, "smoke_import_failed")
     except (ImageError, OSError, ValueError, subprocess.SubprocessError) as error:
         print(f"STANDBY_IMAGE=FAIL {error}")
