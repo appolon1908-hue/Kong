@@ -306,6 +306,7 @@ def render_collection(cases: dict[str, Any]) -> dict[str, Any]:
             "type": "text/javascript",
             "exec": [
                 "if (pm.environment.get('RUN_KONG_V3_PARITY') !== 'true') {",
+                "  // Live parity execution is disabled unless explicitly enabled.",
                 "  pm.execution.skipRequest();",
                 "}",
             ],
