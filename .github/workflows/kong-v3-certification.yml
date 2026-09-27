@@ -19,7 +19,8 @@ concurrency:
 jobs:
   static-certification:
     name: static-certification
-    runs-on: ubuntu-24.04
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: [self-hosted, Linux, X64, codestra-ci]
     timeout-minutes: 30
     env:
       EXPECTED_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
@@ -97,14 +98,24 @@ jobs:
       - name: Run Lane D tests
         run: |
           set -Eeuo pipefail
-          pytest -q             tests/test_kong_foundation.py             tests/test_gateway_foundation_authority.py             tests/test_kong_identity_security.py             tests/test_kong_middleware_contract_v2.py
+          PYTEST_BASETEMP="${RUNNER_TEMP}/kong-v3-lane-d-pytest"
+          TMPDIR="${RUNNER_TEMP}/kong-v3-lane-d-tmp"
+          rm -rf "$PYTEST_BASETEMP" "$TMPDIR"
+          mkdir -p "$TMPDIR"
+          export TMPDIR
+          pytest -q -p no:cacheprovider --basetemp "$PYTEST_BASETEMP"             tests/test_kong_foundation.py             tests/test_gateway_foundation_authority.py             tests/test_kong_identity_security.py             tests/test_kong_middleware_contract_v2.py
           echo "LANE_D_FOCUSED_TESTS=PASS"
 
       - name: Enforce two-phase migration-manifest rule
         run: |
           set -Eeuo pipefail
           if grep -q '^V3_PHASE=INTEGRATED$' /tmp/kong-v3-foundation.txt; then
-            pytest -q -p no:cacheprovider
+            PYTEST_BASETEMP="${RUNNER_TEMP}/kong-v3-pytest"
+            TMPDIR="${RUNNER_TEMP}/kong-v3-full-tmp"
+            rm -rf "$PYTEST_BASETEMP" "$TMPDIR"
+            mkdir -p "$TMPDIR"
+            export TMPDIR
+            pytest -q -p no:cacheprovider --basetemp "$PYTEST_BASETEMP"
             python tools/generate_migration_manifests.py --check
             python tools/verify_migration_manifest.py
             echo "FULL_PYTEST=PASS"
