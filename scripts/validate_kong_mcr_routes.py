@@ -140,8 +140,11 @@ def validate(data):
         if "/internal" in route["pathTemplate"] or "/metrics" in route["pathTemplate"]:
             raise ValueError("internal route exposure")
         rx=kong_regex(route["pathRegex"])
-        if not PARAM.search(route["pathTemplate"]) and route["pathRegex"]!=route_regex(route["pathTemplate"]):
-            raise ValueError(f"path regex drift for {route['pathTemplate']}")
+        if not PARAM.search(route["pathTemplate"]):
+            expected_regex = route_regex(route["pathTemplate"])
+            accepted = {expected_regex, expected_regex.replace("~/", "~^/", 1)}
+            if route["pathRegex"] not in accepted:
+                raise ValueError(f"path regex drift for {route['pathTemplate']}")
         if not probe_fits_template(route["probePath"],route["pathTemplate"]) or not rx.fullmatch(route["probePath"]):
             raise ValueError(f"path regex does not route its probe: {route['name']}")
         compiled.append((route,rx))

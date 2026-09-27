@@ -50,7 +50,7 @@ def route_name(row):
 
 def exact_path(template):
     # Independently bind the reviewed parameter grammar, without importing the generator.
-    return "~^" + "".join(
+    return "~" + "".join(
         r"[A-Za-z0-9][A-Za-z0-9._:-]{0,127}" if part.startswith("{") else re.escape(part)
         for part in re.split(r"(\{[^{}]+\})", template)
     ) + "$"
