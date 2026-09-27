@@ -28,7 +28,7 @@ jobs:
   release-preflight:
     name: release-preflight
     if: github.event.pull_request.head.repo.full_name == github.repository
-    runs-on: ubuntu-24.04
+    runs-on: [self-hosted, Linux, X64, codestra-ci]
     timeout-minutes: 30
     env:
       EXPECTED_SHA: ${{ github.event.pull_request.head.sha }}
@@ -47,14 +47,19 @@ jobs:
           test "$(git rev-parse HEAD)" = "${EXPECTED_SHA}"
           test -z "$(git status --porcelain)"
 
+      - name: Set up Python 3.12
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.12"
+
       - name: Bind the release registry contract to this repository
         run: |
           set -Eeuo pipefail
-          python3 -m pip install --disable-pip-version-check --no-input PyYAML
-          python3 tools/release_contract.py \
+          python -m pip install --disable-pip-version-check --no-input PyYAML
+          python tools/release_contract.py \
             --assert-repository "${GITHUB_REPOSITORY}" \
             --assert-owner "${GITHUB_REPOSITORY_OWNER}"
-          image="$(python3 tools/release_contract.py --assert-repository "${GITHUB_REPOSITORY}" --print image)"
+          image="$(python tools/release_contract.py --assert-repository "${GITHUB_REPOSITORY}" --print image)"
           test "${image}" = "ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/kong-standby-auth"
           echo "STANDBY_IMAGE_REPOSITORY=${image}" >> "${GITHUB_ENV}"
 
@@ -79,9 +84,9 @@ jobs:
         run: |
           set -Eeuo pipefail
           builder="kong-preflight-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          echo "builder=${builder}" >> "${GITHUB_OUTPUT}"
           docker buildx create --name "${builder}" --driver docker-container --use
           docker buildx inspect --bootstrap
-          echo "builder=${builder}" >> "${GITHUB_OUTPUT}"
           local_tag="kong-standby-auth:preflight-${EXPECTED_SHA}"
           docker buildx build \
             --file deploy/kong-production-standby/auth-middleware/Dockerfile \
@@ -101,7 +106,7 @@ jobs:
           LOCAL_TAG: ${{ steps.build.outputs.local_tag }}
         run: |
           set -Eeuo pipefail
-          python3 tools/verify_standby_image.py --image "${LOCAL_TAG}" --expected-revision "${EXPECTED_SHA}"
+          python tools/verify_standby_image.py --image "${LOCAL_TAG}" --expected-revision "${EXPECTED_SHA}"
 
       - name: Publish the immutable preflight version with attestations
         id: standby
@@ -133,9 +138,11 @@ jobs:
       - name: Verify the registry digest and extract the attestations
         id: attest
         env:
+          GHCR_TOKEN: ${{ github.token }}
           LOCAL_DIGEST: ${{ steps.standby.outputs.digest }}
         run: |
           set -Eeuo pipefail
+          printf '%s' "${GHCR_TOKEN}" | docker login ghcr.io --username "${GITHUB_ACTOR}" --password-stdin
           docker buildx imagetools inspect "${STANDBY_IMAGE_REPOSITORY}@${LOCAL_DIGEST}" > "${RUNNER_TEMP}/standby-image-inspect.txt"
           remote="$(awk '$1 == "Digest:" {print $2; exit}' "${RUNNER_TEMP}/standby-image-inspect.txt")"
           [[ "${remote}" =~ ^sha256:[0-9a-f]{64}$ ]]
@@ -145,7 +152,7 @@ jobs:
             --format '{{ json .SBOM }}' > "${RUNNER_TEMP}/standby-sbom.attestation.json"
           docker buildx imagetools inspect "${STANDBY_IMAGE_REPOSITORY}@${LOCAL_DIGEST}" \
             --format '{{ json .Provenance }}' > "${RUNNER_TEMP}/standby-provenance.json"
-          python3 tools/extract_image_attestations.py \
+          python tools/extract_image_attestations.py \
             --sbom-attestation "${RUNNER_TEMP}/standby-sbom.attestation.json" \
             --sbom-output "${RUNNER_TEMP}/standby-sbom.spdx.json" \
             --provenance "${RUNNER_TEMP}/standby-provenance.json" \
@@ -172,7 +179,7 @@ jobs:
           STANDBY_PROVENANCE_SHA256: ${{ steps.attest.outputs.provenance_sha256 }}
         run: |
           set -Eeuo pipefail
-          python3 tools/generate_release_manifest.py \
+          python tools/generate_release_manifest.py \
             --output "${RUNNER_TEMP}/release-manifest.json" \
             --release-stage pull-request-preflight \
             --commit-verification-status "${COMMIT_VERIFICATION}" \
@@ -182,7 +189,7 @@ jobs:
             --standby-auth-provenance-sha256 "${STANDBY_PROVENANCE_SHA256}" \
             --staging-certification NOT_RUN_SOURCE_CANDIDATE \
             --rollback-source-sha "${ROLLBACK_SOURCE_SHA}"
-          python3 tools/verify_release_evidence.py \
+          python tools/verify_release_evidence.py \
             --manifest "${RUNNER_TEMP}/release-manifest.json" \
             --expected-source-sha "${EXPECTED_SHA}" \
             --expected-stage pull-request-preflight \
@@ -190,22 +197,17 @@ jobs:
             --provenance "${RUNNER_TEMP}/standby-provenance.json" \
             --registry-digest "$(cat "${RUNNER_TEMP}/standby-remote-digest.txt")"
 
-      - name: Upload bounded preflight evidence
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
-        with:
-          name: kong-release-preflight-${{ env.EXPECTED_SHA }}
-          path: |
-            ${{ runner.temp }}/release-manifest.json
-            ${{ runner.temp }}/standby-build-metadata.json
-            ${{ runner.temp }}/standby-image.txt
-            ${{ runner.temp }}/standby-remote-digest.txt
-            ${{ runner.temp }}/standby-image-inspect.txt
-            ${{ runner.temp }}/standby-sbom.spdx.json
-            ${{ runner.temp }}/standby-provenance.json
-            ${{ runner.temp }}/kong-image.txt
-            ${{ runner.temp }}/kong-image-inspect.txt
-          if-no-files-found: error
-          retention-days: 30
+      - name: Record registry-backed preflight evidence
+        run: |
+          {
+            echo "### Release preflight evidence"
+            echo "- Release manifest: verified in-job"
+            echo "- Registry digest: verified against pushed image"
+            echo "- SBOM attestation: verified from GHCR"
+            echo "- Provenance attestation: verified from GHCR"
+            echo
+            echo "GitHub Actions artifact retention is not a release gate while account artifact storage quota is exhausted. This preflight remains non-promotable and runtime apply remains unauthorized."
+          } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Close registry session and builder
         if: always()

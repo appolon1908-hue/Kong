@@ -11,7 +11,8 @@ permissions:
 
 jobs:
   kong-config:
-    runs-on: ubuntu-latest
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: [self-hosted, Linux, X64, codestra-ci]
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09
       - name: Install pinned decK
@@ -23,19 +24,23 @@ jobs:
             "https://github.com/Kong/deck/releases/download/v${DECK_VERSION}/deck_${DECK_VERSION}_linux_amd64.tar.gz"
           echo "${DECK_SHA256}  /tmp/deck.tar.gz" | sha256sum --check
           tar -xzf /tmp/deck.tar.gz -C /tmp deck
+      - name: Set up Python 3.12
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.12"
       - name: Validate declarative and exact authority
         run: |
           /tmp/deck file validate deploy/kong/control-plane.yml
-          python3 -m pip install --disable-pip-version-check pytest PyYAML
-          python3 scripts/render_kong_calling_routes.py > /tmp/kong-calling-routes.yml
+          python -m pip install --disable-pip-version-check pytest PyYAML
+          python scripts/render_kong_calling_routes.py > /tmp/kong-calling-routes.yml
           /tmp/deck file validate /tmp/kong-calling-routes.yml
-          python3 scripts/render_kong_moneybee_identity.py > /tmp/kong-moneybee-identity.yml
+          python scripts/render_kong_moneybee_identity.py > /tmp/kong-moneybee-identity.yml
           /tmp/deck file validate /tmp/kong-moneybee-identity.yml
-          python3 scripts/render_kong_campaign_automation_routes.py --environment production > /tmp/kong-campaign-automation-production.yml
+          python scripts/render_kong_campaign_automation_routes.py --environment production > /tmp/kong-campaign-automation-production.yml
           /tmp/deck file validate /tmp/kong-campaign-automation-production.yml
-          python3 scripts/render_kong_campaign_automation_routes.py --environment staging > /tmp/kong-campaign-automation-staging.yml
+          python scripts/render_kong_campaign_automation_routes.py --environment staging > /tmp/kong-campaign-automation-staging.yml
           /tmp/deck file validate /tmp/kong-campaign-automation-staging.yml
           /tmp/deck file validate config/kong-middleware-routes.production.yml
           /tmp/deck file validate config/staging/kong-middleware-routes.staging.yml
-          python3 scripts/validate_middleware_edge_contract.py
+          python scripts/validate_middleware_edge_contract.py
           pytest -q tests/test_kong_canonical_route_contract.py tests/test_kong_route_authority_hardening.py tests/test_kong_campaign_edge_certification.py
