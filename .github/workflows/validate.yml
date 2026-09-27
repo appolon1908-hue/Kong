@@ -16,7 +16,8 @@ defaults:
 jobs:
   source-head:
     name: source-head
-    runs-on: ubuntu-24.04
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: [self-hosted, Linux, X64, codestra-ci]
     env:
       EXPECTED_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
     steps:
@@ -31,6 +32,10 @@ jobs:
           set -Eeuo pipefail
           test "$(git rev-parse HEAD)" = "${EXPECTED_SHA}"
           test -z "$(git status --porcelain)"
+      - name: Set up Python 3.12
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.12"
       - name: Install validation dependencies
         run: |
           sudo apt-get update
@@ -101,14 +106,19 @@ jobs:
           # Every test module in the repository, on Linux, in addition to the
           # enumerated authority suites above: no module can be left out of
           # the gate by omission.
-          pytest -q -p no:cacheprovider
+          PYTEST_BASETEMP="${RUNNER_TEMP}/kong-source-head-pytest"
+          TMPDIR="${RUNNER_TEMP}/kong-source-head-tmp"
+          rm -rf "$PYTEST_BASETEMP" "$TMPDIR"
+          mkdir -p "$TMPDIR"
+          export TMPDIR
+          pytest -q -p no:cacheprovider --basetemp "$PYTEST_BASETEMP"
           git diff --exit-code
           test -z "$(git status --porcelain)"
 
   merge-result:
     name: merge-result
-    if: github.event_name == 'pull_request'
-    runs-on: ubuntu-24.04
+    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: [self-hosted, Linux, X64, codestra-ci]
     env:
       EXPECTED_SHA: ${{ github.sha }}
     steps:
@@ -118,6 +128,10 @@ jobs:
           ref: ${{ env.EXPECTED_SHA }}
           fetch-depth: 1
           persist-credentials: false
+      - name: Set up Python 3.12
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.12"
       - name: Install merge-result validation dependencies
         run: |
           sudo apt-get update
@@ -148,7 +162,7 @@ jobs:
     name: validate
     if: always()
     needs: [source-head, merge-result]
-    runs-on: ubuntu-24.04
+    runs-on: [self-hosted, Linux, X64, codestra-ci]
     steps:
       - name: Require exact head and applicable merge-result validation
         env:
