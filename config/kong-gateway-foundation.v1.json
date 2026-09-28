@@ -1255,6 +1255,18 @@
       {
         "path": "config/kong-webhook-registry.v1.json",
         "reason": "Lane C webhook ownership/certification registry; canonical/pending ingress routes remain sourced from the Middleware route authority and Kong declarative manifests."
+      },
+      {
+        "path": "config/kong-mcr-routes.v1.json",
+        "reason": "MCR-J source-only route contract (runtimeApplyAuthorized=false); validated by scripts/validate_kong_mcr_routes.py for Middleware :8095 upstream, zero overlap with the pinned Middleware contract and private-surface denial. Foundation route registration is required before any activation."
+      },
+      {
+        "path": "config/kong-mcr-routes.production.yml",
+        "reason": "MCR-J declarative fragment rendered from config/kong-mcr-routes.v1.json by scripts/render_kong_mcr_routes.py; not deployed and not activation-eligible until registered as a foundation source."
+      },
+      {
+        "path": "config/staging/kong-mcr-routes.staging.yml",
+        "reason": "MCR-J staging declarative fragment rendered from config/kong-mcr-routes.v1.json by scripts/render_kong_mcr_routes.py; not deployed and not activation-eligible until registered as a foundation source."
       }
     ]
   },
