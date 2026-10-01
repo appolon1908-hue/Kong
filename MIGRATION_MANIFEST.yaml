@@ -240,7 +240,7 @@ files:
   sha256: d5a95c1fac2312a4ab0d76e0d54937321222bdd53aee03fdea922ac9a7e1d906
   size: 3917
 - path: deploy/kong-production-standby/auth-middleware/requirements.txt
-  sha256: 382707083450f4da08872d52fcba56347052ee55cc3f5c6f4cc0541cc7a7c57d
+  sha256: d9aec6385686acf7975c8505719720a2605f8d076e247314c795d07622b74b63
   size: 79
 - path: deploy/kong-production-standby/auth-middleware/test_body_limit.py
   sha256: 0d97b9f17c9a1b5dd1355bc6c4b7a9e6014cf25d687a9b0cf0115afbf1748cba
@@ -930,7 +930,7 @@ files:
   sha256: 9346d7586c76f1386231236259325f17d7f36a1a1486a7ada454314a11d380f7
   size: 6249
 generated_at: '2026-08-26T21:10:25.642865+00:00'
-manifest_generation_id: 02155cedbe1b4bdfcdd07d20ea8f012407c7e67dd33b4bfb272a959d500f4206
+manifest_generation_id: 1ee80013f594f6f8f4821b9417c3c2062caf9b565bb45c9d5306062e6391373a
 production_state_changed: false
 schema: codestra.kong.repository-migration.v1
 source_files:

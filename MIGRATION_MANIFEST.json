@@ -402,7 +402,7 @@
     },
     {
       "path": "deploy/kong-production-standby/auth-middleware/requirements.txt",
-      "sha256": "382707083450f4da08872d52fcba56347052ee55cc3f5c6f4cc0541cc7a7c57d",
+      "sha256": "d9aec6385686acf7975c8505719720a2605f8d076e247314c795d07622b74b63",
       "size": 79
     },
     {
@@ -1552,7 +1552,7 @@
     }
   ],
   "generated_at": "2026-08-26T21:10:25.642865+00:00",
-  "manifest_generation_id": "02155cedbe1b4bdfcdd07d20ea8f012407c7e67dd33b4bfb272a959d500f4206",
+  "manifest_generation_id": "1ee80013f594f6f8f4821b9417c3c2062caf9b565bb45c9d5306062e6391373a",
   "production_state_changed": false,
   "schema": "codestra.kong.repository-migration.v1",
   "source_files": [
