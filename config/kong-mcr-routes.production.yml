@@ -23,7 +23,7 @@ routes:
   - name: pre-function
     config:
       access:
-      - "-- Generated MCR required-header guard (raw request metadata only).\nfor _, pair in ipairs({{\"X-Tenant-ID\", \"tenant_id_required\"}, {\"X-Correlation-ID\", \"correlation_id_required\"}}) do\n  local value = kong.request.get_header(pair[1])\n  if type(value) ~= \"string\" or value == \"\" then\n    return kong.response.exit(400, { error = pair[2] }, { [\"Content-Type\"] = \"application/json\" })\n  end\nend"
+      - "-- Generated MCR required-header guard (raw request metadata only).\n-- Echo the caller's correlation id only when it is a safe identifier,\n-- the same rule codestra-request-context applies, so it is never reflected raw.\nlocal response_headers = { [\"Content-Type\"] = \"application/json\" }\nlocal correlation = kong.request.get_header(\"X-Correlation-ID\")\nif type(correlation) == \"string\" and #correlation <= 128\n    and correlation:match(\"^[A-Za-z0-9][A-Za-z0-9._:-]*$\") then\n  response_headers[\"X-Correlation-ID\"] = correlation\nend\nfor _, pair in ipairs({{\"X-Tenant-ID\", \"tenant_id_required\"}, {\"X-Correlation-ID\", \"correlation_id_required\"}}) do\n  local value = kong.request.get_header(pair[1])\n  if type(value) ~= \"string\" or value == \"\" then\n    return kong.response.exit(400, { error = pair[2] }, response_headers)\n  end\nend"
   - name: openid-connect
     config:
       issuer: https://auth.codestra.co/realms/codestra/.well-known/openid-configuration
@@ -84,7 +84,7 @@ routes:
   - name: pre-function
     config:
       access:
-      - "-- Generated MCR required-header guard (raw request metadata only).\nfor _, pair in ipairs({{\"X-Tenant-ID\", \"tenant_id_required\"}, {\"X-Correlation-ID\", \"correlation_id_required\"}, {\"Idempotency-Key\", \"idempotency_key_required\"}}) do\n  local value = kong.request.get_header(pair[1])\n  if type(value) ~= \"string\" or value == \"\" then\n    return kong.response.exit(400, { error = pair[2] }, { [\"Content-Type\"] = \"application/json\" })\n  end\nend"
+      - "-- Generated MCR required-header guard (raw request metadata only).\n-- Echo the caller's correlation id only when it is a safe identifier,\n-- the same rule codestra-request-context applies, so it is never reflected raw.\nlocal response_headers = { [\"Content-Type\"] = \"application/json\" }\nlocal correlation = kong.request.get_header(\"X-Correlation-ID\")\nif type(correlation) == \"string\" and #correlation <= 128\n    and correlation:match(\"^[A-Za-z0-9][A-Za-z0-9._:-]*$\") then\n  response_headers[\"X-Correlation-ID\"] = correlation\nend\nfor _, pair in ipairs({{\"X-Tenant-ID\", \"tenant_id_required\"}, {\"X-Correlation-ID\", \"correlation_id_required\"}, {\"Idempotency-Key\", \"idempotency_key_required\"}}) do\n  local value = kong.request.get_header(pair[1])\n  if type(value) ~= \"string\" or value == \"\" then\n    return kong.response.exit(400, { error = pair[2] }, response_headers)\n  end\nend"
   - name: openid-connect
     config:
       issuer: https://auth.codestra.co/realms/codestra/.well-known/openid-configuration
@@ -145,7 +145,7 @@ routes:
   - name: pre-function
     config:
       access:
-      - "-- Generated MCR required-header guard (raw request metadata only).\nfor _, pair in ipairs({{\"X-Tenant-ID\", \"tenant_id_required\"}, {\"X-Correlation-ID\", \"correlation_id_required\"}}) do\n  local value = kong.request.get_header(pair[1])\n  if type(value) ~= \"string\" or value == \"\" then\n    return kong.response.exit(400, { error = pair[2] }, { [\"Content-Type\"] = \"application/json\" })\n  end\nend"
+      - "-- Generated MCR required-header guard (raw request metadata only).\n-- Echo the caller's correlation id only when it is a safe identifier,\n-- the same rule codestra-request-context applies, so it is never reflected raw.\nlocal response_headers = { [\"Content-Type\"] = \"application/json\" }\nlocal correlation = kong.request.get_header(\"X-Correlation-ID\")\nif type(correlation) == \"string\" and #correlation <= 128\n    and correlation:match(\"^[A-Za-z0-9][A-Za-z0-9._:-]*$\") then\n  response_headers[\"X-Correlation-ID\"] = correlation\nend\nfor _, pair in ipairs({{\"X-Tenant-ID\", \"tenant_id_required\"}, {\"X-Correlation-ID\", \"correlation_id_required\"}}) do\n  local value = kong.request.get_header(pair[1])\n  if type(value) ~= \"string\" or value == \"\" then\n    return kong.response.exit(400, { error = pair[2] }, response_headers)\n  end\nend"
   - name: openid-connect
     config:
       issuer: https://auth.codestra.co/realms/codestra/.well-known/openid-configuration
@@ -206,7 +206,7 @@ routes:
   - name: pre-function
     config:
       access:
-      - "-- Generated MCR required-header guard (raw request metadata only).\nfor _, pair in ipairs({{\"X-Tenant-ID\", \"tenant_id_required\"}, {\"X-Correlation-ID\", \"correlation_id_required\"}}) do\n  local value = kong.request.get_header(pair[1])\n  if type(value) ~= \"string\" or value == \"\" then\n    return kong.response.exit(400, { error = pair[2] }, { [\"Content-Type\"] = \"application/json\" })\n  end\nend"
+      - "-- Generated MCR required-header guard (raw request metadata only).\n-- Echo the caller's correlation id only when it is a safe identifier,\n-- the same rule codestra-request-context applies, so it is never reflected raw.\nlocal response_headers = { [\"Content-Type\"] = \"application/json\" }\nlocal correlation = kong.request.get_header(\"X-Correlation-ID\")\nif type(correlation) == \"string\" and #correlation <= 128\n    and correlation:match(\"^[A-Za-z0-9][A-Za-z0-9._:-]*$\") then\n  response_headers[\"X-Correlation-ID\"] = correlation\nend\nfor _, pair in ipairs({{\"X-Tenant-ID\", \"tenant_id_required\"}, {\"X-Correlation-ID\", \"correlation_id_required\"}}) do\n  local value = kong.request.get_header(pair[1])\n  if type(value) ~= \"string\" or value == \"\" then\n    return kong.response.exit(400, { error = pair[2] }, response_headers)\n  end\nend"
   - name: openid-connect
     config:
       issuer: https://auth.codestra.co/realms/codestra/.well-known/openid-configuration
@@ -267,7 +267,7 @@ routes:
   - name: pre-function
     config:
       access:
-      - "-- Generated MCR required-header guard (raw request metadata only).\nfor _, pair in ipairs({{\"X-Tenant-ID\", \"tenant_id_required\"}, {\"X-Correlation-ID\", \"correlation_id_required\"}}) do\n  local value = kong.request.get_header(pair[1])\n  if type(value) ~= \"string\" or value == \"\" then\n    return kong.response.exit(400, { error = pair[2] }, { [\"Content-Type\"] = \"application/json\" })\n  end\nend"
+      - "-- Generated MCR required-header guard (raw request metadata only).\n-- Echo the caller's correlation id only when it is a safe identifier,\n-- the same rule codestra-request-context applies, so it is never reflected raw.\nlocal response_headers = { [\"Content-Type\"] = \"application/json\" }\nlocal correlation = kong.request.get_header(\"X-Correlation-ID\")\nif type(correlation) == \"string\" and #correlation <= 128\n    and correlation:match(\"^[A-Za-z0-9][A-Za-z0-9._:-]*$\") then\n  response_headers[\"X-Correlation-ID\"] = correlation\nend\nfor _, pair in ipairs({{\"X-Tenant-ID\", \"tenant_id_required\"}, {\"X-Correlation-ID\", \"correlation_id_required\"}}) do\n  local value = kong.request.get_header(pair[1])\n  if type(value) ~= \"string\" or value == \"\" then\n    return kong.response.exit(400, { error = pair[2] }, response_headers)\n  end\nend"
   - name: openid-connect
     config:
       issuer: https://auth.codestra.co/realms/codestra/.well-known/openid-configuration
@@ -328,7 +328,8 @@ routes:
   - name: pre-function
     config:
       access:
-      - "-- Generated MCR required-header guard (raw request metadata only).\nfor _, pair in ipairs({{\"X-Tenant-ID\", \"tenant_id_required\"}, {\"X-Correlation-ID\", \"correlation_id_required\"}, {\"Idempotency-Key\", \"idempotency_key_required\"}, {\"X-Codestra-Event-ID\", \"event_id_required\"}, {\"X-Codestra-Timestamp\", \"event_timestamp_required\"}, {\"X-Codestra-Signature\", \"event_signature_required\"}}) do\n  local value = kong.request.get_header(pair[1])\n  if type(value) ~= \"string\" or value == \"\" then\n    return kong.response.exit(400, { error = pair[2] }, { [\"Content-Type\"] = \"application/json\" })\n  end\nend"
+      - "-- Generated MCR required-header guard (raw request metadata only).\n-- Echo the caller's correlation id only when it is a safe identifier,\n-- the same rule codestra-request-context applies, so it is never reflected raw.\nlocal response_headers = { [\"Content-Type\"] = \"application/json\" }\nlocal correlation = kong.request.get_header(\"X-Correlation-ID\")\nif type(correlation) == \"string\" and #correlation <= 128\n    and correlation:match(\"^[A-Za-z0-9][A-Za-z0-9._:-]*$\") then\n  response_headers[\"X-Correlation-ID\"] = correlation\nend\nfor _, pair in ipairs({{\"X-Tenant-ID\", \"tenant_id_required\"}, {\"X-Correlation-ID\", \"correlation_id_required\"}, {\"Idempotency-Key\", \"idempotency_key_required\"}, {\"X-Codestra-Event-ID\", \"event_id_required\"}, {\"X-Codestra-Timestamp\", \"event_timestamp_required\"}, {\"X-Codestra-Signature\", \"event_signature_required\"}}) do\n  local value = kong.request.get_header(pair[1])\n  if type(value) ~= \"string\" or value == \"\" then\n\
+        \    return kong.response.exit(400, { error = pair[2] }, response_headers)\n  end\nend"
   - name: openid-connect
     config:
       issuer: https://auth.codestra.co/realms/codestra/.well-known/openid-configuration
@@ -389,7 +390,7 @@ routes:
   - name: pre-function
     config:
       access:
-      - "-- Generated MCR required-header guard (raw request metadata only).\nfor _, pair in ipairs({{\"X-Tenant-ID\", \"tenant_id_required\"}, {\"X-Correlation-ID\", \"correlation_id_required\"}, {\"Idempotency-Key\", \"idempotency_key_required\"}}) do\n  local value = kong.request.get_header(pair[1])\n  if type(value) ~= \"string\" or value == \"\" then\n    return kong.response.exit(400, { error = pair[2] }, { [\"Content-Type\"] = \"application/json\" })\n  end\nend"
+      - "-- Generated MCR required-header guard (raw request metadata only).\n-- Echo the caller's correlation id only when it is a safe identifier,\n-- the same rule codestra-request-context applies, so it is never reflected raw.\nlocal response_headers = { [\"Content-Type\"] = \"application/json\" }\nlocal correlation = kong.request.get_header(\"X-Correlation-ID\")\nif type(correlation) == \"string\" and #correlation <= 128\n    and correlation:match(\"^[A-Za-z0-9][A-Za-z0-9._:-]*$\") then\n  response_headers[\"X-Correlation-ID\"] = correlation\nend\nfor _, pair in ipairs({{\"X-Tenant-ID\", \"tenant_id_required\"}, {\"X-Correlation-ID\", \"correlation_id_required\"}, {\"Idempotency-Key\", \"idempotency_key_required\"}}) do\n  local value = kong.request.get_header(pair[1])\n  if type(value) ~= \"string\" or value == \"\" then\n    return kong.response.exit(400, { error = pair[2] }, response_headers)\n  end\nend"
   - name: openid-connect
     config:
       issuer: https://auth.codestra.co/realms/codestra/.well-known/openid-configuration
@@ -450,7 +451,7 @@ routes:
   - name: pre-function
     config:
       access:
-      - "-- Generated MCR required-header guard (raw request metadata only).\nfor _, pair in ipairs({{\"X-Tenant-ID\", \"tenant_id_required\"}, {\"X-Correlation-ID\", \"correlation_id_required\"}}) do\n  local value = kong.request.get_header(pair[1])\n  if type(value) ~= \"string\" or value == \"\" then\n    return kong.response.exit(400, { error = pair[2] }, { [\"Content-Type\"] = \"application/json\" })\n  end\nend"
+      - "-- Generated MCR required-header guard (raw request metadata only).\n-- Echo the caller's correlation id only when it is a safe identifier,\n-- the same rule codestra-request-context applies, so it is never reflected raw.\nlocal response_headers = { [\"Content-Type\"] = \"application/json\" }\nlocal correlation = kong.request.get_header(\"X-Correlation-ID\")\nif type(correlation) == \"string\" and #correlation <= 128\n    and correlation:match(\"^[A-Za-z0-9][A-Za-z0-9._:-]*$\") then\n  response_headers[\"X-Correlation-ID\"] = correlation\nend\nfor _, pair in ipairs({{\"X-Tenant-ID\", \"tenant_id_required\"}, {\"X-Correlation-ID\", \"correlation_id_required\"}}) do\n  local value = kong.request.get_header(pair[1])\n  if type(value) ~= \"string\" or value == \"\" then\n    return kong.response.exit(400, { error = pair[2] }, response_headers)\n  end\nend"
   - name: openid-connect
     config:
       issuer: https://auth.codestra.co/realms/codestra/.well-known/openid-configuration

@@ -170,6 +170,19 @@ def test_duplicate_apply_is_idempotent(tmp_path):
     assert second["correlation_id"] == "c1"
 
 
+def test_reused_apply_key_with_changed_desired_state_is_rejected(tmp_path):
+    first = executor(tmp_path, enabled=True)
+    applied = first.apply(idempotency_key="reused", correlation_id="c1", expected_hash=first.desired_hash)
+    assert applied["status"] == "SUCCEEDED"
+    changed_manifest = copy.deepcopy(MANIFEST)
+    changed_manifest["reviewRevision"] = "desired-state-changed"
+    second = DesiredStateExecutor(FakeAdapter(first.adapter.state), ExecutionStore(tmp_path / "journal"),
+                                  changed_manifest, copy.deepcopy(INVENTORY), apply_enabled=True)
+    assert second.desired_hash != first.desired_hash
+    with pytest.raises(RuntimeError, match="idempotency desired-state mismatch"):
+        second.apply(idempotency_key="reused", correlation_id="c2", expected_hash=second.desired_hash)
+
+
 def test_dry_run_and_apply_keys_are_scoped_by_operation(tmp_path):
     exe = executor(tmp_path, enabled=True)
     dry = exe.dry_run(idempotency_key="same", correlation_id="dry")

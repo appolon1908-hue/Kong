@@ -46,10 +46,18 @@ def required_headers_guard(route: dict[str, Any], codes: dict[str, str], status:
     return "\n".join(
         [
             "-- Generated MCR required-header guard (raw request metadata only).",
+            "-- Echo the caller's correlation id only when it is a safe identifier,",
+            "-- the same rule codestra-request-context applies, so it is never reflected raw.",
+            "local response_headers = { [\"Content-Type\"] = \"application/json\" }",
+            "local correlation = kong.request.get_header(\"X-Correlation-ID\")",
+            "if type(correlation) == \"string\" and #correlation <= 128",
+            "    and correlation:match(\"^[A-Za-z0-9][A-Za-z0-9._:-]*$\") then",
+            "  response_headers[\"X-Correlation-ID\"] = correlation",
+            "end",
             f"for _, pair in ipairs({{{pairs}}}) do",
             "  local value = kong.request.get_header(pair[1])",
             "  if type(value) ~= \"string\" or value == \"\" then",
-            f"    return kong.response.exit({status}, {{ error = pair[2] }}, {{ [\"Content-Type\"] = \"application/json\" }})",
+            f"    return kong.response.exit({status}, {{ error = pair[2] }}, response_headers)",
             "  end",
             "end",
         ]

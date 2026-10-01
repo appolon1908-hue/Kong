@@ -135,8 +135,8 @@ files:
   sha256: 7920954c55b5fc92bfed8440a8287d53bddddf120af2c04511f5677aa2581072
   size: 1821
 - path: config/kong-mcr-routes.production.yml
-  sha256: 6022cf80be7d9df452e44f7bd3223f427ff83912459c3269a1dd34b37ff3e098
-  size: 23999
+  sha256: 24ce771f8a3fbc1dd08cdae012b5827b7d7db5f0f73614188569a9700282bfe5
+  size: 27626
 - path: config/kong-mcr-routes.v1.json
   sha256: 85957ae6072679b0f6027349eb8fd79d0b638952c9cdf6269173dea2a2044aa1
   size: 9527
@@ -195,8 +195,8 @@ files:
   sha256: d795cd48398c745b83b9d42e9629ef073fcd3c823f15fa81c6d8788097ccd6d1
   size: 3841
 - path: config/staging/kong-mcr-routes.staging.yml
-  sha256: 72655b587f7d1a949672c7d4c2fcc4ea311a933f6b0c24f8ffc69ed82fa2b9dd
-  size: 24063
+  sha256: bc979121380ea5abf0ac65812b1240241e9e4f03927ff007572c5797d2f862cd
+  size: 27690
 - path: config/staging/kong-middleware-routes.staging.yml
   sha256: 5849dc9f7a6a25893ed6dca39839a568505ea9ef6c8a30d5eb47f7ac3c4e7650
   size: 532442
@@ -609,8 +609,8 @@ files:
   sha256: 3963d43e7decbedd90a941e199ce9c0cfa534137f5980d6db878e07336da7e8f
   size: 23020
 - path: scripts/generate_kong_postman.py
-  sha256: 2728e0788627da57c2324c752885c7db1ef985cc137ea076ef35d95dbc30bbe7
-  size: 25782
+  sha256: cd0ea8e84516897ab832bce364b30bbedd2b16c5f0be9807d1eefc17547cd180
+  size: 26071
 - path: scripts/generate_middleware_routes.py
   sha256: c9a8b86c8a7f9bd1749403f84ed03056d4d74f110bd58fbacc98cd0295f914b5
   size: 20781
@@ -654,8 +654,8 @@ files:
   sha256: a4a251e67efa977e639329e4b04c3da799288f6105d39cf802fe9f1871eeb3b7
   size: 4783
 - path: scripts/render_kong_mcr_routes.py
-  sha256: b715f75e6de5a0e939db91a7a20eeda1bfdaf1e02a3be638b1a85afb125138a1
-  size: 7457
+  sha256: 94a5678be935a0143800b317e7e5a0889d85be7a1676d6ab98d513e41d1e9254
+  size: 8019
 - path: scripts/render_kong_moneybee_identity.py
   sha256: b1a72df1d9711454ba6cfa4d2c0824e011189103de5ceb246937ef5569c7eb45
   size: 3053
@@ -768,8 +768,8 @@ files:
   sha256: b6f3c3cb3ee82c3965e84f3903a3c19c9eaef49aa2a272b8902cb3a77d4833d7
   size: 6784
 - path: tests/test_kong_desired_state_executor.py
-  sha256: e09e6523cf6e81217268a7ef6feadb5928910ef14bef13a6f94060cdecf8ef3c
-  size: 11311
+  sha256: 1a2081df32fc57e83e40a4de4f4f55e1a03495ebd8c46b81853235d5166cdee5
+  size: 12139
 - path: tests/test_kong_foundation.py
   sha256: 2d1a16fb2de11d1ec6a758ede0674ecdcb1ebd3e95cfb59112ee8de8411f75c2
   size: 27640
@@ -777,8 +777,8 @@ files:
   sha256: cc49f63e7fa452242d6944d0166de258544115ebee894d15102b68d50c960d88
   size: 47796
 - path: tests/test_kong_mcr_routes.py
-  sha256: 43f1b89076f7987aa6ca9f0d41dff9c6fe02b7d322a84cf47c178e5cf1276b78
-  size: 5788
+  sha256: 4396fe91a65bdda3372199d68733546fcdd67d416edd5296c7de081d6a35f835
+  size: 7170
 - path: tests/test_kong_middleware_contract_v2.py
   sha256: e829385d4229a23e10e76ecd577446f9f50b0c8370c3a4dd6bb0c5fdfa33430f
   size: 6960
@@ -798,8 +798,8 @@ files:
   sha256: b97f461c54ae60e7258ee0aa30a17c1bb9e6d26a50851fcf81858dd8d59433ce
   size: 1726
 - path: tests/test_kong_postman_generation.py
-  sha256: bf556dad93f7df86b0ac555d5a33b991ea338a59e83b2ca084adfc1c24a83ad6
-  size: 7911
+  sha256: b49cddefd208f1aea39102035ac40cebc360dec0e5ee75c03e962dee454e6fc0
+  size: 8536
 - path: tests/test_kong_private_surface.py
   sha256: af7bbde68b61680a34530b701e7ff4dd53214ce1e78e6b168392362f3e7874a9
   size: 7824
@@ -930,7 +930,7 @@ files:
   sha256: 9346d7586c76f1386231236259325f17d7f36a1a1486a7ada454314a11d380f7
   size: 6249
 generated_at: '2026-08-26T21:10:25.642865+00:00'
-manifest_generation_id: 1ee80013f594f6f8f4821b9417c3c2062caf9b565bb45c9d5306062e6391373a
+manifest_generation_id: 56e438c34693ed410ecc441f56ba34b2ff07509d3ce3bbb7a60962b8cce4aae2
 production_state_changed: false
 schema: codestra.kong.repository-migration.v1
 source_files:

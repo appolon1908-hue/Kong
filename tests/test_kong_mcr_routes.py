@@ -88,3 +88,26 @@ def test_renderer_refuses_apply():
 def test_non_kong_regex_path_form_fails():
  d=copy.deepcopy(BASE);r=route(d,"mcr-plan");r["pathRegex"]="~^"+r["pathRegex"][1:]
  with pytest.raises(ValueError,match="Kong ~/ form"): mod.validate(d)
+def _run_guard(headers):
+ import yaml
+ from lupa import LuaRuntime
+ doc=yaml.safe_load((ROOT/"config/kong-mcr-routes.production.yml").read_text())
+ kr=next(r for r in doc["routes"] if r["name"]=="mcr-plan")
+ guard=next(p for p in kr["plugins"] if p["name"]=="pre-function")["config"]["access"][0]
+ lua=LuaRuntime(unpack_returned_tuples=True)
+ exits=[]
+ lua.globals().py_header=lambda name: headers.get(name)
+ lua.globals().py_exit=lambda status,body,hdrs: exits.append((status,dict(body),dict(hdrs))) or "exited"
+ lua.execute("kong={request={get_header=function(n) return py_header(n) end},response={exit=function(s,b,h) return py_exit(s,b,h) end}}")
+ lua.execute(guard)
+ return exits
+def test_header_guard_echoes_safe_correlation_id_on_rejection():
+ exits=_run_guard({"X-Correlation-ID":"TEST_SYN-corr.1:a"})
+ assert exits and exits[0][0]==400 and exits[0][1]["error"]=="tenant_id_required"
+ assert exits[0][2]["X-Correlation-ID"]=="TEST_SYN-corr.1:a" and exits[0][2]["Content-Type"]=="application/json"
+def test_header_guard_never_reflects_unsafe_correlation_id():
+ for bad in ("x\r\nSet-Cookie: a=b","-leading-dash","a"*129,"has space"):
+  exits=_run_guard({"X-Correlation-ID":bad})
+  assert exits and "X-Correlation-ID" not in exits[0][2]
+def test_header_guard_passes_complete_caller_context():
+ assert _run_guard({"X-Correlation-ID":"TEST_SYN-1","X-Tenant-ID":"tenant-1"})==[]

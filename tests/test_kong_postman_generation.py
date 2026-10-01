@@ -173,3 +173,14 @@ def test_mcr_negatives_assert_normalized_gateway_errors_and_private_denials() ->
         assert f'"error": "{code}"' in script(items[name], "test")
     for name in ("mcr-private-campaign-namespace", "mcr-internal-prefix", "mcr-private-odoo-actual-state"):
         assert '"expect": [404]' in script(items[name], "test")
+
+
+def test_positive_probes_reject_gateway_auth_and_routing_failures() -> None:
+    routed = [item for item in all_items(COLLECTION["item"]) if '"mode": "routed"' in script(item, "test")]
+    assert len(routed) == 35 + sum(1 for r in MCR["routes"] if r["effects"] != "hard_denied_by_middleware")
+    for item in routed:
+        test = script(item, "test")
+        assert "positive probe passed gateway authentication and routing" in test, item["name"]
+        assert "pm.expect([401, 403]).to.not.include(pm.response.code);" in test
+        assert "private_surface_not_found" in test
+        assert "no Route matched" in test
