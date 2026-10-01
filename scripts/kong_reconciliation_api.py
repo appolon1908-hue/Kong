@@ -15,7 +15,7 @@ SCRIPTS = str(Path(__file__).resolve().parent)
 if SCRIPTS not in sys.path:
     sys.path.insert(0, SCRIPTS)
 
-from kong_reconciliation_executor import load_default_executor
+from kong_reconciliation_executor import DEFAULT_CONTAINER, AdapterConfig, KongAdminAdapter, load_default_executor, sanitize
 
 MAX_REQUEST_BYTES = 16 * 1024
 EXECUTION_ID = re.compile(r"[A-Za-z0-9_.:-]{1,160}\Z")
@@ -33,7 +33,13 @@ class ReconciliationAPI:
         }
 
     def handle(self, method: str, path: str, headers: dict[str, str], body: bytes) -> tuple[int, dict]:
+        status, payload = self._handle(method, path, headers, body)
+        return status, sanitize(payload)
+
+    def _handle(self, method: str, path: str, headers: dict[str, str], body: bytes) -> tuple[int, dict]:
         correlation_id = headers.get("x-correlation-id") or str(uuid.uuid4())
+        if not isinstance(correlation_id, str) or not EXECUTION_ID.fullmatch(correlation_id):
+            return self.error("INVALID_REQUEST", "valid correlation id required", str(uuid.uuid4()), 400)
         try:
             payload = {}
             if body:
@@ -90,12 +96,12 @@ class ReconciliationAPI:
             return self.error("APPLY_DISABLED", "runtime apply is disabled", correlation_id, 403)
         except FileNotFoundError:
             return self.error("EXECUTION_NOT_FOUND", "execution not found", correlation_id, 404)
-        except json.JSONDecodeError:
+        except (json.JSONDecodeError, UnicodeDecodeError):
             return self.error("INVALID_JSON", "request body is not valid JSON", correlation_id, 400)
-        except ValueError as exc:
-            return self.error("INVALID_REQUEST", str(exc), correlation_id, 400)
-        except RuntimeError as exc:
-            return self.error("RECONCILIATION_REJECTED", str(exc), correlation_id, 409)
+        except ValueError:
+            return self.error("INVALID_REQUEST", "request validation failed", correlation_id, 400)
+        except RuntimeError:
+            return self.error("RECONCILIATION_REJECTED", "reconciliation rejected", correlation_id, 409)
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -110,10 +116,20 @@ class Handler(BaseHTTPRequestHandler):
     def _run(self):
         length = self.headers.get("Content-Length", "0")
         try:
+            if (len(self.headers.get_all("Content-Length") or []) > 1
+                    or self.headers.get("Transfer-Encoding")
+                    or not re.fullmatch(r"[0-9]+", length)):
+                raise ValueError("invalid request framing")
             n = int(length)
         except ValueError:
-            n = MAX_REQUEST_BYTES + 1
-        body = self.rfile.read(min(n, MAX_REQUEST_BYTES + 1)) if n else b""
+            self.close_connection = True
+            self._send(*self.api.error("INVALID_REQUEST", "invalid request framing", str(uuid.uuid4()), 400))
+            return
+        if n > MAX_REQUEST_BYTES:
+            self.close_connection = True
+            self._send(*self.api.error("REQUEST_TOO_LARGE", "request body exceeds limit", str(uuid.uuid4()), 413))
+            return
+        body = self.rfile.read(n) if n else b""
         headers = {k.lower(): v for k, v in self.headers.items()}
         status, payload = self.api.handle(
             self.command,
@@ -121,6 +137,9 @@ class Handler(BaseHTTPRequestHandler):
             headers,
             body,
         )
+        self._send(status, payload)
+
+    def _send(self, status, payload):
         raw = json.dumps(payload, sort_keys=True).encode()
         self.send_response(status)
         self.send_header("Content-Type", "application/json")
@@ -139,11 +158,15 @@ def main() -> int:
     parser.add_argument("--bind", default="127.0.0.1")
     parser.add_argument("--port", type=int, default=8181)
     parser.add_argument("--state-dir", type=Path)
+    parser.add_argument("--container", default=DEFAULT_CONTAINER,
+                        help="private Admin container; role and listeners are verified by the Admin channel")
+    parser.add_argument("--traditional-approval", help="review reference required for the Traditional management node")
     args = parser.parse_args()
     if args.bind not in {"127.0.0.1", "::1", "localhost"}:
         raise SystemExit("reconciliation API must bind to loopback")
     root = Path(__file__).resolve().parents[1]
-    executor = load_default_executor(root, store_root=args.state_dir)
+    executor = load_default_executor(root, store_root=args.state_dir,
+        adapter=KongAdminAdapter(AdapterConfig(container=args.container, traditional_approval=args.traditional_approval)))
     Handler.api = ReconciliationAPI(executor)
     server = ThreadingHTTPServer((args.bind, args.port), Handler)
     server.serve_forever()

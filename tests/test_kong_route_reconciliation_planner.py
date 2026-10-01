@@ -1,4 +1,6 @@
 import importlib.util
+import copy
+import sys
 import json
 from pathlib import Path
 
@@ -50,14 +52,17 @@ def live_rows():
             else spec["expected"] if decision == "EXCEPTION"
             else {"host": "legacy-upstream", "port": 8080}
         )
-        services.append({
-            "id": sid,
-            "name": f"service-{idx}",
-            "host": upstream["host"],
-            "port": upstream["port"],
-            "protocol": "http",
-        })
-        routes.append({"id": rid, "name": spec["name"], "service": {"id": sid}})
+        governed = authority.get(spec["name"], {})
+        service = copy.deepcopy(governed.get("service", {"name": f"service-{idx}", "protocol": "http"}))
+        existing = next((row for row in services if row["name"] == service["name"]), None)
+        if existing is None:
+            service.update(id=sid, host=upstream["host"], port=upstream["port"])
+            services.append(service)
+        else:
+            sid = existing["id"]
+        route = {key: copy.deepcopy(value) for key, value in governed.items() if key not in {"service", "plugins"}}
+        route.update(id=rid, name=spec["name"], service={"id": sid})
+        routes.append(route)
         for plugin_name in (authority.get(spec["name"], {}).get("plugins") or []):
             plugins.append({
                 "id": f"{rid}-{plugin_name}",
@@ -184,6 +189,33 @@ def test_plugin_auth_security_drift_fails_closed():
     assert row["reason"] == "plugin_security_drift"
 
 
+@pytest.mark.parametrize("field,value", [("hosts", ["attacker.invalid"]), ("paths", ["/"]),
+    ("methods", None), ("protocols", ["http"]), ("strip_path", True), ("preserve_host", True)])
+def test_governed_route_shape_drift_cannot_be_kept_or_repointed(field, value):
+    routes, services, plugins = live_rows()
+    authority, blocked = authority_inputs()
+    route = next(row for row in routes if row["name"] == "breero-production-api-route")
+    route[field] = value
+    plan = MOD.build_plan(manifest(), routes, services, plugins, authority, blocked)
+    result = next(row for row in plan["plan"] if row["route"] == route["name"])
+    assert result["action"] == "ERROR"
+    assert result["reason"] == "route_shape_drift"
+
+
+@pytest.mark.parametrize("field,value", [("protocol", "https"), ("connect_timeout", 60000),
+    ("read_timeout", 120000), ("write_timeout", 120000), ("name", "unreviewed-service")])
+def test_governed_service_transport_drift_prevents_mutation(field, value):
+    routes, services, plugins = live_rows()
+    authority, blocked = authority_inputs()
+    route = next(row for row in routes if row["name"] == "breero-production-api-route")
+    service = next(row for row in services if row["id"] == route["service"]["id"])
+    service[field] = value
+    plan = MOD.build_plan(manifest(), routes, services, plugins, authority, blocked)
+    result = next(row for row in plan["plan"] if row["route"] == route["name"])
+    assert result["action"] == "ERROR"
+    assert result["reason"] == "service_transport_drift"
+
+
 def test_manifest_rejects_noncanonical_middleware_host():
     value = manifest()
     value["canonical_public_upstream"]["host"] = "codestra-middleware-integration-api-1"
@@ -195,3 +227,29 @@ def test_planner_has_no_arbitrary_admin_url_override():
     source = (ROOT / "scripts" / "plan_kong_route_reconciliation.py").read_text()
     assert "--admin-url" not in source
     assert "http_admin_request" not in source
+
+
+def test_planner_cli_propagates_private_control_plane_selection(monkeypatch, capsys):
+    routes, services, plugins = live_rows()
+    selected = []
+    def request(method, path, **kwargs):
+        selected.append(kwargs)
+        return {"data": {"/routes": routes, "/services": services, "/plugins": plugins}[path.split("?")[0]]}
+    monkeypatch.setattr(MOD, "admin_request", request)
+    monkeypatch.setattr(sys, "argv", ["planner", "--container", "selected-kong-cp"])
+    monkeypatch.chdir(ROOT)
+    assert MOD.main() == 0
+    assert all(kwargs["container"] == "selected-kong-cp" for kwargs in selected)
+    assert all(kwargs["traditional_approval"] is None for kwargs in selected)
+    assert json.loads(capsys.readouterr().out)["runtime_apply_authorized"] is False
+
+def test_already_retired_routes_are_converged_when_prerequisites_hold():
+    routes, services, plugins = live_rows()
+    authority, blocked = authority_inputs()
+    retired={row["name"] for row in manifest()["routes"] if row["decision"]=="RETIRE"}
+    routes=[row for row in routes if row["name"] not in retired]
+    plan=MOD.build_plan(manifest(),routes,services,plugins,authority,blocked)
+    rows=[row for row in plan["plan"] if row["route"] in retired]
+    assert len(rows)==4
+    assert all(row["action"]=="KEEP" and row["reason"]=="already_retired" for row in rows)
+    assert not any(row["action"]=="ERROR" for row in plan["plan"])

@@ -43,12 +43,32 @@
       "servicePort": 8095,
       "securityAuthority": "config/kong-middleware-authority.v2.json",
       "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
         "openid-connect",
         "post-function",
         "correlation-id",
         "rate-limiting",
         "request-size-limiting"
-      ]
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
     },
     {
       "name": "middleware-list-callbacks",
@@ -72,12 +92,32 @@
       "servicePort": 8095,
       "securityAuthority": "config/kong-middleware-authority.v2.json",
       "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
         "openid-connect",
         "post-function",
         "correlation-id",
         "rate-limiting",
         "request-size-limiting"
-      ]
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
     },
     {
       "name": "middleware-create-callback",
@@ -101,12 +141,32 @@
       "servicePort": 8095,
       "securityAuthority": "config/kong-middleware-authority.v2.json",
       "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
         "openid-connect",
         "post-function",
         "correlation-id",
         "rate-limiting",
         "request-size-limiting"
-      ]
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
     },
     {
       "name": "middleware-submit-n8n-result",
@@ -130,12 +190,32 @@
       "servicePort": 8095,
       "securityAuthority": "config/kong-middleware-authority.v2.json",
       "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
         "openid-connect",
         "post-function",
         "correlation-id",
         "rate-limiting",
         "request-size-limiting"
-      ]
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
     },
     {
       "name": "middleware-read-n8n-result",
@@ -159,12 +239,32 @@
       "servicePort": 8095,
       "securityAuthority": "config/kong-middleware-authority.v2.json",
       "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
         "openid-connect",
         "post-function",
         "correlation-id",
         "rate-limiting",
         "request-size-limiting"
-      ]
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
     },
     {
       "name": "middleware-read-odoo-campaign",
@@ -188,12 +288,32 @@
       "servicePort": 8095,
       "securityAuthority": "config/kong-middleware-authority.v2.json",
       "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
         "openid-connect",
         "post-function",
         "correlation-id",
         "rate-limiting",
         "request-size-limiting"
-      ]
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
     },
     {
       "name": "middleware-read-odoo-campaign-desired-state",
@@ -217,12 +337,32 @@
       "servicePort": 8095,
       "securityAuthority": "config/kong-middleware-authority.v2.json",
       "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
         "openid-connect",
         "post-function",
         "correlation-id",
         "rate-limiting",
         "request-size-limiting"
-      ]
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
     },
     {
       "name": "middleware-ingress-odoo-event",
@@ -246,12 +386,32 @@
       "servicePort": 8095,
       "securityAuthority": "config/kong-middleware-authority.v2.json",
       "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
         "openid-connect",
         "post-function",
         "correlation-id",
         "rate-limiting",
         "request-size-limiting"
-      ]
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
     },
     {
       "name": "middleware-list-activity-platform-v1-activity-get",
@@ -275,12 +435,32 @@
       "servicePort": 8095,
       "securityAuthority": "config/kong-middleware-authority.v2.json",
       "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
         "openid-connect",
         "post-function",
         "correlation-id",
         "rate-limiting",
         "request-size-limiting"
-      ]
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
     },
     {
       "name": "middleware-get-activity-platform-v1-activity--activity-id--get",
@@ -304,12 +484,32 @@
       "servicePort": 8095,
       "securityAuthority": "config/kong-middleware-authority.v2.json",
       "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
         "openid-connect",
         "post-function",
         "correlation-id",
         "rate-limiting",
         "request-size-limiting"
-      ]
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
     },
     {
       "name": "middleware-create-provisioning-request-platform-v1-agent-provisioning-requests-post",
@@ -333,12 +533,32 @@
       "servicePort": 8095,
       "securityAuthority": "config/kong-middleware-authority.v2.json",
       "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
         "openid-connect",
         "post-function",
         "correlation-id",
         "rate-limiting",
         "request-size-limiting"
-      ]
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
     },
     {
       "name": "middleware-get-provisioning-request-platform-v1-agent-provisioning-requests--request-id--get",
@@ -362,12 +582,32 @@
       "servicePort": 8095,
       "securityAuthority": "config/kong-middleware-authority.v2.json",
       "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
         "openid-connect",
         "post-function",
         "correlation-id",
         "rate-limiting",
         "request-size-limiting"
-      ]
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
     },
     {
       "name": "middleware-reactivate-provisioning-request-platform-v1-agent-provisioning-requests--request-id--reactivate-post",
@@ -391,12 +631,32 @@
       "servicePort": 8095,
       "securityAuthority": "config/kong-middleware-authority.v2.json",
       "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
         "openid-connect",
         "post-function",
         "correlation-id",
         "rate-limiting",
         "request-size-limiting"
-      ]
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
     },
     {
       "name": "middleware-reconcile-provisioning-request-platform-v1-agent-provisioning-requests--request-id--reconcile-post",
@@ -420,12 +680,32 @@
       "servicePort": 8095,
       "securityAuthority": "config/kong-middleware-authority.v2.json",
       "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
         "openid-connect",
         "post-function",
         "correlation-id",
         "rate-limiting",
         "request-size-limiting"
-      ]
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
     },
     {
       "name": "middleware-revoke-provisioning-request-platform-v1-agent-provisioning-requests--request-id--revoke-post",
@@ -449,12 +729,32 @@
       "servicePort": 8095,
       "securityAuthority": "config/kong-middleware-authority.v2.json",
       "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
         "openid-connect",
         "post-function",
         "correlation-id",
         "rate-limiting",
         "request-size-limiting"
-      ]
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
     },
     {
       "name": "middleware-suspend-provisioning-request-platform-v1-agent-provisioning-requests--request-id--suspend-post",
@@ -478,12 +778,32 @@
       "servicePort": 8095,
       "securityAuthority": "config/kong-middleware-authority.v2.json",
       "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
         "openid-connect",
         "post-function",
         "correlation-id",
         "rate-limiting",
         "request-size-limiting"
-      ]
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
     },
     {
       "name": "middleware-list-agents-presence-platform-v1-agents-presence-get",
@@ -507,12 +827,32 @@
       "servicePort": 8095,
       "securityAuthority": "config/kong-middleware-authority.v2.json",
       "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
         "openid-connect",
         "post-function",
         "correlation-id",
         "rate-limiting",
         "request-size-limiting"
-      ]
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
     },
     {
       "name": "middleware-get-agent-presence-platform-v1-agents--user-id--presence-get",
@@ -536,12 +876,32 @@
       "servicePort": 8095,
       "securityAuthority": "config/kong-middleware-authority.v2.json",
       "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
         "openid-connect",
         "post-function",
         "correlation-id",
         "rate-limiting",
         "request-size-limiting"
-      ]
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
     },
     {
       "name": "middleware-list-calls-platform-v1-calls-get",
@@ -565,12 +925,32 @@
       "servicePort": 8095,
       "securityAuthority": "config/kong-middleware-authority.v2.json",
       "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
         "openid-connect",
         "post-function",
         "correlation-id",
         "rate-limiting",
         "request-size-limiting"
-      ]
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
     },
     {
       "name": "middleware-get-call-platform-v1-calls--call-id--get",
@@ -594,12 +974,32 @@
       "servicePort": 8095,
       "securityAuthority": "config/kong-middleware-authority.v2.json",
       "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
         "openid-connect",
         "post-function",
         "correlation-id",
         "rate-limiting",
         "request-size-limiting"
-      ]
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
     },
     {
       "name": "middleware-list-campaigns-platform-v1-campaigns-get",
@@ -623,12 +1023,32 @@
       "servicePort": 8095,
       "securityAuthority": "config/kong-middleware-authority.v2.json",
       "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
         "openid-connect",
         "post-function",
         "correlation-id",
         "rate-limiting",
         "request-size-limiting"
-      ]
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
     },
     {
       "name": "middleware-get-campaign-platform-v1-campaigns--campaign-id--get",
@@ -652,12 +1072,32 @@
       "servicePort": 8095,
       "securityAuthority": "config/kong-middleware-authority.v2.json",
       "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
         "openid-connect",
         "post-function",
         "correlation-id",
         "rate-limiting",
         "request-size-limiting"
-      ]
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
     },
     {
       "name": "middleware-get-campaign-channels-platform-v1-campaigns--campaign-id--channels-get",
@@ -681,12 +1121,32 @@
       "servicePort": 8095,
       "securityAuthority": "config/kong-middleware-authority.v2.json",
       "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
         "openid-connect",
         "post-function",
         "correlation-id",
         "rate-limiting",
         "request-size-limiting"
-      ]
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
     },
     {
       "name": "middleware-get-campaign-health-platform-v1-campaigns--campaign-id--health-get",
@@ -710,12 +1170,32 @@
       "servicePort": 8095,
       "securityAuthority": "config/kong-middleware-authority.v2.json",
       "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
         "openid-connect",
         "post-function",
         "correlation-id",
         "rate-limiting",
         "request-size-limiting"
-      ]
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
     },
     {
       "name": "middleware-list-campaign-members-platform-v1-campaigns--campaign-id--members-get",
@@ -739,12 +1219,32 @@
       "servicePort": 8095,
       "securityAuthority": "config/kong-middleware-authority.v2.json",
       "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
         "openid-connect",
         "post-function",
         "correlation-id",
         "rate-limiting",
         "request-size-limiting"
-      ]
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
     },
     {
       "name": "middleware-submit-command-platform-v1-commands-post",
@@ -768,12 +1268,32 @@
       "servicePort": 8095,
       "securityAuthority": "config/kong-middleware-authority.v2.json",
       "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
         "openid-connect",
         "post-function",
         "correlation-id",
         "rate-limiting",
         "request-size-limiting"
-      ]
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
     },
     {
       "name": "middleware-list-contacts-platform-v1-contacts-get",
@@ -797,12 +1317,32 @@
       "servicePort": 8095,
       "securityAuthority": "config/kong-middleware-authority.v2.json",
       "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
         "openid-connect",
         "post-function",
         "correlation-id",
         "rate-limiting",
         "request-size-limiting"
-      ]
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
     },
     {
       "name": "middleware-create-contact-platform-v1-contacts-post",
@@ -826,12 +1366,32 @@
       "servicePort": 8095,
       "securityAuthority": "config/kong-middleware-authority.v2.json",
       "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
         "openid-connect",
         "post-function",
         "correlation-id",
         "rate-limiting",
         "request-size-limiting"
-      ]
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
     },
     {
       "name": "middleware-get-contact-platform-v1-contacts--contact-id--get",
@@ -855,12 +1415,32 @@
       "servicePort": 8095,
       "securityAuthority": "config/kong-middleware-authority.v2.json",
       "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
         "openid-connect",
         "post-function",
         "correlation-id",
         "rate-limiting",
         "request-size-limiting"
-      ]
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
     },
     {
       "name": "middleware-update-contact-platform-v1-contacts--contact-id--patch",
@@ -884,12 +1464,32 @@
       "servicePort": 8095,
       "securityAuthority": "config/kong-middleware-authority.v2.json",
       "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
         "openid-connect",
         "post-function",
         "correlation-id",
         "rate-limiting",
         "request-size-limiting"
-      ]
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
     },
     {
       "name": "middleware-list-notes-platform-v1-contacts--contact-id--notes-get",
@@ -913,12 +1513,32 @@
       "servicePort": 8095,
       "securityAuthority": "config/kong-middleware-authority.v2.json",
       "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
         "openid-connect",
         "post-function",
         "correlation-id",
         "rate-limiting",
         "request-size-limiting"
-      ]
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
     },
     {
       "name": "middleware-create-note-platform-v1-contacts--contact-id--notes-post",
@@ -942,12 +1562,32 @@
       "servicePort": 8095,
       "securityAuthority": "config/kong-middleware-authority.v2.json",
       "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
         "openid-connect",
         "post-function",
         "correlation-id",
         "rate-limiting",
         "request-size-limiting"
-      ]
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
     },
     {
       "name": "middleware-update-note-platform-v1-contacts--contact-id--notes--note-id--patch",
@@ -971,12 +1611,32 @@
       "servicePort": 8095,
       "securityAuthority": "config/kong-middleware-authority.v2.json",
       "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
         "openid-connect",
         "post-function",
         "correlation-id",
         "rate-limiting",
         "request-size-limiting"
-      ]
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
     },
     {
       "name": "middleware-list-tasks-platform-v1-contacts--contact-id--tasks-get",
@@ -1000,12 +1660,32 @@
       "servicePort": 8095,
       "securityAuthority": "config/kong-middleware-authority.v2.json",
       "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
         "openid-connect",
         "post-function",
         "correlation-id",
         "rate-limiting",
         "request-size-limiting"
-      ]
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
     },
     {
       "name": "middleware-create-task-platform-v1-contacts--contact-id--tasks-post",
@@ -1029,12 +1709,32 @@
       "servicePort": 8095,
       "securityAuthority": "config/kong-middleware-authority.v2.json",
       "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
         "openid-connect",
         "post-function",
         "correlation-id",
         "rate-limiting",
         "request-size-limiting"
-      ]
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
     },
     {
       "name": "middleware-list-email-identities-platform-v1-email-identities-get",
@@ -1058,12 +1758,32 @@
       "servicePort": 8095,
       "securityAuthority": "config/kong-middleware-authority.v2.json",
       "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
         "openid-connect",
         "post-function",
         "correlation-id",
         "rate-limiting",
         "request-size-limiting"
-      ]
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
     },
     {
       "name": "middleware-activate-platform-v1-email-production-activate-post",
@@ -1087,12 +1807,32 @@
       "servicePort": 8095,
       "securityAuthority": "config/kong-middleware-authority.v2.json",
       "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
         "openid-connect",
         "post-function",
         "correlation-id",
         "rate-limiting",
         "request-size-limiting"
-      ]
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
     },
     {
       "name": "middleware-audit-platform-v1-email-production-audit-get",
@@ -1116,12 +1856,32 @@
       "servicePort": 8095,
       "securityAuthority": "config/kong-middleware-authority.v2.json",
       "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
         "openid-connect",
         "post-function",
         "correlation-id",
         "rate-limiting",
         "request-size-limiting"
-      ]
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
     },
     {
       "name": "middleware-authorize-platform-v1-email-production-authorize-post",
@@ -1145,12 +1905,32 @@
       "servicePort": 8095,
       "securityAuthority": "config/kong-middleware-authority.v2.json",
       "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
         "openid-connect",
         "post-function",
         "correlation-id",
         "rate-limiting",
         "request-size-limiting"
-      ]
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
     },
     {
       "name": "middleware-kill-switch-platform-v1-email-production-kill-switch-post",
@@ -1174,12 +1954,32 @@
       "servicePort": 8095,
       "securityAuthority": "config/kong-middleware-authority.v2.json",
       "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
         "openid-connect",
         "post-function",
         "correlation-id",
         "rate-limiting",
         "request-size-limiting"
-      ]
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
     },
     {
       "name": "middleware-quotas-platform-v1-email-production-quotas-get",
@@ -1203,12 +2003,32 @@
       "servicePort": 8095,
       "securityAuthority": "config/kong-middleware-authority.v2.json",
       "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
         "openid-connect",
         "post-function",
         "correlation-id",
         "rate-limiting",
         "request-size-limiting"
-      ]
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
     },
     {
       "name": "middleware-readiness-platform-v1-email-production-readiness-get",
@@ -1232,12 +2052,32 @@
       "servicePort": 8095,
       "securityAuthority": "config/kong-middleware-authority.v2.json",
       "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
         "openid-connect",
         "post-function",
         "correlation-id",
         "rate-limiting",
         "request-size-limiting"
-      ]
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
     },
     {
       "name": "middleware-revoke-platform-v1-email-production-revoke-post",
@@ -1261,12 +2101,32 @@
       "servicePort": 8095,
       "securityAuthority": "config/kong-middleware-authority.v2.json",
       "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
         "openid-connect",
         "post-function",
         "correlation-id",
         "rate-limiting",
         "request-size-limiting"
-      ]
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
     },
     {
       "name": "middleware-status-platform-v1-email-production-status-get",
@@ -1290,12 +2150,32 @@
       "servicePort": 8095,
       "securityAuthority": "config/kong-middleware-authority.v2.json",
       "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
         "openid-connect",
         "post-function",
         "correlation-id",
         "rate-limiting",
         "request-size-limiting"
-      ]
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
     },
     {
       "name": "middleware-hosts-platform-v1-hosts-get",
@@ -1319,12 +2199,32 @@
       "servicePort": 8095,
       "securityAuthority": "config/kong-middleware-authority.v2.json",
       "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
         "openid-connect",
         "post-function",
         "correlation-id",
         "rate-limiting",
         "request-size-limiting"
-      ]
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
     },
     {
       "name": "middleware-host-platform-v1-hosts--host-id--get",
@@ -1348,12 +2248,32 @@
       "servicePort": 8095,
       "securityAuthority": "config/kong-middleware-authority.v2.json",
       "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
         "openid-connect",
         "post-function",
         "correlation-id",
         "rate-limiting",
         "request-size-limiting"
-      ]
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
     },
     {
       "name": "middleware-github-event-platform-v1-integrations-github-events-post",
@@ -1377,12 +2297,32 @@
       "servicePort": 8095,
       "securityAuthority": "config/kong-middleware-authority.v2.json",
       "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
         "openid-connect",
         "post-function",
         "correlation-id",
         "rate-limiting",
         "request-size-limiting"
-      ]
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
     },
     {
       "name": "middleware-describe-kernel-platform-v1-kernel-describe-get",
@@ -1406,12 +2346,32 @@
       "servicePort": 8095,
       "securityAuthority": "config/kong-middleware-authority.v2.json",
       "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
         "openid-connect",
         "post-function",
         "correlation-id",
         "rate-limiting",
         "request-size-limiting"
-      ]
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
     },
     {
       "name": "middleware-get-my-presence-platform-v1-me-presence-get",
@@ -1435,12 +2395,32 @@
       "servicePort": 8095,
       "securityAuthority": "config/kong-middleware-authority.v2.json",
       "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
         "openid-connect",
         "post-function",
         "correlation-id",
         "rate-limiting",
         "request-size-limiting"
-      ]
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
     },
     {
       "name": "middleware-get-operation-platform-v1-operations--operation-id--get",
@@ -1464,12 +2444,32 @@
       "servicePort": 8095,
       "securityAuthority": "config/kong-middleware-authority.v2.json",
       "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
         "openid-connect",
         "post-function",
         "correlation-id",
         "rate-limiting",
         "request-size-limiting"
-      ]
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
     },
     {
       "name": "middleware-cancel-operation-platform-v1-operations--operation-id--cancel-post",
@@ -1493,12 +2493,32 @@
       "servicePort": 8095,
       "securityAuthority": "config/kong-middleware-authority.v2.json",
       "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
         "openid-connect",
         "post-function",
         "correlation-id",
         "rate-limiting",
         "request-size-limiting"
-      ]
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
     },
     {
       "name": "middleware-replay-operation-platform-v1-operations--operation-id--replay-post",
@@ -1522,12 +2542,32 @@
       "servicePort": 8095,
       "securityAuthority": "config/kong-middleware-authority.v2.json",
       "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
         "openid-connect",
         "post-function",
         "correlation-id",
         "rate-limiting",
         "request-size-limiting"
-      ]
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
     },
     {
       "name": "middleware-get-timeline-platform-v1-operations--operation-id--timeline-get",
@@ -1551,12 +2591,32 @@
       "servicePort": 8095,
       "securityAuthority": "config/kong-middleware-authority.v2.json",
       "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
         "openid-connect",
         "post-function",
         "correlation-id",
         "rate-limiting",
         "request-size-limiting"
-      ]
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
     },
     {
       "name": "middleware-list-opportunities-platform-v1-opportunities-get",
@@ -1580,12 +2640,32 @@
       "servicePort": 8095,
       "securityAuthority": "config/kong-middleware-authority.v2.json",
       "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
         "openid-connect",
         "post-function",
         "correlation-id",
         "rate-limiting",
         "request-size-limiting"
-      ]
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
     },
     {
       "name": "middleware-create-opportunity-platform-v1-opportunities-post",
@@ -1609,12 +2689,32 @@
       "servicePort": 8095,
       "securityAuthority": "config/kong-middleware-authority.v2.json",
       "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
         "openid-connect",
         "post-function",
         "correlation-id",
         "rate-limiting",
         "request-size-limiting"
-      ]
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
     },
     {
       "name": "middleware-get-opportunity-platform-v1-opportunities--opportunity-id--get",
@@ -1638,12 +2738,32 @@
       "servicePort": 8095,
       "securityAuthority": "config/kong-middleware-authority.v2.json",
       "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
         "openid-connect",
         "post-function",
         "correlation-id",
         "rate-limiting",
         "request-size-limiting"
-      ]
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
     },
     {
       "name": "middleware-update-opportunity-platform-v1-opportunities--opportunity-id--patch",
@@ -1667,12 +2787,32 @@
       "servicePort": 8095,
       "securityAuthority": "config/kong-middleware-authority.v2.json",
       "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
         "openid-connect",
         "post-function",
         "correlation-id",
         "rate-limiting",
         "request-size-limiting"
-      ]
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
     },
     {
       "name": "middleware-list-queues-platform-v1-queues-get",
@@ -1696,12 +2836,32 @@
       "servicePort": 8095,
       "securityAuthority": "config/kong-middleware-authority.v2.json",
       "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
         "openid-connect",
         "post-function",
         "correlation-id",
         "rate-limiting",
         "request-size-limiting"
-      ]
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
     },
     {
       "name": "middleware-get-queue-platform-v1-queues--queue-id--get",
@@ -1725,12 +2885,32 @@
       "servicePort": 8095,
       "securityAuthority": "config/kong-middleware-authority.v2.json",
       "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
         "openid-connect",
         "post-function",
         "correlation-id",
         "rate-limiting",
         "request-size-limiting"
-      ]
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
     },
     {
       "name": "middleware-list-queue-calls-platform-v1-queues--queue-id--calls-get",
@@ -1754,12 +2934,32 @@
       "servicePort": 8095,
       "securityAuthority": "config/kong-middleware-authority.v2.json",
       "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
         "openid-connect",
         "post-function",
         "correlation-id",
         "rate-limiting",
         "request-size-limiting"
-      ]
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
     },
     {
       "name": "middleware-list-queue-members-platform-v1-queues--queue-id--members-get",
@@ -1783,12 +2983,32 @@
       "servicePort": 8095,
       "securityAuthority": "config/kong-middleware-authority.v2.json",
       "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
         "openid-connect",
         "post-function",
         "correlation-id",
         "rate-limiting",
         "request-size-limiting"
-      ]
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
     },
     {
       "name": "middleware-get-queue-metrics-platform-v1-queues--queue-id--metrics-get",
@@ -1812,12 +3032,32 @@
       "servicePort": 8095,
       "securityAuthority": "config/kong-middleware-authority.v2.json",
       "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
         "openid-connect",
         "post-function",
         "correlation-id",
         "rate-limiting",
         "request-size-limiting"
-      ]
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
     },
     {
       "name": "middleware-repositories-platform-v1-repositories-get",
@@ -1841,12 +3081,32 @@
       "servicePort": 8095,
       "securityAuthority": "config/kong-middleware-authority.v2.json",
       "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
         "openid-connect",
         "post-function",
         "correlation-id",
         "rate-limiting",
         "request-size-limiting"
-      ]
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
     },
     {
       "name": "middleware-observe-platform-v1-runtime-observations-post",
@@ -1870,12 +3130,32 @@
       "servicePort": 8095,
       "securityAuthority": "config/kong-middleware-authority.v2.json",
       "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
         "openid-connect",
         "post-function",
         "correlation-id",
         "rate-limiting",
         "request-size-limiting"
-      ]
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
     },
     {
       "name": "middleware-contract-refresh-platform-v1-services--service-id--contract-refresh-post",
@@ -1899,12 +3179,32 @@
       "servicePort": 8095,
       "securityAuthority": "config/kong-middleware-authority.v2.json",
       "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
         "openid-connect",
         "post-function",
         "correlation-id",
         "rate-limiting",
         "request-size-limiting"
-      ]
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
     },
     {
       "name": "middleware-coverage-platform-v1-services--service-id--coverage-get",
@@ -1928,12 +3228,32 @@
       "servicePort": 8095,
       "securityAuthority": "config/kong-middleware-authority.v2.json",
       "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
         "openid-connect",
         "post-function",
         "correlation-id",
         "rate-limiting",
         "request-size-limiting"
-      ]
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
     },
     {
       "name": "middleware-dependencies-platform-v1-services--service-id--dependencies-get",
@@ -1957,12 +3277,32 @@
       "servicePort": 8095,
       "securityAuthority": "config/kong-middleware-authority.v2.json",
       "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
         "openid-connect",
         "post-function",
         "correlation-id",
         "rate-limiting",
         "request-size-limiting"
-      ]
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
     },
     {
       "name": "middleware-deployments-platform-v1-services--service-id--deployments-get",
@@ -1986,12 +3326,32 @@
       "servicePort": 8095,
       "securityAuthority": "config/kong-middleware-authority.v2.json",
       "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
         "openid-connect",
         "post-function",
         "correlation-id",
         "rate-limiting",
         "request-size-limiting"
-      ]
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
     },
     {
       "name": "middleware-endpoints-platform-v1-services--service-id--endpoints-get",
@@ -2015,12 +3375,32 @@
       "servicePort": 8095,
       "securityAuthority": "config/kong-middleware-authority.v2.json",
       "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
         "openid-connect",
         "post-function",
         "correlation-id",
         "rate-limiting",
         "request-size-limiting"
-      ]
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
     },
     {
       "name": "middleware-profile-platform-v1-services--service-id--telemetry-profile-post",
@@ -2044,12 +3424,32 @@
       "servicePort": 8095,
       "securityAuthority": "config/kong-middleware-authority.v2.json",
       "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
         "openid-connect",
         "post-function",
         "correlation-id",
         "rate-limiting",
         "request-size-limiting"
-      ]
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
     },
     {
       "name": "middleware-get-session-context-platform-v1-session-context-get",
@@ -2073,12 +3473,32 @@
       "servicePort": 8095,
       "securityAuthority": "config/kong-middleware-authority.v2.json",
       "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
         "openid-connect",
         "post-function",
         "correlation-id",
         "rate-limiting",
         "request-size-limiting"
-      ]
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
     },
     {
       "name": "middleware-select-session-context-platform-v1-session-context-select-post",
@@ -2102,12 +3522,32 @@
       "servicePort": 8095,
       "securityAuthority": "config/kong-middleware-authority.v2.json",
       "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
         "openid-connect",
         "post-function",
         "correlation-id",
         "rate-limiting",
         "request-size-limiting"
-      ]
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
     },
     {
       "name": "middleware-list-sms-identities-platform-v1-sms-identities-get",
@@ -2131,12 +3571,32 @@
       "servicePort": 8095,
       "securityAuthority": "config/kong-middleware-authority.v2.json",
       "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
         "openid-connect",
         "post-function",
         "correlation-id",
         "rate-limiting",
         "request-size-limiting"
-      ]
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
     },
     {
       "name": "middleware-reconcile-platform-v1-sync-reconciliations-post",
@@ -2160,12 +3620,32 @@
       "servicePort": 8095,
       "securityAuthority": "config/kong-middleware-authority.v2.json",
       "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
         "openid-connect",
         "post-function",
         "correlation-id",
         "rate-limiting",
         "request-size-limiting"
-      ]
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
     },
     {
       "name": "middleware-reconciliation-result-platform-v1-sync-reconciliations--reconciliation-id--get",
@@ -2189,12 +3669,32 @@
       "servicePort": 8095,
       "securityAuthority": "config/kong-middleware-authority.v2.json",
       "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
         "openid-connect",
         "post-function",
         "correlation-id",
         "rate-limiting",
         "request-size-limiting"
-      ]
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
     },
     {
       "name": "middleware-sync-status-platform-v1-sync-status-get",
@@ -2218,12 +3718,32 @@
       "servicePort": 8095,
       "securityAuthority": "config/kong-middleware-authority.v2.json",
       "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
         "openid-connect",
         "post-function",
         "correlation-id",
         "rate-limiting",
         "request-size-limiting"
-      ]
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
     },
     {
       "name": "middleware-update-task-platform-v1-tasks--task-id--patch",
@@ -2247,12 +3767,32 @@
       "servicePort": 8095,
       "securityAuthority": "config/kong-middleware-authority.v2.json",
       "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
         "openid-connect",
         "post-function",
         "correlation-id",
         "rate-limiting",
         "request-size-limiting"
-      ]
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
     },
     {
       "name": "middleware-complete-task-platform-v1-tasks--task-id--complete-post",
@@ -2276,12 +3816,32 @@
       "servicePort": 8095,
       "securityAuthority": "config/kong-middleware-authority.v2.json",
       "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
         "openid-connect",
         "post-function",
         "correlation-id",
         "rate-limiting",
         "request-size-limiting"
-      ]
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
     },
     {
       "name": "middleware-heartbeat-platform-v1-telemetry-heartbeats-post",
@@ -2305,12 +3865,32 @@
       "servicePort": 8095,
       "securityAuthority": "config/kong-middleware-authority.v2.json",
       "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
         "openid-connect",
         "post-function",
         "correlation-id",
         "rate-limiting",
         "request-size-limiting"
-      ]
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
     },
     {
       "name": "middleware-list-telephony-assignments-platform-v1-telephony-assignments-get",
@@ -2334,12 +3914,32 @@
       "servicePort": 8095,
       "securityAuthority": "config/kong-middleware-authority.v2.json",
       "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
         "openid-connect",
         "post-function",
         "correlation-id",
         "rate-limiting",
         "request-size-limiting"
-      ]
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
     },
     {
       "name": "middleware-list-tenants-platform-v1-tenants-get",
@@ -2363,12 +3963,32 @@
       "servicePort": 8095,
       "securityAuthority": "config/kong-middleware-authority.v2.json",
       "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
         "openid-connect",
         "post-function",
         "correlation-id",
         "rate-limiting",
         "request-size-limiting"
-      ]
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
     },
     {
       "name": "middleware-list-authorized-tenants-platform-v1-tenants-authorized-get",
@@ -2392,12 +4012,32 @@
       "servicePort": 8095,
       "securityAuthority": "config/kong-middleware-authority.v2.json",
       "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
         "openid-connect",
         "post-function",
         "correlation-id",
         "rate-limiting",
         "request-size-limiting"
-      ]
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
     },
     {
       "name": "middleware-get-tenant-platform-v1-tenants--tenant-id--get",
@@ -2421,12 +4061,32 @@
       "servicePort": 8095,
       "securityAuthority": "config/kong-middleware-authority.v2.json",
       "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
         "openid-connect",
         "post-function",
         "correlation-id",
         "rate-limiting",
         "request-size-limiting"
-      ]
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
     },
     {
       "name": "middleware-list-tenant-campaigns-platform-v1-tenants--tenant-id--campaigns-get",
@@ -2450,12 +4110,32 @@
       "servicePort": 8095,
       "securityAuthority": "config/kong-middleware-authority.v2.json",
       "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
         "openid-connect",
         "post-function",
         "correlation-id",
         "rate-limiting",
         "request-size-limiting"
-      ]
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
     },
     {
       "name": "middleware-get-tenant-health-platform-v1-tenants--tenant-id--health-get",
@@ -2479,12 +4159,32 @@
       "servicePort": 8095,
       "securityAuthority": "config/kong-middleware-authority.v2.json",
       "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
         "openid-connect",
         "post-function",
         "correlation-id",
         "rate-limiting",
         "request-size-limiting"
-      ]
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
     },
     {
       "name": "middleware-list-tickets-platform-v1-tickets-get",
@@ -2508,12 +4208,32 @@
       "servicePort": 8095,
       "securityAuthority": "config/kong-middleware-authority.v2.json",
       "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
         "openid-connect",
         "post-function",
         "correlation-id",
         "rate-limiting",
         "request-size-limiting"
-      ]
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
     },
     {
       "name": "middleware-create-ticket-platform-v1-tickets-post",
@@ -2537,12 +4257,32 @@
       "servicePort": 8095,
       "securityAuthority": "config/kong-middleware-authority.v2.json",
       "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
         "openid-connect",
         "post-function",
         "correlation-id",
         "rate-limiting",
         "request-size-limiting"
-      ]
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
     },
     {
       "name": "middleware-get-ticket-platform-v1-tickets--ticket-id--get",
@@ -2566,12 +4306,32 @@
       "servicePort": 8095,
       "securityAuthority": "config/kong-middleware-authority.v2.json",
       "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
         "openid-connect",
         "post-function",
         "correlation-id",
         "rate-limiting",
         "request-size-limiting"
-      ]
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
     },
     {
       "name": "middleware-update-ticket-platform-v1-tickets--ticket-id--patch",
@@ -2595,12 +4355,32 @@
       "servicePort": 8095,
       "securityAuthority": "config/kong-middleware-authority.v2.json",
       "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
         "openid-connect",
         "post-function",
         "correlation-id",
         "rate-limiting",
         "request-size-limiting"
-      ]
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
     },
     {
       "name": "middleware-get-user-platform-v1-users--employee-id--get",
@@ -2624,12 +4404,32 @@
       "servicePort": 8095,
       "securityAuthority": "config/kong-middleware-authority.v2.json",
       "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
         "openid-connect",
         "post-function",
         "correlation-id",
         "rate-limiting",
         "request-size-limiting"
-      ]
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
     },
     {
       "name": "middleware-get-user-campaigns-platform-v1-users--employee-id--campaigns-get",
@@ -2653,12 +4453,32 @@
       "servicePort": 8095,
       "securityAuthority": "config/kong-middleware-authority.v2.json",
       "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
         "openid-connect",
         "post-function",
         "correlation-id",
         "rate-limiting",
         "request-size-limiting"
-      ]
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
     },
     {
       "name": "middleware-get-user-entitlements-platform-v1-users--employee-id--entitlements-get",
@@ -2682,12 +4502,32 @@
       "servicePort": 8095,
       "securityAuthority": "config/kong-middleware-authority.v2.json",
       "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
         "openid-connect",
         "post-function",
         "correlation-id",
         "rate-limiting",
         "request-size-limiting"
-      ]
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
     },
     {
       "name": "middleware-request-automation-approval-v2-automation-approvals-post",
@@ -2711,12 +4551,32 @@
       "servicePort": 8095,
       "securityAuthority": "config/kong-middleware-authority.v2.json",
       "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
         "openid-connect",
         "post-function",
         "correlation-id",
         "rate-limiting",
         "request-size-limiting"
-      ]
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
     },
     {
       "name": "middleware-read-automation-approval-v2-automation-approvals--approval-id--get",
@@ -2740,12 +4600,32 @@
       "servicePort": 8095,
       "securityAuthority": "config/kong-middleware-authority.v2.json",
       "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
         "openid-connect",
         "post-function",
         "correlation-id",
         "rate-limiting",
         "request-size-limiting"
-      ]
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
     },
     {
       "name": "middleware-read-automation-capability-v2-automation-capabilities--capability--get",
@@ -2769,12 +4649,32 @@
       "servicePort": 8095,
       "securityAuthority": "config/kong-middleware-authority.v2.json",
       "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
         "openid-connect",
         "post-function",
         "correlation-id",
         "rate-limiting",
         "request-size-limiting"
-      ]
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
     },
     {
       "name": "middleware-submit-automation-command-v2-automation-commands-post",
@@ -2798,12 +4698,32 @@
       "servicePort": 8095,
       "securityAuthority": "config/kong-middleware-authority.v2.json",
       "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
         "openid-connect",
         "post-function",
         "correlation-id",
         "rate-limiting",
         "request-size-limiting"
-      ]
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
     },
     {
       "name": "middleware-read-automation-command-v2-automation-commands--command-id--get",
@@ -2827,12 +4747,32 @@
       "servicePort": 8095,
       "securityAuthority": "config/kong-middleware-authority.v2.json",
       "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
         "openid-connect",
         "post-function",
         "correlation-id",
         "rate-limiting",
         "request-size-limiting"
-      ]
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
     },
     {
       "name": "middleware-replay-automation-dead-letter-v2-automation-dead-letters--dead-letter-id--replay-post",
@@ -2856,12 +4796,32 @@
       "servicePort": 8095,
       "securityAuthority": "config/kong-middleware-authority.v2.json",
       "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
         "openid-connect",
         "post-function",
         "correlation-id",
         "rate-limiting",
         "request-size-limiting"
-      ]
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
     },
     {
       "name": "middleware-claim-automation-job-v2-automation-jobs-claim-post",
@@ -2885,12 +4845,32 @@
       "servicePort": 8095,
       "securityAuthority": "config/kong-middleware-authority.v2.json",
       "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
         "openid-connect",
         "post-function",
         "correlation-id",
         "rate-limiting",
         "request-size-limiting"
-      ]
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
     },
     {
       "name": "middleware-reconcile-automation-jobs-v2-automation-jobs-reconcile-post",
@@ -2914,12 +4894,32 @@
       "servicePort": 8095,
       "securityAuthority": "config/kong-middleware-authority.v2.json",
       "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
         "openid-connect",
         "post-function",
         "correlation-id",
         "rate-limiting",
         "request-size-limiting"
-      ]
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
     },
     {
       "name": "middleware-read-automation-job-v2-automation-jobs--job-id--get",
@@ -2943,12 +4943,32 @@
       "servicePort": 8095,
       "securityAuthority": "config/kong-middleware-authority.v2.json",
       "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
         "openid-connect",
         "post-function",
         "correlation-id",
         "rate-limiting",
         "request-size-limiting"
-      ]
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
     },
     {
       "name": "middleware-complete-automation-job-v2-automation-jobs--job-id--complete-post",
@@ -2972,12 +4992,32 @@
       "servicePort": 8095,
       "securityAuthority": "config/kong-middleware-authority.v2.json",
       "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
         "openid-connect",
         "post-function",
         "correlation-id",
         "rate-limiting",
         "request-size-limiting"
-      ]
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
     },
     {
       "name": "middleware-fail-automation-job-v2-automation-jobs--job-id--fail-post",
@@ -3001,12 +5041,32 @@
       "servicePort": 8095,
       "securityAuthority": "config/kong-middleware-authority.v2.json",
       "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
         "openid-connect",
         "post-function",
         "correlation-id",
         "rate-limiting",
         "request-size-limiting"
-      ]
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
     },
     {
       "name": "middleware-heartbeat-automation-job-v2-automation-jobs--job-id--heartbeat-post",
@@ -3030,12 +5090,32 @@
       "servicePort": 8095,
       "securityAuthority": "config/kong-middleware-authority.v2.json",
       "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
         "openid-connect",
         "post-function",
         "correlation-id",
         "rate-limiting",
         "request-size-limiting"
-      ]
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
     },
     {
       "name": "middleware-record-automation-step-v2-automation-jobs--job-id--steps-post",
@@ -3059,12 +5139,32 @@
       "servicePort": 8095,
       "securityAuthority": "config/kong-middleware-authority.v2.json",
       "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
         "openid-connect",
         "post-function",
         "correlation-id",
         "rate-limiting",
         "request-size-limiting"
-      ]
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
     }
   ],
   "routes": [
@@ -3206,5 +5306,8 @@
       "regexPriority": 5,
       "statusCode": 404
     }
+  ],
+  "globalPlugins": [
+    "codestra-private-surface"
   ]
 }

@@ -17,6 +17,7 @@ if SCRIPTS not in sys.path:
     sys.path.insert(0, SCRIPTS)
 
 from kong_admin_channel import (
+    DEFAULT_CONTAINER,
     PRIVATE_ADMIN_URL,
     admin_request,
     collect_admin_rows,
@@ -31,14 +32,24 @@ REQUIRED_RELEASE_GATES = (
     "GATED_APPLY",
     "POST_APPLY_VERIFY",
 )
+ROUTE_SHAPE_FIELDS = ("hosts", "paths", "methods", "protocols", "strip_path", "preserve_host")
 
 
-def request(path: str) -> dict:
-    return admin_request("GET", normalize_admin_reference(path)) or {}
+def _matching_value(value):
+    # These route arrays are matching sets; plugin config arrays are not.
+    if isinstance(value, list):
+        return sorted(value, key=lambda item: json.dumps(item, sort_keys=True))
+    return value
 
 
-def all_rows(path: str) -> list[dict]:
-    return collect_admin_rows(request, path, normalize_admin_reference)
+def request(path: str, *, container=DEFAULT_CONTAINER, traditional_approval=None) -> dict:
+    return admin_request("GET", normalize_admin_reference(path), container=container,
+                         traditional_approval=traditional_approval) or {}
+
+
+def all_rows(path: str, *, container=DEFAULT_CONTAINER, traditional_approval=None) -> list[dict]:
+    return collect_admin_rows(lambda ref: request(ref, container=container,
+        traditional_approval=traditional_approval), path, normalize_admin_reference)
 
 
 def upstream_for(route: dict, services: dict[str, dict]) -> dict:
@@ -116,6 +127,20 @@ def build_plan(
     plan = []
     for spec in sorted(manifest["routes"], key=lambda item: item["name"]):
         matches = by_route.get(spec["name"], [])
+        if not matches and spec["decision"] == "RETIRE":
+            item={"route":spec["name"],"decision":"RETIRE","action":"KEEP","reason":"already_retired"}
+            if spec.get("successor"):
+                item["successor"]=spec["successor"]
+                item["successor_present"]=len(by_route.get(spec["successor"], []))==1
+                if not item["successor_present"]:
+                    item.update(action="ERROR",reason="required_successor_missing")
+            else:
+                item["deny_authority"]=spec.get("deny_authority")
+                item["deny_authority_present"]=spec["name"] in activation_blocked_routes
+                if not item["deny_authority_present"]:
+                    item.update(action="ERROR",reason="required_deny_authority_missing")
+            plan.append(item)
+            continue
         if len(matches) != 1:
             plan.append({
                 "route": spec["name"],
@@ -145,6 +170,21 @@ def build_plan(
             if current_plugins != expected_plugins:
                 item["action"] = "ERROR"
                 item["reason"] = "plugin_security_drift"
+                plan.append(item)
+                continue
+            shape_drift = [key for key in ROUTE_SHAPE_FIELDS
+                           if key in authority and _matching_value(route.get(key)) != _matching_value(authority[key])]
+            if shape_drift:
+                item.update(action="ERROR", reason="route_shape_drift", fields=shape_drift)
+                plan.append(item)
+                continue
+            service = service_by_id.get((route.get("service") or {}).get("id"), {})
+            # REPOINT governs host/port only. It must not silently bless drift
+            # in the preserved service identity, protocol or timeout policy.
+            transport_drift = [key for key, value in (authority.get("service") or {}).items()
+                               if key not in {"host", "port"} and service.get(key) != value]
+            if transport_drift:
+                item.update(action="ERROR", reason="service_transport_drift", fields=sorted(transport_drift))
                 plan.append(item)
                 continue
 
@@ -214,6 +254,9 @@ def main() -> int:
         default=Path("config/kong-production-route-inventory.v2.json"),
     )
     parser.add_argument("--output", type=Path)
+    parser.add_argument("--container", default=DEFAULT_CONTAINER,
+                        help="private Admin container; role and listeners are verified by the Admin channel")
+    parser.add_argument("--traditional-approval", help="review reference required for the Traditional management node")
     args = parser.parse_args()
 
     manifest = json.loads(args.manifest.read_text(encoding="utf-8"))
@@ -230,9 +273,9 @@ def main() -> int:
     }
     result = build_plan(
         manifest,
-        all_rows("/routes?size=1000"),
-        all_rows("/services?size=1000"),
-        all_rows("/plugins?size=1000"),
+        all_rows("/routes?size=1000", container=args.container, traditional_approval=args.traditional_approval),
+        all_rows("/services?size=1000", container=args.container, traditional_approval=args.traditional_approval),
+        all_rows("/plugins?size=1000", container=args.container, traditional_approval=args.traditional_approval),
         authority_routes,
         activation_blocked_routes,
     )

@@ -8,6 +8,7 @@ if SCRIPTS not in sys.path:
     sys.path.insert(0, SCRIPTS)
 
 from kong_reconciliation_api import ReconciliationAPI
+import kong_reconciliation_api as api_module
 
 
 class Store:
@@ -104,3 +105,21 @@ def test_unknown_route_is_deterministic_404():
 def test_bad_execution_id_is_404():
     status, payload = call("GET", "/platform/v1/kong/reconciliation/executions/a/b")
     assert status == 404
+
+
+def test_api_cli_selects_reviewed_private_node_without_enabling_apply(tmp_path, monkeypatch):
+    observed = []
+    class Server:
+        def __init__(self, address, handler):
+            observed.append((address, handler.api.executor))
+        def serve_forever(self):
+            return
+    monkeypatch.setattr(api_module, "ThreadingHTTPServer", Server)
+    monkeypatch.setenv("CODESTRA_KONG_RECONCILIATION_APPLY_ENABLED", "true")
+    monkeypatch.setattr(sys, "argv", ["api", "--state-dir", str(tmp_path), "--container", "selected-kong-management",
+        "--traditional-approval", "KONG:test-only-simulation"])
+    assert api_module.main() == 0
+    _, executor = observed[0]
+    assert executor.adapter.config.container == "selected-kong-management"
+    assert executor.adapter.config.traditional_approval == "KONG:test-only-simulation"
+    assert executor.apply_enabled is False

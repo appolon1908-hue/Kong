@@ -28,14 +28,17 @@ def live_state():
             upstream = spec["expected"]
         else:
             upstream = {"host": "legacy-upstream", "port": 9000}
-        services.append({
-            "id": sid,
-            "name": f"svc-{idx}",
-            "host": upstream["host"],
-            "port": upstream["port"],
-            "protocol": "http",
-        })
-        routes.append({"id": rid, "name": spec["name"], "service": {"id": sid}})
+        governed = authority.get(spec["name"], {})
+        service = copy.deepcopy(governed.get("service", {"name": f"svc-{idx}", "protocol": "http"}))
+        existing = next((row for row in services if row["name"] == service["name"]), None)
+        if existing is None:
+            service.update(id=sid, host=upstream["host"], port=upstream["port"])
+            services.append(service)
+        else:
+            sid = existing["id"]
+        route = {key: copy.deepcopy(value) for key, value in governed.items() if key not in {"service", "plugins"}}
+        route.update(id=rid, name=spec["name"], service={"id": sid})
+        routes.append(route)
         for pidx, name in enumerate(authority.get(spec["name"], {}).get("plugins") or [], start=1):
             plugins.append({
                 "id": f"plugin-{idx}-{pidx}",
@@ -78,6 +81,9 @@ class FakeAdapter:
         return copy.deepcopy(row)
 
     def create(self, path, payload):
+        if self.fail_next:
+            self.fail_next = False
+            raise RuntimeError("injected failure")
         collection = path.strip("/")
         row = copy.deepcopy(payload)
         row.setdefault("id", f"{collection}-{len(self.state[collection]) + 1000}")
@@ -93,6 +99,11 @@ class FakeAdapter:
         self.state[collection] = [r for r in self.state[collection] if r["id"] != ident]
         if len(self.state[collection]) == before:
             raise RuntimeError("not found")
+        if collection == "routes":
+            # Kong's plugins.route foreign key has on_delete='cascade'. A
+            # retained orphan would now correctly fail full-state readback.
+            self.state["plugins"] = [p for p in self.state["plugins"]
+                if (p.get("route") or {}).get("id") != ident]
 
 
 def executor(tmp_path, *, state=None, enabled=False):

@@ -36,7 +36,7 @@ PRIVATE_PROBES=(
 )
 
 def kong_regex(path:str)->re.Pattern[str]:
-    if not (path.startswith("~^") and path.endswith("$")): raise ValueError(f"unanchored MCR path regex: {path}")
+    if not (path.startswith("~/") and path.endswith("$")): raise ValueError(f"MCR path regex must use the Kong ~/ form and end with $: {path}")
     if "\\\\" in path: raise ValueError(f"double-escaped MCR path regex: {path}")
     try: return re.compile(path[1:])
     except re.error as exc: raise ValueError(f"invalid MCR path regex {path}: {exc}") from exc
@@ -142,8 +142,7 @@ def validate(data):
         rx=kong_regex(route["pathRegex"])
         if not PARAM.search(route["pathTemplate"]):
             expected_regex = route_regex(route["pathTemplate"])
-            accepted = {expected_regex, expected_regex.replace("~/", "~^/", 1)}
-            if route["pathRegex"] not in accepted:
+            if route["pathRegex"] != expected_regex:
                 raise ValueError(f"path regex drift for {route['pathTemplate']}")
         if not probe_fits_template(route["probePath"],route["pathTemplate"]) or not rx.fullmatch(route["probePath"]):
             raise ValueError(f"path regex does not route its probe: {route['name']}")

@@ -98,7 +98,13 @@ The route-case file is derived test data, not route authority. It is bound to th
 
 The collection covers positive contract probes and negative cases for missing token, wrong issuer/audience/AZP, missing scope/idempotency, wrong method, oversize body, private metrics/internal routes, and pending provider ingress.
 
-Safety defaults: `base_url=http://127.0.0.1:8000`, `RUN_KONG_V3_PARITY=false`, token variables empty, and a collection-level pre-request guard blocks live execution until explicitly enabled.
+It also carries an `MCR Platform` folder generated from `config/kong-mcr-routes.v1.json` (all 8 MCR routes, with `X-Tenant-ID`, `X-Correlation-ID`, `Idempotency-Key` and the delivery-event signature headers the contract requires) and an `MCR Negative Security & Edge` folder: missing tenant/correlation/idempotency/signature (`400` with the normalized `{"error": "<code>_required"}` body), missing token, wrong method, a non-`klyrow:`/`whatsapp:` campaign namespace, an `/internal/` prefix and the private-only Odoo `actual-state` surface.
+
+Every request asserts. Each item has its own test script that checks: no `5xx`; no internal leakage (Lua traces, DSNs, `odoo:8069`, `middleware-integration-api`, `codestra-redis`); the exact expected status set for every negative; that positive probes reached Middleware rather than a Kong route miss; that MCR `execute` never returns `2xx`; the normalized gateway error code where one applies; and that `X-Correlation-ID` is echoed unchanged wherever the `correlation-id` plugin runs.
+
+Safety defaults: `base_url=http://127.0.0.1:8000`, `RUN_KONG_V3_PARITY=false`, token and signature variables empty. The collection-level pre-request guard calls `pm.execution.skipRequest()` before it throws, because Newman still sends a request whose pre-request script only throws. It refuses any `base_url` that is not loopback or a `staging` host, and it mints a fresh `TEST_SYN-` correlation ID and idempotency key for every request. Each item also skips itself when the token (or delivery signature) it needs is unset, so an empty credential cannot pass vacuously.
+
+Local proof (Newman 6.2.2): the default environment and a non-loopback target both sent 0 requests. Against a loopback stub that emulates the contract, the run sent 67 requests with 256 assertions and 0 failures. Stub mutations were all caught: `execute` returning `2xx` (1 failure), missing correlation echo (50 failures), and an upstream `5xx` that leaks internals (84 failures).
 
 No credentials or production tokens are stored in Git.
 
@@ -110,7 +116,13 @@ Repository-only deterministic tests:
 python -m pytest -q tests/test_kong_cross_repo_parity.py tests/test_kong_webhook_registry.py tests/test_kong_postman_generation.py
 ```
 
-Expected: `15 passed`.
+Expected: all pass. MCR route contract, renderer and Postman MCR coverage:
+
+```text
+python scripts/validate_kong_mcr_routes.py
+python scripts/generate_kong_postman.py --check
+python -m pytest -q tests/test_kong_mcr_routes.py tests/test_kong_postman_generation.py
+```
 
 Exact local cross-repo source validation uses the local exact Middleware, Caddy, and Keycloak worktrees listed above.
 

@@ -38,6 +38,12 @@ def documents():
     }
 
 
+def plugin(route, name):
+    matches = [item for item in route["plugins"] if item["name"] == name]
+    assert len(matches) == 1, f"expected exactly one {name} plugin"
+    return matches[0]
+
+
 def unique(rows, key):
     indexed = {key(row): row for row in rows}
     assert len(indexed) == len(rows), "duplicate inventory binding"
@@ -213,7 +219,7 @@ def test_mcr_j_generated_edge_binding(documents, acceptance, environment):
 @pytest.mark.parametrize("environment", ["production", "staging"])
 def test_mcr_j_rejects_oidc_drift(documents, acceptance, environment, field, value, message):
     manifest = documents[environment]
-    manifest["services"][0]["routes"][0]["plugins"][0]["config"][field] = value
+    plugin(manifest["services"][0]["routes"][0], "openid-connect")["config"][field] = value
     with pytest.raises(AssertionError, match=message):
         check_manifest(manifest, environment, documents, acceptance)
 
@@ -244,7 +250,7 @@ def test_mcr_j_rejects_edge_mutations(documents, acceptance, mutation, message):
     elif mutation == "upstream":
         service["port"] = 8080
     elif mutation in {"sanitize", "azp"}:
-        guard = route["plugins"][1]["config"]["access"]
+        guard = plugin(route, "post-function")["config"]["access"]
         guard[0] = guard[0].replace("clear_header", "get_header") if mutation == "sanitize" else guard[0].replace("local expected_azp =", "local untrusted_azp =")
     elif mutation == "deny":
         manifest["routes"][0]["plugins"][0]["config"]["status_code"] = 200

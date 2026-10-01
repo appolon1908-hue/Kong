@@ -6,7 +6,7 @@ routes:
   hosts:
   - api.codestra.co
   paths:
-  - ~^/platform/v1/campaign\-engine/plan$
+  - ~/platform/v1/campaign\-engine/plan$
   regex_priority: 4
   methods:
   - POST
@@ -39,8 +39,8 @@ routes:
   - name: post-function
     config:
       access:
-      - "-- Generated fail-closed MCR authorization metadata.\nlocal operation_id = \"mcr-plan\"\nlocal required_scope = \"campaign.engine.plan\"\n-- Strip client-asserted identity before minting trusted contract metadata;\n-- X-Consumer-* are set by openid-connect after signature verification.\nfor _, name in ipairs({\"X-User-ID\", \"X-Username\", \"X-Email\", \"X-Roles\", \"X-Scopes\", \"X-Authenticated-UserID\", \"X-Authenticated-User\", \"X-Authenticated-Client\", \"X-Authenticated-Subject\", \"X-Authenticated-Tenant\", \"X-Authenticated-Campaign\", \"X-Authenticated-Role\", \"X-Authenticated-Email\", \"X-Codestra-Tenant\", \"X-Codestra-Scopes\", \"X-Codestra-Gateway-Secret\", \"X-Internal-Service\", \"X-Admin\"}) do\n  kong.service.request.clear_header(name)\nend\nkong.service.request.set_header('X-Codestra-Contract-Operation', operation_id)\nkong.service.request.set_header('X-Codestra-Required-Scope', required_scope)\n-- Middleware owns azp, tenant/resource ownership, idempotency replay\
-        \ and effects."
+      - "-- Generated fail-closed MCR authorization metadata.\nlocal operation_id = \"mcr-plan\"\nlocal required_scope = \"campaign.engine.plan\"\n-- Strip client-asserted identity before minting trusted contract metadata;\n-- X-Consumer-* are set by openid-connect after signature verification.\nfor _, name in ipairs({\"X-User-ID\", \"X-Username\", \"X-Email\", \"X-Roles\", \"X-Scopes\", \"X-Authenticated-UserID\", \"X-Authenticated-User\", \"X-Authenticated-Client\", \"X-Authenticated-Subject\", \"X-Authenticated-Tenant\", \"X-Authenticated-Campaign\", \"X-Authenticated-Role\", \"X-Authenticated-Email\", \"X-Codestra-Tenant\", \"X-Codestra-Scopes\", \"X-Codestra-Gateway-Secret\", \"X-Internal-Service\", \"X-Admin\", \"X-Codestra-Contract-Operation\", \"X-Codestra-Expected-Azp\", \"X-Codestra-Required-Scope\"}) do\n  kong.service.request.clear_header(name)\nend\nkong.service.request.set_header('X-Codestra-Contract-Operation', operation_id)\nkong.service.request.set_header('X-Codestra-Required-Scope',\
+        \ required_scope)\n-- Middleware owns azp, tenant/resource ownership, idempotency replay and effects."
   - name: correlation-id
     config:
       header_name: X-Correlation-ID
@@ -67,7 +67,7 @@ routes:
   hosts:
   - api.codestra.co
   paths:
-  - ~^/platform/v1/campaign\-engine/execute$
+  - ~/platform/v1/campaign\-engine/execute$
   regex_priority: 4
   methods:
   - POST
@@ -100,8 +100,8 @@ routes:
   - name: post-function
     config:
       access:
-      - "-- Generated fail-closed MCR authorization metadata.\nlocal operation_id = \"mcr-execute\"\nlocal required_scope = \"campaign.engine.execute\"\n-- Strip client-asserted identity before minting trusted contract metadata;\n-- X-Consumer-* are set by openid-connect after signature verification.\nfor _, name in ipairs({\"X-User-ID\", \"X-Username\", \"X-Email\", \"X-Roles\", \"X-Scopes\", \"X-Authenticated-UserID\", \"X-Authenticated-User\", \"X-Authenticated-Client\", \"X-Authenticated-Subject\", \"X-Authenticated-Tenant\", \"X-Authenticated-Campaign\", \"X-Authenticated-Role\", \"X-Authenticated-Email\", \"X-Codestra-Tenant\", \"X-Codestra-Scopes\", \"X-Codestra-Gateway-Secret\", \"X-Internal-Service\", \"X-Admin\"}) do\n  kong.service.request.clear_header(name)\nend\nkong.service.request.set_header('X-Codestra-Contract-Operation', operation_id)\nkong.service.request.set_header('X-Codestra-Required-Scope', required_scope)\n-- Middleware owns azp, tenant/resource ownership, idempotency\
-        \ replay and effects."
+      - "-- Generated fail-closed MCR authorization metadata.\nlocal operation_id = \"mcr-execute\"\nlocal required_scope = \"campaign.engine.execute\"\n-- Strip client-asserted identity before minting trusted contract metadata;\n-- X-Consumer-* are set by openid-connect after signature verification.\nfor _, name in ipairs({\"X-User-ID\", \"X-Username\", \"X-Email\", \"X-Roles\", \"X-Scopes\", \"X-Authenticated-UserID\", \"X-Authenticated-User\", \"X-Authenticated-Client\", \"X-Authenticated-Subject\", \"X-Authenticated-Tenant\", \"X-Authenticated-Campaign\", \"X-Authenticated-Role\", \"X-Authenticated-Email\", \"X-Codestra-Tenant\", \"X-Codestra-Scopes\", \"X-Codestra-Gateway-Secret\", \"X-Internal-Service\", \"X-Admin\", \"X-Codestra-Contract-Operation\", \"X-Codestra-Expected-Azp\", \"X-Codestra-Required-Scope\"}) do\n  kong.service.request.clear_header(name)\nend\nkong.service.request.set_header('X-Codestra-Contract-Operation', operation_id)\nkong.service.request.set_header('X-Codestra-Required-Scope',\
+        \ required_scope)\n-- Middleware owns azp, tenant/resource ownership, idempotency replay and effects."
   - name: correlation-id
     config:
       header_name: X-Correlation-ID
@@ -128,7 +128,7 @@ routes:
   hosts:
   - api.codestra.co
   paths:
-  - ~^/platform/v1/leads/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/journey$
+  - ~/platform/v1/leads/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/journey$
   regex_priority: 4
   methods:
   - GET
@@ -161,8 +161,8 @@ routes:
   - name: post-function
     config:
       access:
-      - "-- Generated fail-closed MCR authorization metadata.\nlocal operation_id = \"mcr-journey\"\nlocal required_scope = \"leads.journey.read\"\n-- Strip client-asserted identity before minting trusted contract metadata;\n-- X-Consumer-* are set by openid-connect after signature verification.\nfor _, name in ipairs({\"X-User-ID\", \"X-Username\", \"X-Email\", \"X-Roles\", \"X-Scopes\", \"X-Authenticated-UserID\", \"X-Authenticated-User\", \"X-Authenticated-Client\", \"X-Authenticated-Subject\", \"X-Authenticated-Tenant\", \"X-Authenticated-Campaign\", \"X-Authenticated-Role\", \"X-Authenticated-Email\", \"X-Codestra-Tenant\", \"X-Codestra-Scopes\", \"X-Codestra-Gateway-Secret\", \"X-Internal-Service\", \"X-Admin\"}) do\n  kong.service.request.clear_header(name)\nend\nkong.service.request.set_header('X-Codestra-Contract-Operation', operation_id)\nkong.service.request.set_header('X-Codestra-Required-Scope', required_scope)\n-- Middleware owns azp, tenant/resource ownership, idempotency\
-        \ replay and effects."
+      - "-- Generated fail-closed MCR authorization metadata.\nlocal operation_id = \"mcr-journey\"\nlocal required_scope = \"leads.journey.read\"\n-- Strip client-asserted identity before minting trusted contract metadata;\n-- X-Consumer-* are set by openid-connect after signature verification.\nfor _, name in ipairs({\"X-User-ID\", \"X-Username\", \"X-Email\", \"X-Roles\", \"X-Scopes\", \"X-Authenticated-UserID\", \"X-Authenticated-User\", \"X-Authenticated-Client\", \"X-Authenticated-Subject\", \"X-Authenticated-Tenant\", \"X-Authenticated-Campaign\", \"X-Authenticated-Role\", \"X-Authenticated-Email\", \"X-Codestra-Tenant\", \"X-Codestra-Scopes\", \"X-Codestra-Gateway-Secret\", \"X-Internal-Service\", \"X-Admin\", \"X-Codestra-Contract-Operation\", \"X-Codestra-Expected-Azp\", \"X-Codestra-Required-Scope\"}) do\n  kong.service.request.clear_header(name)\nend\nkong.service.request.set_header('X-Codestra-Contract-Operation', operation_id)\nkong.service.request.set_header('X-Codestra-Required-Scope',\
+        \ required_scope)\n-- Middleware owns azp, tenant/resource ownership, idempotency replay and effects."
   - name: correlation-id
     config:
       header_name: X-Correlation-ID
@@ -189,7 +189,7 @@ routes:
   hosts:
   - api.codestra.co
   paths:
-  - ~^/platform/v1/leads/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/next\-action$
+  - ~/platform/v1/leads/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/next\-action$
   regex_priority: 4
   methods:
   - GET
@@ -222,8 +222,8 @@ routes:
   - name: post-function
     config:
       access:
-      - "-- Generated fail-closed MCR authorization metadata.\nlocal operation_id = \"mcr-next-action\"\nlocal required_scope = \"campaign.engine.read\"\n-- Strip client-asserted identity before minting trusted contract metadata;\n-- X-Consumer-* are set by openid-connect after signature verification.\nfor _, name in ipairs({\"X-User-ID\", \"X-Username\", \"X-Email\", \"X-Roles\", \"X-Scopes\", \"X-Authenticated-UserID\", \"X-Authenticated-User\", \"X-Authenticated-Client\", \"X-Authenticated-Subject\", \"X-Authenticated-Tenant\", \"X-Authenticated-Campaign\", \"X-Authenticated-Role\", \"X-Authenticated-Email\", \"X-Codestra-Tenant\", \"X-Codestra-Scopes\", \"X-Codestra-Gateway-Secret\", \"X-Internal-Service\", \"X-Admin\"}) do\n  kong.service.request.clear_header(name)\nend\nkong.service.request.set_header('X-Codestra-Contract-Operation', operation_id)\nkong.service.request.set_header('X-Codestra-Required-Scope', required_scope)\n-- Middleware owns azp, tenant/resource ownership, idempotency\
-        \ replay and effects."
+      - "-- Generated fail-closed MCR authorization metadata.\nlocal operation_id = \"mcr-next-action\"\nlocal required_scope = \"campaign.engine.read\"\n-- Strip client-asserted identity before minting trusted contract metadata;\n-- X-Consumer-* are set by openid-connect after signature verification.\nfor _, name in ipairs({\"X-User-ID\", \"X-Username\", \"X-Email\", \"X-Roles\", \"X-Scopes\", \"X-Authenticated-UserID\", \"X-Authenticated-User\", \"X-Authenticated-Client\", \"X-Authenticated-Subject\", \"X-Authenticated-Tenant\", \"X-Authenticated-Campaign\", \"X-Authenticated-Role\", \"X-Authenticated-Email\", \"X-Codestra-Tenant\", \"X-Codestra-Scopes\", \"X-Codestra-Gateway-Secret\", \"X-Internal-Service\", \"X-Admin\", \"X-Codestra-Contract-Operation\", \"X-Codestra-Expected-Azp\", \"X-Codestra-Required-Scope\"}) do\n  kong.service.request.clear_header(name)\nend\nkong.service.request.set_header('X-Codestra-Contract-Operation', operation_id)\nkong.service.request.set_header('X-Codestra-Required-Scope',\
+        \ required_scope)\n-- Middleware owns azp, tenant/resource ownership, idempotency replay and effects."
   - name: correlation-id
     config:
       header_name: X-Correlation-ID
@@ -250,7 +250,7 @@ routes:
   hosts:
   - api.codestra.co
   paths:
-  - ~^/platform/v1/campaigns/(?:klyrow|whatsapp):[A-Za-z0-9][A-Za-z0-9._-]{0,199}/eligible\-leads$
+  - ~/platform/v1/campaigns/(?:klyrow|whatsapp):[A-Za-z0-9][A-Za-z0-9._-]{0,199}/eligible\-leads$
   regex_priority: 4
   methods:
   - GET
@@ -283,8 +283,8 @@ routes:
   - name: post-function
     config:
       access:
-      - "-- Generated fail-closed MCR authorization metadata.\nlocal operation_id = \"mcr-eligible-leads\"\nlocal required_scope = \"campaign.engine.read\"\n-- Strip client-asserted identity before minting trusted contract metadata;\n-- X-Consumer-* are set by openid-connect after signature verification.\nfor _, name in ipairs({\"X-User-ID\", \"X-Username\", \"X-Email\", \"X-Roles\", \"X-Scopes\", \"X-Authenticated-UserID\", \"X-Authenticated-User\", \"X-Authenticated-Client\", \"X-Authenticated-Subject\", \"X-Authenticated-Tenant\", \"X-Authenticated-Campaign\", \"X-Authenticated-Role\", \"X-Authenticated-Email\", \"X-Codestra-Tenant\", \"X-Codestra-Scopes\", \"X-Codestra-Gateway-Secret\", \"X-Internal-Service\", \"X-Admin\"}) do\n  kong.service.request.clear_header(name)\nend\nkong.service.request.set_header('X-Codestra-Contract-Operation', operation_id)\nkong.service.request.set_header('X-Codestra-Required-Scope', required_scope)\n-- Middleware owns azp, tenant/resource ownership, idempotency\
-        \ replay and effects."
+      - "-- Generated fail-closed MCR authorization metadata.\nlocal operation_id = \"mcr-eligible-leads\"\nlocal required_scope = \"campaign.engine.read\"\n-- Strip client-asserted identity before minting trusted contract metadata;\n-- X-Consumer-* are set by openid-connect after signature verification.\nfor _, name in ipairs({\"X-User-ID\", \"X-Username\", \"X-Email\", \"X-Roles\", \"X-Scopes\", \"X-Authenticated-UserID\", \"X-Authenticated-User\", \"X-Authenticated-Client\", \"X-Authenticated-Subject\", \"X-Authenticated-Tenant\", \"X-Authenticated-Campaign\", \"X-Authenticated-Role\", \"X-Authenticated-Email\", \"X-Codestra-Tenant\", \"X-Codestra-Scopes\", \"X-Codestra-Gateway-Secret\", \"X-Internal-Service\", \"X-Admin\", \"X-Codestra-Contract-Operation\", \"X-Codestra-Expected-Azp\", \"X-Codestra-Required-Scope\"}) do\n  kong.service.request.clear_header(name)\nend\nkong.service.request.set_header('X-Codestra-Contract-Operation', operation_id)\nkong.service.request.set_header('X-Codestra-Required-Scope',\
+        \ required_scope)\n-- Middleware owns azp, tenant/resource ownership, idempotency replay and effects."
   - name: correlation-id
     config:
       header_name: X-Correlation-ID
@@ -311,7 +311,7 @@ routes:
   hosts:
   - api.codestra.co
   paths:
-  - ~^/platform/v1/delivery\-events$
+  - ~/platform/v1/delivery\-events$
   regex_priority: 3
   methods:
   - POST
@@ -344,8 +344,8 @@ routes:
   - name: post-function
     config:
       access:
-      - "-- Generated fail-closed MCR authorization metadata.\nlocal operation_id = \"mcr-delivery-events\"\nlocal required_scope = \"campaign.delivery_events.publish\"\n-- Strip client-asserted identity before minting trusted contract metadata;\n-- X-Consumer-* are set by openid-connect after signature verification.\nfor _, name in ipairs({\"X-User-ID\", \"X-Username\", \"X-Email\", \"X-Roles\", \"X-Scopes\", \"X-Authenticated-UserID\", \"X-Authenticated-User\", \"X-Authenticated-Client\", \"X-Authenticated-Subject\", \"X-Authenticated-Tenant\", \"X-Authenticated-Campaign\", \"X-Authenticated-Role\", \"X-Authenticated-Email\", \"X-Codestra-Tenant\", \"X-Codestra-Scopes\", \"X-Codestra-Gateway-Secret\", \"X-Internal-Service\", \"X-Admin\"}) do\n  kong.service.request.clear_header(name)\nend\nkong.service.request.set_header('X-Codestra-Contract-Operation', operation_id)\nkong.service.request.set_header('X-Codestra-Required-Scope', required_scope)\n-- Middleware owns azp, tenant/resource ownership,\
-        \ idempotency replay and effects."
+      - "-- Generated fail-closed MCR authorization metadata.\nlocal operation_id = \"mcr-delivery-events\"\nlocal required_scope = \"campaign.delivery_events.publish\"\n-- Strip client-asserted identity before minting trusted contract metadata;\n-- X-Consumer-* are set by openid-connect after signature verification.\nfor _, name in ipairs({\"X-User-ID\", \"X-Username\", \"X-Email\", \"X-Roles\", \"X-Scopes\", \"X-Authenticated-UserID\", \"X-Authenticated-User\", \"X-Authenticated-Client\", \"X-Authenticated-Subject\", \"X-Authenticated-Tenant\", \"X-Authenticated-Campaign\", \"X-Authenticated-Role\", \"X-Authenticated-Email\", \"X-Codestra-Tenant\", \"X-Codestra-Scopes\", \"X-Codestra-Gateway-Secret\", \"X-Internal-Service\", \"X-Admin\", \"X-Codestra-Contract-Operation\", \"X-Codestra-Expected-Azp\", \"X-Codestra-Required-Scope\"}) do\n  kong.service.request.clear_header(name)\nend\nkong.service.request.set_header('X-Codestra-Contract-Operation', operation_id)\nkong.service.request.set_header('X-Codestra-Required-Scope',\
+        \ required_scope)\n-- Middleware owns azp, tenant/resource ownership, idempotency replay and effects."
   - name: correlation-id
     config:
       header_name: X-Correlation-ID
@@ -372,7 +372,7 @@ routes:
   hosts:
   - api.codestra.co
   paths:
-  - ~^/platform/v1/suppressions$
+  - ~/platform/v1/suppressions$
   regex_priority: 3
   methods:
   - POST
@@ -405,8 +405,8 @@ routes:
   - name: post-function
     config:
       access:
-      - "-- Generated fail-closed MCR authorization metadata.\nlocal operation_id = \"mcr-suppressions\"\nlocal required_scope = \"campaign.suppressions.write\"\n-- Strip client-asserted identity before minting trusted contract metadata;\n-- X-Consumer-* are set by openid-connect after signature verification.\nfor _, name in ipairs({\"X-User-ID\", \"X-Username\", \"X-Email\", \"X-Roles\", \"X-Scopes\", \"X-Authenticated-UserID\", \"X-Authenticated-User\", \"X-Authenticated-Client\", \"X-Authenticated-Subject\", \"X-Authenticated-Tenant\", \"X-Authenticated-Campaign\", \"X-Authenticated-Role\", \"X-Authenticated-Email\", \"X-Codestra-Tenant\", \"X-Codestra-Scopes\", \"X-Codestra-Gateway-Secret\", \"X-Internal-Service\", \"X-Admin\"}) do\n  kong.service.request.clear_header(name)\nend\nkong.service.request.set_header('X-Codestra-Contract-Operation', operation_id)\nkong.service.request.set_header('X-Codestra-Required-Scope', required_scope)\n-- Middleware owns azp, tenant/resource ownership,\
-        \ idempotency replay and effects."
+      - "-- Generated fail-closed MCR authorization metadata.\nlocal operation_id = \"mcr-suppressions\"\nlocal required_scope = \"campaign.suppressions.write\"\n-- Strip client-asserted identity before minting trusted contract metadata;\n-- X-Consumer-* are set by openid-connect after signature verification.\nfor _, name in ipairs({\"X-User-ID\", \"X-Username\", \"X-Email\", \"X-Roles\", \"X-Scopes\", \"X-Authenticated-UserID\", \"X-Authenticated-User\", \"X-Authenticated-Client\", \"X-Authenticated-Subject\", \"X-Authenticated-Tenant\", \"X-Authenticated-Campaign\", \"X-Authenticated-Role\", \"X-Authenticated-Email\", \"X-Codestra-Tenant\", \"X-Codestra-Scopes\", \"X-Codestra-Gateway-Secret\", \"X-Internal-Service\", \"X-Admin\", \"X-Codestra-Contract-Operation\", \"X-Codestra-Expected-Azp\", \"X-Codestra-Required-Scope\"}) do\n  kong.service.request.clear_header(name)\nend\nkong.service.request.set_header('X-Codestra-Contract-Operation', operation_id)\nkong.service.request.set_header('X-Codestra-Required-Scope',\
+        \ required_scope)\n-- Middleware owns azp, tenant/resource ownership, idempotency replay and effects."
   - name: correlation-id
     config:
       header_name: X-Correlation-ID
@@ -433,7 +433,7 @@ routes:
   hosts:
   - api.codestra.co
   paths:
-  - ~^/platform/v1/campaign\-engine/status$
+  - ~/platform/v1/campaign\-engine/status$
   regex_priority: 4
   methods:
   - GET
@@ -466,8 +466,8 @@ routes:
   - name: post-function
     config:
       access:
-      - "-- Generated fail-closed MCR authorization metadata.\nlocal operation_id = \"mcr-status\"\nlocal required_scope = \"campaign.engine.read\"\n-- Strip client-asserted identity before minting trusted contract metadata;\n-- X-Consumer-* are set by openid-connect after signature verification.\nfor _, name in ipairs({\"X-User-ID\", \"X-Username\", \"X-Email\", \"X-Roles\", \"X-Scopes\", \"X-Authenticated-UserID\", \"X-Authenticated-User\", \"X-Authenticated-Client\", \"X-Authenticated-Subject\", \"X-Authenticated-Tenant\", \"X-Authenticated-Campaign\", \"X-Authenticated-Role\", \"X-Authenticated-Email\", \"X-Codestra-Tenant\", \"X-Codestra-Scopes\", \"X-Codestra-Gateway-Secret\", \"X-Internal-Service\", \"X-Admin\"}) do\n  kong.service.request.clear_header(name)\nend\nkong.service.request.set_header('X-Codestra-Contract-Operation', operation_id)\nkong.service.request.set_header('X-Codestra-Required-Scope', required_scope)\n-- Middleware owns azp, tenant/resource ownership, idempotency\
-        \ replay and effects."
+      - "-- Generated fail-closed MCR authorization metadata.\nlocal operation_id = \"mcr-status\"\nlocal required_scope = \"campaign.engine.read\"\n-- Strip client-asserted identity before minting trusted contract metadata;\n-- X-Consumer-* are set by openid-connect after signature verification.\nfor _, name in ipairs({\"X-User-ID\", \"X-Username\", \"X-Email\", \"X-Roles\", \"X-Scopes\", \"X-Authenticated-UserID\", \"X-Authenticated-User\", \"X-Authenticated-Client\", \"X-Authenticated-Subject\", \"X-Authenticated-Tenant\", \"X-Authenticated-Campaign\", \"X-Authenticated-Role\", \"X-Authenticated-Email\", \"X-Codestra-Tenant\", \"X-Codestra-Scopes\", \"X-Codestra-Gateway-Secret\", \"X-Internal-Service\", \"X-Admin\", \"X-Codestra-Contract-Operation\", \"X-Codestra-Expected-Azp\", \"X-Codestra-Required-Scope\"}) do\n  kong.service.request.clear_header(name)\nend\nkong.service.request.set_header('X-Codestra-Contract-Operation', operation_id)\nkong.service.request.set_header('X-Codestra-Required-Scope',\
+        \ required_scope)\n-- Middleware owns azp, tenant/resource ownership, idempotency replay and effects."
   - name: correlation-id
     config:
       header_name: X-Correlation-ID

@@ -36,10 +36,10 @@ def test_probe_outside_template_fails():
  d=copy.deepcopy(BASE);route(d,"mcr-journey")["probePath"]="/platform/v1/leads/L1/next-action"
  with pytest.raises(ValueError,match="does not route its probe"): mod.validate(d)
 def test_overlap_with_middleware_contract_fails():
- d=copy.deepcopy(BASE);route(d,"mcr-journey")["pathRegex"]="~^/platform/v1/(?:leads/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/journey|contacts)$"
+ d=copy.deepcopy(BASE);route(d,"mcr-journey")["pathRegex"]="~/platform/v1/(?:leads/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/journey|contacts)$"
  with pytest.raises(ValueError,match="overlaps Middleware contract"): mod.validate(d)
 def test_private_odoo_surface_reachable_fails():
- d=copy.deepcopy(BASE);r=route(d,"mcr-eligible-leads");r["pathRegex"]="~^/platform/v1/campaigns/[^/]+/eligible\\-leads$"
+ d=copy.deepcopy(BASE);r=route(d,"mcr-eligible-leads");r["pathRegex"]="~/platform/v1/campaigns/[^/]+/eligible\\-leads$"
  with pytest.raises(ValueError,match="private surface"): mod.validate(d)
 def test_private_surfaces_must_be_declared_denied():
  d=copy.deepcopy(BASE);d["privateSurfacesDenied"].remove("/api/v1/integration/campaigns/actual-state")
@@ -85,3 +85,6 @@ def test_renderer_refuses_apply():
  rspec=importlib.util.spec_from_file_location("mcr_render2",ROOT/"scripts/render_kong_mcr_routes.py")
  render=importlib.util.module_from_spec(rspec);rspec.loader.exec_module(render)
  with pytest.raises(SystemExit): render.main(["--apply"])
+def test_non_kong_regex_path_form_fails():
+ d=copy.deepcopy(BASE);r=route(d,"mcr-plan");r["pathRegex"]="~^"+r["pathRegex"][1:]
+ with pytest.raises(ValueError,match="Kong ~/ form"): mod.validate(d)
