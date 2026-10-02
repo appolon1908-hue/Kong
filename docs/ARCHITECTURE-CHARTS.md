@@ -1,7 +1,7 @@
 # Kong — Architecture Charts
 
-> Repository: `appolon1908/Kong`  
-> Baseline branch: `main`  
+> Repository: `appolon1908/Kong`
+> Baseline branch: `main`
 > Purpose: repository-local visual architecture. These charts describe the intended ownership boundary and should be updated with code changes.
 
 ## 1. System context
