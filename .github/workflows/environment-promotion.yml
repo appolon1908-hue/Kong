@@ -40,6 +40,7 @@ jobs:
             development)
               case "$HEAD_BRANCH" in
                 testing|staging|production) echo "reverse environment promotion denied"; exit 1 ;;
+                *) echo "feature/integration admission to development accepted" ;;
               esac
               ;;
             testing)    test "$HEAD_BRANCH" = "development" ;;
