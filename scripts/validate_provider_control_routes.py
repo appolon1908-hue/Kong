@@ -26,8 +26,8 @@ EXPECTED_DEPENDENCIES = {
     "keycloakPullRequest": 60,
 }
 EXPECTED_SERVICE = {
-    "host": "appolon-middleware-integration-api",
-    "port": 8080,
+    "host": "middleware-integration-api",
+    "port": 8095,
     "protocol": "http",
 }
 EXPECTED_RETIREMENT_ACCEPTANCE = "zero runtime consumers and reviewed replacement ownership"

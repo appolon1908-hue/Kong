@@ -38,7 +38,7 @@ decision; `X-Codestra-Gateway-Secret` only proves the request traversed Kong.
 | intake (`/v1/intake/leads`, `/v1/intake/surveys/responses`) | `codestra-middleware-intake` | `…-1:8095` | canonical source candidate |
 | telephony (`/v1/telephony/*`, `/api/v1/realtime/sessions` on the private host) | `codestra-calling-api` | `…-1:8095` | canonical source candidate |
 | n8n control plane (`/v1/integrations/n8n/commands`, `/operations`) | `codestra-middleware-n8n-control-plane` | `appolon-middleware-integration-api:8080` | canonical, runtime observed, **transitional listener** |
-| provider control (`/api/v1/control/{ai,communications,marketing,social}/…`, `/api/v1/odoo/events`) | `provider-control-middleware` | `…:8080` | prepared, disabled |
+| provider control (`/api/v1/control/{ai,communications,marketing,social}/…`, `/api/v1/odoo/events`) | `provider-control-middleware` | `middleware-integration-api:8095` | prepared, disabled |
 | communication control plane (`/api/v1/control`, `/events`, `/results`, `/reconciliation`, `/messages`, `/health`, `/v1/admin/system`) | `codestra-control-plane` | `codestra-control-plane:8096` | canonical declarative candidate (OIDC), supersedes the key-auth `codestra-communication-control-plane` routes on `codestra-integration-control-plane-api-1:8096` |
 | legacy webhooks (`/v1/webhooks`) | `codestra-webhooks` | `codestra-middleware-event-gateway-1:8095` | legacy shared key |
 

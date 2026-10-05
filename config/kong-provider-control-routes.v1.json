@@ -11,8 +11,8 @@
   "issuer": "https://auth.codestra.co/realms/codestra",
   "audience": "middleware-api",
   "service": {
-    "host": "appolon-middleware-integration-api",
-    "port": 8080,
+    "host": "middleware-integration-api",
+    "port": 8095,
     "protocol": "http"
   },
   "security": {

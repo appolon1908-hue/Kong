@@ -164,7 +164,7 @@ the registry now binds the post-#105 universe:
 - `appolon-middleware-integration-api:8080` is `RETIRED_DENIED_PR105`: the
   validator detects `RETIRED_UPSTREAM_ALIAS` on anything that targets it and
   allows it only on `PREPARED_DISABLED` / `RETIRE_CANDIDATE` entries (the
-  prepared provider-control contract, which must re-pin before activation, and
+  prepared provider-control contract, now re-pinned to 8095 but still disabled, and
   the live n8n residue). `M1_DEPENDENCY=MERGED`, `TRANSITIONAL_8080_ALIASES=0`.
 - The generator now assigns a deterministic `regex_priority` (literal segments
   win over parameters, e.g. `/platform/v1/tenants/authorized` over

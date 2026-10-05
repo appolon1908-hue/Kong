@@ -818,6 +818,16 @@ def literal_prefix(path: str) -> str:
     return "".join(literal)
 
 
+def route_family(path: str, depth: int = 3) -> str:
+    """The first ``depth`` complete literal segments of a route path: the unit the
+    upstream registry groups a service's routes by."""
+    prefix = literal_prefix(path)
+    if is_regex_path(path) and prefix != path[1:].lstrip("^").rstrip("$"):
+        prefix = prefix[: prefix.rfind("/") + 1]
+    segments = [segment for segment in prefix.split("/") if segment]
+    return "/" + "/".join(segments[:depth])
+
+
 def route_priority(route: SourceRoute) -> tuple[int, int, int, int, int]:
     """Kong 3.x ``traditional_compatible`` router priority, highest wins.
 
@@ -1293,6 +1303,73 @@ def validate_services(foundation: dict, documents: dict[str, SourceDocument]) ->
     return services
 
 
+def validate_upstream_registry(foundation: dict, services: dict[str, dict], materialized: dict[str, SourceRoute]) -> dict[str, Any]:
+    """Every upstream is one registry entry with repository, TLS requirement and
+    route families; Middleware upstreams bind :8095 and nothing Middleware-governed
+    may still target :8080."""
+    registry = foundation["upstreamRegistry"]
+    middleware_classes = set(foundation["debtRules"]["middlewareUpstreamClasses"])
+    retired = retired_middleware_aliases(foundation)
+    repositories = set(registry["attributedRepositories"]) | {registry["unattributedRepository"]}
+    families: dict[str, set[str]] = {service_id: set() for service_id in services}
+    unregistered: list[str] = []
+    for entry in foundation["routes"]:
+        service_id = entry.get("serviceId")
+        route = materialized[entry["routeId"]]
+        if service_id is None or service_id not in services:
+            if service_id is not None or route.upstream_host is not None:
+                unregistered.append(entry["routeId"])
+            continue
+        for path in route.paths or ():
+            families[service_id].add(route_family(path, registry["routeFamilyDepth"]))
+    _require(len(unregistered) == registry["invariants"]["unregisteredUpstreams"],
+             f"routes target upstreams outside the registry: {sorted(unregistered)}")
+    legacy_8080: list[str] = []
+    residue_8080: dict[str, str] = {}
+    unattributed: list[str] = []
+    for service_id, entry in services.items():
+        for key in registry["requiredFields"]:
+            _require(key in entry, f"upstream registry entry {service_id} lacks {key}")
+        upstream = entry["upstream"]
+        host, port = upstream.get("host"), upstream.get("port")
+        _require(entry["repository"] in repositories, f"upstream registry entry {service_id} names unknown repository {entry['repository']!r}")
+        if entry["upstreamClass"] in middleware_classes:
+            _require(entry["repository"] == registry["middlewareRepository"],
+                     f"Middleware upstream {service_id} must belong to {registry['middlewareRepository']}")
+        if entry["repository"] == registry["unattributedRepository"]:
+            unattributed.append(service_id)
+        _require(entry["tlsRequired"] is (upstream.get("protocol") == "https"),
+                 f"upstream registry entry {service_id}: tlsRequired disagrees with protocol {upstream.get('protocol')!r}")
+        if not entry["tlsRequired"] and host:
+            _require("." not in host and not host.startswith("$"),
+                     f"plaintext upstream {service_id} must be a private network service name, not {host!r}")
+        expected_families = sorted(families[service_id])
+        _require(entry["routeFamilies"] == expected_families,
+                 f"upstream registry entry {service_id}: routeFamilies {entry['routeFamilies']} != bound routes {expected_families}")
+        if (host, port) in retired or (entry["upstreamClass"] in middleware_classes and port == 8080):
+            legacy_8080.append(service_id)
+        if port == 8080:
+            _require(entry.get("port8080Disposition") in registry["port8080Dispositions"],
+                     f"upstream {service_id} on :8080 must be classified {registry['port8080Dispositions']}")
+            _require(entry["lifecycle"] != "CANONICAL", f"canonical upstream {service_id} must not target :8080")
+            residue_8080[service_id] = entry["port8080Disposition"]
+        else:
+            _require("port8080Disposition" not in entry, f"upstream {service_id} is not on :8080 but carries port8080Disposition")
+        if (entry["upstreamClass"] in ("MIDDLEWARE_GOVERNED", "MIDDLEWARE_EVENT_GATEWAY")
+                and entry["lifecycle"] not in ("DESIGN_ONLY", "RETIRE_CANDIDATE")):
+            _require(port == registry["invariants"]["middlewareUpstreamPort"],
+                     f"Middleware upstream {service_id} must target :{registry['invariants']['middlewareUpstreamPort']}, not :{port}")
+    _require(len(legacy_8080) == registry["invariants"]["legacy8080Upstreams"],
+             f"Middleware upstreams still target :8080 or a retired alias: {sorted(legacy_8080)}")
+    return {
+        "middlewareUpstreamPort": registry["invariants"]["middlewareUpstreamPort"],
+        "legacy8080Upstreams": len(legacy_8080),
+        "unregisteredUpstreams": len(unregistered),
+        "residual8080": dict(sorted(residue_8080.items())),
+        "unattributed": sorted(unattributed),
+    }
+
+
 def _plain(value: Any) -> Any:
     if isinstance(value, tuple):
         return sorted(value)
@@ -1654,6 +1731,7 @@ def validate_foundation(root: Path = ROOT, foundation_path: Path | None = None) 
     validate_no_undocumented_routes(foundation, documents)
     services = validate_services(foundation, documents)
     materialized = validate_routes(foundation, documents, services)
+    upstream_registry = validate_upstream_registry(foundation, services, materialized)
     routes = _index(foundation["routes"], "routeId")
     overlaps = validate_precedence(foundation, routes, materialized)
     validate_plugins(foundation, documents)
@@ -1668,6 +1746,7 @@ def validate_foundation(root: Path = ROOT, foundation_path: Path | None = None) 
         "foundation": foundation, "documents": documents, "services": services,
         "routes": routes, "materialized": materialized, "overlaps": overlaps,
         "profiles": profiles, "policy": policy, "secret_scan": secret_hits,
+        "upstreamRegistry": upstream_registry,
     }
 
 
@@ -2186,13 +2265,17 @@ def _fmt(values: Any) -> str:
 
 
 def render_services(result: dict) -> str:
-    rows = ["| Service | Env | Owner | Class | Upstream | Timeout | Retry | Auth | Rate | Size | Health | Lifecycle | Disposition | Findings |",
-            "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |"]
+    rows = ["| Service | Env | Owner | Repository | Class | Upstream | TLS | Route families | Timeout | Retry | Auth | Rate | Size | Health | Lifecycle | Disposition | Findings |",
+            "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |"]
     for entry in sorted(result["services"].values(), key=lambda e: (e["environment"], e["serviceId"])):
         up = entry["upstream"]
+        families = entry["routeFamilies"]
         rows.append("| " + " | ".join([
-            f"`{entry['serviceId']}`", entry["environment"], entry["owner"], entry["upstreamClass"],
-            f"`{up['protocol']}://{up['host']}:{up['port']}`", entry["timeoutProfile"], entry["retryProfile"],
+            f"`{entry['serviceId']}`", entry["environment"], entry["owner"], entry["repository"], entry["upstreamClass"],
+            f"`{up['protocol']}://{up['host']}:{up['port']}`" + (f" ({entry['port8080Disposition']})" if "port8080Disposition" in entry else ""),
+            "required" if entry["tlsRequired"] else "private network",
+            (_fmt(families) if len(families) <= 6 else f"{len(families)} families"),
+            entry["timeoutProfile"], entry["retryProfile"],
             entry["authenticationProfile"], entry["rateLimitProfile"], entry["requestSizeProfile"], entry["healthProfile"],
             entry["lifecycle"], entry["disposition"], ", ".join(entry["acceptedFindings"]) or "—",
         ]) + " |")
@@ -2295,6 +2378,10 @@ def main(argv: list[str] | None = None) -> int:
     dependency = m1_dependency_status(result["foundation"])
     print(f"M1_DEPENDENCY={dependency['state']} TRANSITIONAL_8080_ALIASES={len(dependency['transitional8080Aliases'])} "
           f"RETIRED_ALIAS_RESIDUE={len(dependency['residueServices'])}+{len(dependency['residueRoutes'])}")
+    upstreams = result["upstreamRegistry"]
+    print(f"MIDDLEWARE_UPSTREAM_PORT={upstreams['middlewareUpstreamPort']} LEGACY_8080_UPSTREAMS={upstreams['legacy8080Upstreams']} "
+          f"UNREGISTERED_UPSTREAMS={upstreams['unregisteredUpstreams']} RESIDUAL_8080={len(upstreams['residual8080'])} "
+          f"UNATTRIBUTED_UPSTREAMS={len(upstreams['unattributed'])}")
     if args.v3_phase != "none":
         v3 = validate_v3_certification(result, args.v3_phase)
         print(f"V3_PHASE={v3['phase']}")
