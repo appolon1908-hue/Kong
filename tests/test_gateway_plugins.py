@@ -155,11 +155,12 @@ def webhook(gateway):
     state = gateway.globals().state
     secret = "test-only-key-material-for-local-fixtures"
     values = {"X-Webhook-Key-ID": "key-v1", "X-Webhook-Event-ID": "event-1", "X-Webhook-Timestamp": str(NOW)}
-    signed = f"v1\nkey-v1\n{NOW}\nevent-1\n{{}}".encode()
-    values["X-Webhook-Signature"] = "v1=" + hmac.new(secret.encode(), signed, hashlib.sha256).hexdigest()
+    signed = f"v2\nkey-v1\n{NOW}\nevent-1\nPOST\nproduction--odoo--events\n{{}}".encode()
+    values["X-Webhook-Signature"] = "v2=" + hmac.new(secret.encode(), signed, hashlib.sha256).hexdigest()
     for name, value in values.items():
         state.headers[name] = value
-    return gateway.table_from({"secret": secret, "key_id": "key-v1", "clock_skew_seconds": 300, "maximum_body_bytes": 1024})
+    return gateway.table_from({"secret": secret, "key_id": "key-v1", "route_id": "production--odoo--events",
+        "allowed_methods": ["POST"], "clock_skew_seconds": 300, "maximum_body_bytes": 1024}, recursive=True)
 
 
 def test_webhook_verifies_hmac_without_rewriting_signed_bytes(gateway):
@@ -173,7 +174,8 @@ def test_webhook_verifies_hmac_without_rewriting_signed_bytes(gateway):
 
 
 @pytest.mark.parametrize("header,value", [("X-Webhook-Key-ID", "other-key"), ("X-Webhook-Event-ID", "other-event"),
-    ("X-Webhook-Timestamp", str(NOW - 301)), ("X-Webhook-Signature", "v1=" + "0" * 64)])
+    ("X-Webhook-Timestamp", str(NOW - 301)), ("X-Webhook-Timestamp", str(NOW + 301)),
+    ("X-Webhook-Signature", "v2=" + "0" * 64), ("X-Webhook-Signature", None), ("X-Webhook-Event-ID", None)])
 def test_webhook_rejects_tampered_metadata(gateway, header, value):
     plugin = handler(gateway, "codestra-webhook-verifier")
     conf = webhook(gateway)
@@ -425,3 +427,39 @@ def test_spoofed_privilege_headers_never_reach_middleware(gateway, name):
     state = run_context(gateway, {name: value})
     assert state.status is None
     assert state.upstream[name] is None
+
+
+@pytest.mark.parametrize("method", ["GET", "PUT", "DELETE"])
+def test_webhook_rejects_a_method_outside_the_route_contract(gateway, method):
+    plugin = handler(gateway, "codestra-webhook-verifier")
+    conf = webhook(gateway)
+    gateway.globals().state.method = method
+    plugin.access(plugin, conf)
+    assert gateway.globals().state.status == 405
+
+
+def test_webhook_signature_is_bound_to_its_route(gateway):
+    plugin = handler(gateway, "codestra-webhook-verifier")
+    conf = webhook(gateway)
+    conf.route_id = "production--other--events"
+    plugin.access(plugin, conf)
+    assert gateway.globals().state.status == 401
+
+
+def test_webhook_signature_is_bound_to_its_method(gateway):
+    plugin = handler(gateway, "codestra-webhook-verifier")
+    conf = webhook(gateway)
+    conf.allowed_methods = gateway.table_from(["POST", "PUT"])
+    gateway.globals().state.method = "PUT"
+    plugin.access(plugin, conf)
+    assert gateway.globals().state.status == 401
+
+
+def test_webhook_rejects_the_retired_v1_scheme(gateway):
+    plugin = handler(gateway, "codestra-webhook-verifier")
+    conf = webhook(gateway)
+    signed = f"v1\nkey-v1\n{NOW}\nevent-1\n{{}}".encode()
+    secret = "test-only-key-material-for-local-fixtures"
+    gateway.globals().state.headers["X-Webhook-Signature"] = "v1=" + hmac.new(secret.encode(), signed, hashlib.sha256).hexdigest()
+    plugin.access(plugin, conf)
+    assert gateway.globals().state.status == 401

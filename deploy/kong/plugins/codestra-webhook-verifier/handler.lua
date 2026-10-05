@@ -11,7 +11,15 @@ end
 local function hex(value)
   return (value:gsub(".", function(c) return string.format("%02x", c:byte()) end))
 end
+local function allowed(methods, method)
+  for _, value in ipairs(methods or {}) do if value == method then return true end end
+  return false
+end
 function Handler:access(conf)
+  local method = kong.request.get_method()
+  if not allowed(conf.allowed_methods, method) then
+    return kong.response.exit(405, { error = "webhook_method_not_allowed" })
+  end
   local timestamp = kong.request.get_header("X-Webhook-Timestamp")
   local event = kong.request.get_header("X-Webhook-Event-ID")
   local key_id = kong.request.get_header("X-Webhook-Key-ID")
@@ -20,7 +28,7 @@ function Handler:access(conf)
     or math.abs(ngx.time() - tonumber(timestamp)) > conf.clock_skew_seconds
     or type(event) ~= "string" or #event > 128 or not event:match("^[A-Za-z0-9][A-Za-z0-9._:-]*$")
     or key_id ~= conf.key_id or type(signature) ~= "string"
-    or #signature ~= 67 or not signature:match("^v1=[0-9a-f]+$") then
+    or #signature ~= 67 or not signature:match("^v2=[0-9a-f]+$") then
     return kong.response.exit(401, { error = "invalid_webhook_signature" })
   end
   -- A configured limit bounds disk-buffer reads too, not only Content-Length.
@@ -32,9 +40,10 @@ function Handler:access(conf)
     return kong.response.exit(503, { error = "webhook_key_unavailable" })
   end
   local ctx = mac.new(conf.secret, "HMAC", nil, "sha256")
-  local signed = ctx and ctx:final("v1\n" .. key_id .. "\n" .. timestamp .. "\n" .. event .. "\n" .. body)
+  local signed = ctx and ctx:final(table.concat(
+    { "v2", key_id, timestamp, event, method, conf.route_id, body }, "\n"))
   if not signed then return kong.response.exit(503, { error = "webhook_verifier_unavailable" }) end
-  if not equal("v1=" .. hex(signed), signature) then
+  if not equal("v2=" .. hex(signed), signature) then
     return kong.response.exit(401, { error = "invalid_webhook_signature" })
   end
 end

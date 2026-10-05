@@ -317,7 +317,8 @@ def compile_integrations(documents, *, environment):
                                                        "skip_consumer_lookup": True}))
             if template == "signed-webhook":
                 plugins.append(_plugin("codestra-webhook-verifier", {"secret": auth["secretRef"],
-                    "key_id": auth["keyId"], "maximum_body_bytes": route["maxBodyBytes"], "clock_skew_seconds": 300}))
+                    "key_id": auth["keyId"], "route_id": route_name, "allowed_methods": sorted(route["methods"]),
+                    "maximum_body_bytes": route["maxBodyBytes"], "clock_skew_seconds": 300}))
             if template == "legacy-api-key":
                 plugins.append(_plugin("key-auth", {"key_names": ["X-API-Key"], "key_in_header": True,
                     "key_in_query": False, "key_in_body": False, "hide_credentials": True}))
