@@ -13,7 +13,7 @@ import yaml
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
-from scripts.kong_traffic_policy import middleware_policy, passive_health, resource_guard
+from scripts.kong_traffic_policy import middleware_policy, passive_health, resource_guard, select, selection_inputs
 CONTRACT_PATH = ROOT / "config/middleware-public-api-route-contract.v1.json"
 PIN_PATH = ROOT / "config/middleware-public-api-route-contract.sha256"
 CANONICAL_PATH = ROOT / "config/kong-canonical-middleware-routes.json"
@@ -190,6 +190,13 @@ def denied_route(row: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+_SELECTION = selection_inputs()
+
+
+def traffic(row: dict[str, Any]) -> dict[str, Any]:
+    return select(row, *_SELECTION)
+
+
 def authority_route(row: dict[str, Any], issuer: str) -> dict[str, Any]:
     return {
         "operation_id": row["operation_id"],
@@ -201,8 +208,8 @@ def authority_route(row: dict[str, Any], issuer: str) -> dict[str, Any]:
         "azp": row["calling_client"],
         "authentication": row["auth"],
         "correlation_fields": row["correlation_fields"],
-        "rate_limit": {"minute": 120, "policy": "redis", "fault_tolerant": False},
-        "request_size_limit_mb": 2,
+        "rate_limit": {"minute": traffic(row)["perMinute"], "policy": "redis", "fault_tolerant": False},
+        "request_size_limit_mb": traffic(row)["bodyMegabytes"],
     }
 
 
@@ -335,8 +342,8 @@ def route_plugins(row: dict[str, Any], issuer: str) -> list[dict[str, Any]]:
         {
             "name": "rate-limiting",
             "config": {
-                "minute": 120,
-                "second": 10,
+                "minute": traffic(row)["perMinute"],
+                "second": traffic(row)["perSecond"],
                 "error_code": 429,
                 "error_message": "rate_limit_exceeded",
                 "policy": "redis",
@@ -351,7 +358,7 @@ def route_plugins(row: dict[str, Any], issuer: str) -> list[dict[str, Any]]:
                 },
             },
         },
-        {"name": "request-size-limiting", "config": {"allowed_payload_size": 2}},
+        {"name": "request-size-limiting", "config": {"allowed_payload_size": traffic(row)["bodyMegabytes"]}},
     ]
 
 

@@ -89,7 +89,7 @@ def test_traffic_policy_is_bound_into_deterministic_digest(contract):
 
 
 def test_canonical_runtime_has_upstream_circuit_and_preserves_middleware_target():
-    manifest = build_manifest([], [], 'https://auth.codestra.co/realms/codestra', 'production')
+    manifest = build_manifest([], [], [], 'https://auth.codestra.co/realms/codestra', 'production')
     upstream = manifest['upstreams'][0]
     assert upstream['name'] == manifest['services'][0]['host']
     assert upstream['targets'] == [{'target': 'middleware-integration-api:8095', 'weight': 100}]

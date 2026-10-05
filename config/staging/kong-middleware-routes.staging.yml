@@ -238,8 +238,8 @@ services:
         echo_downstream: true
     - name: rate-limiting
       config:
-        minute: 120
-        second: 10
+        minute: 240
+        second: 20
         error_code: 429
         error_message: rate_limit_exceeded
         policy: redis
@@ -253,7 +253,7 @@ services:
           password: '{vault://env/kong-rate-limit-redis-password}'
     - name: request-size-limiting
       config:
-        allowed_payload_size: 2
+        allowed_payload_size: 1
   - name: middleware-create-callback
     hosts:
     - api.codestra.co
@@ -444,8 +444,8 @@ services:
         echo_downstream: true
     - name: rate-limiting
       config:
-        minute: 120
-        second: 10
+        minute: 300
+        second: 20
         error_code: 429
         error_message: rate_limit_exceeded
         policy: redis
@@ -459,7 +459,7 @@ services:
           password: '{vault://env/kong-rate-limit-redis-password}'
     - name: request-size-limiting
       config:
-        allowed_payload_size: 2
+        allowed_payload_size: 1
   - name: middleware-read-n8n-result
     hosts:
     - api.codestra.co
@@ -547,8 +547,8 @@ services:
         echo_downstream: true
     - name: rate-limiting
       config:
-        minute: 120
-        second: 10
+        minute: 240
+        second: 20
         error_code: 429
         error_message: rate_limit_exceeded
         policy: redis
@@ -562,7 +562,7 @@ services:
           password: '{vault://env/kong-rate-limit-redis-password}'
     - name: request-size-limiting
       config:
-        allowed_payload_size: 2
+        allowed_payload_size: 1
   - name: middleware-read-odoo-campaign
     hosts:
     - api.codestra.co
@@ -650,8 +650,8 @@ services:
         echo_downstream: true
     - name: rate-limiting
       config:
-        minute: 120
-        second: 10
+        minute: 240
+        second: 20
         error_code: 429
         error_message: rate_limit_exceeded
         policy: redis
@@ -665,7 +665,7 @@ services:
           password: '{vault://env/kong-rate-limit-redis-password}'
     - name: request-size-limiting
       config:
-        allowed_payload_size: 2
+        allowed_payload_size: 1
   - name: middleware-read-odoo-campaign-desired-state
     hosts:
     - api.codestra.co
@@ -753,8 +753,8 @@ services:
         echo_downstream: true
     - name: rate-limiting
       config:
-        minute: 120
-        second: 10
+        minute: 240
+        second: 20
         error_code: 429
         error_message: rate_limit_exceeded
         policy: redis
@@ -768,7 +768,7 @@ services:
           password: '{vault://env/kong-rate-limit-redis-password}'
     - name: request-size-limiting
       config:
-        allowed_payload_size: 2
+        allowed_payload_size: 1
   - name: middleware-ingress-odoo-event
     hosts:
     - api.codestra.co
@@ -856,8 +856,8 @@ services:
         echo_downstream: true
     - name: rate-limiting
       config:
-        minute: 120
-        second: 10
+        minute: 300
+        second: 20
         error_code: 429
         error_message: rate_limit_exceeded
         policy: redis
@@ -871,7 +871,7 @@ services:
           password: '{vault://env/kong-rate-limit-redis-password}'
     - name: request-size-limiting
       config:
-        allowed_payload_size: 2
+        allowed_payload_size: 1
   - name: middleware-list-activity-platform-v1-activity-get
     hosts:
     - api.codestra.co
@@ -950,8 +950,8 @@ services:
         echo_downstream: true
     - name: rate-limiting
       config:
-        minute: 120
-        second: 10
+        minute: 240
+        second: 20
         error_code: 429
         error_message: rate_limit_exceeded
         policy: redis
@@ -965,7 +965,7 @@ services:
           password: '{vault://env/kong-rate-limit-redis-password}'
     - name: request-size-limiting
       config:
-        allowed_payload_size: 2
+        allowed_payload_size: 1
   - name: middleware-get-activity-platform-v1-activity--activity-id--get
     hosts:
     - api.codestra.co
@@ -1044,8 +1044,8 @@ services:
         echo_downstream: true
     - name: rate-limiting
       config:
-        minute: 120
-        second: 10
+        minute: 240
+        second: 20
         error_code: 429
         error_message: rate_limit_exceeded
         policy: redis
@@ -1059,7 +1059,7 @@ services:
           password: '{vault://env/kong-rate-limit-redis-password}'
     - name: request-size-limiting
       config:
-        allowed_payload_size: 2
+        allowed_payload_size: 1
   - name: middleware-adopt-agent-extension-platform-v1-agent-provisioning-adopt-extension-post
     hosts:
     - api.codestra.co
@@ -1326,8 +1326,8 @@ services:
         echo_downstream: true
     - name: rate-limiting
       config:
-        minute: 120
-        second: 10
+        minute: 240
+        second: 20
         error_code: 429
         error_message: rate_limit_exceeded
         policy: redis
@@ -1341,7 +1341,7 @@ services:
           password: '{vault://env/kong-rate-limit-redis-password}'
     - name: request-size-limiting
       config:
-        allowed_payload_size: 2
+        allowed_payload_size: 1
   - name: middleware-provisioning-history-platform-v1-agent-provisioning-requests--request-id--history-get
     hosts:
     - api.codestra.co
@@ -1420,8 +1420,8 @@ services:
         echo_downstream: true
     - name: rate-limiting
       config:
-        minute: 120
-        second: 10
+        minute: 240
+        second: 20
         error_code: 429
         error_message: rate_limit_exceeded
         policy: redis
@@ -1435,7 +1435,7 @@ services:
           password: '{vault://env/kong-rate-limit-redis-password}'
     - name: request-size-limiting
       config:
-        allowed_payload_size: 2
+        allowed_payload_size: 1
   - name: middleware-reactivate-provisioning-request-platform-v1-agent-provisioning-requests--request-id--reactivate-post
     hosts:
     - api.codestra.co
@@ -2172,8 +2172,8 @@ services:
         echo_downstream: true
     - name: rate-limiting
       config:
-        minute: 120
-        second: 10
+        minute: 240
+        second: 20
         error_code: 429
         error_message: rate_limit_exceeded
         policy: redis
@@ -2187,7 +2187,7 @@ services:
           password: '{vault://env/kong-rate-limit-redis-password}'
     - name: request-size-limiting
       config:
-        allowed_payload_size: 2
+        allowed_payload_size: 1
   - name: middleware-release-agent-extension-platform-v1-agent-provisioning--request-id--release-extension-post
     hosts:
     - api.codestra.co
@@ -2642,8 +2642,8 @@ services:
         echo_downstream: true
     - name: rate-limiting
       config:
-        minute: 120
-        second: 10
+        minute: 240
+        second: 20
         error_code: 429
         error_message: rate_limit_exceeded
         policy: redis
@@ -2657,7 +2657,7 @@ services:
           password: '{vault://env/kong-rate-limit-redis-password}'
     - name: request-size-limiting
       config:
-        allowed_payload_size: 2
+        allowed_payload_size: 1
   - name: middleware-get-agent-presence-platform-v1-agents--user-id--presence-get
     hosts:
     - api.codestra.co
@@ -2736,8 +2736,8 @@ services:
         echo_downstream: true
     - name: rate-limiting
       config:
-        minute: 120
-        second: 10
+        minute: 240
+        second: 20
         error_code: 429
         error_message: rate_limit_exceeded
         policy: redis
@@ -2751,7 +2751,7 @@ services:
           password: '{vault://env/kong-rate-limit-redis-password}'
     - name: request-size-limiting
       config:
-        allowed_payload_size: 2
+        allowed_payload_size: 1
   - name: middleware-list-calls-platform-v1-calls-get
     hosts:
     - api.codestra.co
@@ -2830,8 +2830,8 @@ services:
         echo_downstream: true
     - name: rate-limiting
       config:
-        minute: 120
-        second: 10
+        minute: 240
+        second: 20
         error_code: 429
         error_message: rate_limit_exceeded
         policy: redis
@@ -2845,7 +2845,7 @@ services:
           password: '{vault://env/kong-rate-limit-redis-password}'
     - name: request-size-limiting
       config:
-        allowed_payload_size: 2
+        allowed_payload_size: 1
   - name: middleware-get-call-platform-v1-calls--call-id--get
     hosts:
     - api.codestra.co
@@ -2924,8 +2924,8 @@ services:
         echo_downstream: true
     - name: rate-limiting
       config:
-        minute: 120
-        second: 10
+        minute: 240
+        second: 20
         error_code: 429
         error_message: rate_limit_exceeded
         policy: redis
@@ -2939,7 +2939,7 @@ services:
           password: '{vault://env/kong-rate-limit-redis-password}'
     - name: request-size-limiting
       config:
-        allowed_payload_size: 2
+        allowed_payload_size: 1
   - name: middleware-list-campaigns-platform-v1-campaigns-get
     hosts:
     - api.codestra.co
@@ -3018,8 +3018,8 @@ services:
         echo_downstream: true
     - name: rate-limiting
       config:
-        minute: 120
-        second: 10
+        minute: 240
+        second: 20
         error_code: 429
         error_message: rate_limit_exceeded
         policy: redis
@@ -3033,7 +3033,7 @@ services:
           password: '{vault://env/kong-rate-limit-redis-password}'
     - name: request-size-limiting
       config:
-        allowed_payload_size: 2
+        allowed_payload_size: 1
   - name: middleware-get-campaign-platform-v1-campaigns--campaign-id--get
     hosts:
     - api.codestra.co
@@ -3112,8 +3112,8 @@ services:
         echo_downstream: true
     - name: rate-limiting
       config:
-        minute: 120
-        second: 10
+        minute: 240
+        second: 20
         error_code: 429
         error_message: rate_limit_exceeded
         policy: redis
@@ -3127,7 +3127,7 @@ services:
           password: '{vault://env/kong-rate-limit-redis-password}'
     - name: request-size-limiting
       config:
-        allowed_payload_size: 2
+        allowed_payload_size: 1
   - name: middleware-get-campaign-channels-platform-v1-campaigns--campaign-id--channels-get
     hosts:
     - api.codestra.co
@@ -3206,8 +3206,8 @@ services:
         echo_downstream: true
     - name: rate-limiting
       config:
-        minute: 120
-        second: 10
+        minute: 240
+        second: 20
         error_code: 429
         error_message: rate_limit_exceeded
         policy: redis
@@ -3221,7 +3221,7 @@ services:
           password: '{vault://env/kong-rate-limit-redis-password}'
     - name: request-size-limiting
       config:
-        allowed_payload_size: 2
+        allowed_payload_size: 1
   - name: middleware-get-campaign-health-platform-v1-campaigns--campaign-id--health-get
     hosts:
     - api.codestra.co
@@ -3300,8 +3300,8 @@ services:
         echo_downstream: true
     - name: rate-limiting
       config:
-        minute: 120
-        second: 10
+        minute: 240
+        second: 20
         error_code: 429
         error_message: rate_limit_exceeded
         policy: redis
@@ -3315,7 +3315,7 @@ services:
           password: '{vault://env/kong-rate-limit-redis-password}'
     - name: request-size-limiting
       config:
-        allowed_payload_size: 2
+        allowed_payload_size: 1
   - name: middleware-list-campaign-members-platform-v1-campaigns--campaign-id--members-get
     hosts:
     - api.codestra.co
@@ -3394,8 +3394,8 @@ services:
         echo_downstream: true
     - name: rate-limiting
       config:
-        minute: 120
-        second: 10
+        minute: 240
+        second: 20
         error_code: 429
         error_message: rate_limit_exceeded
         policy: redis
@@ -3409,7 +3409,7 @@ services:
           password: '{vault://env/kong-rate-limit-redis-password}'
     - name: request-size-limiting
       config:
-        allowed_payload_size: 2
+        allowed_payload_size: 1
   - name: middleware-submit-command-platform-v1-commands-post
     hosts:
     - api.codestra.co
@@ -3488,8 +3488,8 @@ services:
         echo_downstream: true
     - name: rate-limiting
       config:
-        minute: 120
-        second: 10
+        minute: 60
+        second: 5
         error_code: 429
         error_message: rate_limit_exceeded
         policy: redis
@@ -3582,8 +3582,8 @@ services:
         echo_downstream: true
     - name: rate-limiting
       config:
-        minute: 120
-        second: 10
+        minute: 240
+        second: 20
         error_code: 429
         error_message: rate_limit_exceeded
         policy: redis
@@ -3597,7 +3597,7 @@ services:
           password: '{vault://env/kong-rate-limit-redis-password}'
     - name: request-size-limiting
       config:
-        allowed_payload_size: 2
+        allowed_payload_size: 1
   - name: middleware-cancel-operation-platform-v1-commands--operation-id--cancel-post
     hosts:
     - api.codestra.co
@@ -3770,8 +3770,8 @@ services:
         echo_downstream: true
     - name: rate-limiting
       config:
-        minute: 120
-        second: 10
+        minute: 240
+        second: 20
         error_code: 429
         error_message: rate_limit_exceeded
         policy: redis
@@ -3785,7 +3785,7 @@ services:
           password: '{vault://env/kong-rate-limit-redis-password}'
     - name: request-size-limiting
       config:
-        allowed_payload_size: 2
+        allowed_payload_size: 1
   - name: middleware-replay-operation-platform-v1-commands--operation-id--replay-post
     hosts:
     - api.codestra.co
@@ -3958,8 +3958,8 @@ services:
         echo_downstream: true
     - name: rate-limiting
       config:
-        minute: 120
-        second: 10
+        minute: 240
+        second: 20
         error_code: 429
         error_message: rate_limit_exceeded
         policy: redis
@@ -3973,7 +3973,7 @@ services:
           password: '{vault://env/kong-rate-limit-redis-password}'
     - name: request-size-limiting
       config:
-        allowed_payload_size: 2
+        allowed_payload_size: 1
   - name: middleware-retry-command-platform-v1-commands--operation-id--retry-post
     hosts:
     - api.codestra.co
@@ -4146,8 +4146,8 @@ services:
         echo_downstream: true
     - name: rate-limiting
       config:
-        minute: 120
-        second: 10
+        minute: 240
+        second: 20
         error_code: 429
         error_message: rate_limit_exceeded
         policy: redis
@@ -4161,7 +4161,7 @@ services:
           password: '{vault://env/kong-rate-limit-redis-password}'
     - name: request-size-limiting
       config:
-        allowed_payload_size: 2
+        allowed_payload_size: 1
   - name: middleware-connector-catalog-item-platform-v1-connectors--connector-id--get
     hosts:
     - api.codestra.co
@@ -4240,8 +4240,8 @@ services:
         echo_downstream: true
     - name: rate-limiting
       config:
-        minute: 120
-        second: 10
+        minute: 240
+        second: 20
         error_code: 429
         error_message: rate_limit_exceeded
         policy: redis
@@ -4255,7 +4255,7 @@ services:
           password: '{vault://env/kong-rate-limit-redis-password}'
     - name: request-size-limiting
       config:
-        allowed_payload_size: 2
+        allowed_payload_size: 1
   - name: middleware-connector-capabilities-platform-v1-connectors--connector-id--capabilities-get
     hosts:
     - api.codestra.co
@@ -4334,8 +4334,8 @@ services:
         echo_downstream: true
     - name: rate-limiting
       config:
-        minute: 120
-        second: 10
+        minute: 240
+        second: 20
         error_code: 429
         error_message: rate_limit_exceeded
         policy: redis
@@ -4349,7 +4349,7 @@ services:
           password: '{vault://env/kong-rate-limit-redis-password}'
     - name: request-size-limiting
       config:
-        allowed_payload_size: 2
+        allowed_payload_size: 1
   - name: middleware-connector-health-platform-v1-connectors--connector-id--health-get
     hosts:
     - api.codestra.co
@@ -4428,8 +4428,8 @@ services:
         echo_downstream: true
     - name: rate-limiting
       config:
-        minute: 120
-        second: 10
+        minute: 240
+        second: 20
         error_code: 429
         error_message: rate_limit_exceeded
         policy: redis
@@ -4443,7 +4443,7 @@ services:
           password: '{vault://env/kong-rate-limit-redis-password}'
     - name: request-size-limiting
       config:
-        allowed_payload_size: 2
+        allowed_payload_size: 1
   - name: middleware-connector-operator-readback-platform-v1-connectors--connector-id--readback-post
     hosts:
     - api.codestra.co
@@ -4710,8 +4710,8 @@ services:
         echo_downstream: true
     - name: rate-limiting
       config:
-        minute: 120
-        second: 10
+        minute: 240
+        second: 20
         error_code: 429
         error_message: rate_limit_exceeded
         policy: redis
@@ -4725,7 +4725,7 @@ services:
           password: '{vault://env/kong-rate-limit-redis-password}'
     - name: request-size-limiting
       config:
-        allowed_payload_size: 2
+        allowed_payload_size: 1
   - name: middleware-create-contact-platform-v1-contacts-post
     hosts:
     - api.codestra.co
@@ -4898,8 +4898,8 @@ services:
         echo_downstream: true
     - name: rate-limiting
       config:
-        minute: 120
-        second: 10
+        minute: 240
+        second: 20
         error_code: 429
         error_message: rate_limit_exceeded
         policy: redis
@@ -4913,7 +4913,7 @@ services:
           password: '{vault://env/kong-rate-limit-redis-password}'
     - name: request-size-limiting
       config:
-        allowed_payload_size: 2
+        allowed_payload_size: 1
   - name: middleware-update-contact-platform-v1-contacts--contact-id--patch
     hosts:
     - api.codestra.co
@@ -5086,8 +5086,8 @@ services:
         echo_downstream: true
     - name: rate-limiting
       config:
-        minute: 120
-        second: 10
+        minute: 240
+        second: 20
         error_code: 429
         error_message: rate_limit_exceeded
         policy: redis
@@ -5101,7 +5101,7 @@ services:
           password: '{vault://env/kong-rate-limit-redis-password}'
     - name: request-size-limiting
       config:
-        allowed_payload_size: 2
+        allowed_payload_size: 1
   - name: middleware-create-note-platform-v1-contacts--contact-id--notes-post
     hosts:
     - api.codestra.co
@@ -5368,8 +5368,8 @@ services:
         echo_downstream: true
     - name: rate-limiting
       config:
-        minute: 120
-        second: 10
+        minute: 240
+        second: 20
         error_code: 429
         error_message: rate_limit_exceeded
         policy: redis
@@ -5383,7 +5383,7 @@ services:
           password: '{vault://env/kong-rate-limit-redis-password}'
     - name: request-size-limiting
       config:
-        allowed_payload_size: 2
+        allowed_payload_size: 1
   - name: middleware-create-task-platform-v1-contacts--contact-id--tasks-post
     hosts:
     - api.codestra.co
@@ -5556,8 +5556,8 @@ services:
         echo_downstream: true
     - name: rate-limiting
       config:
-        minute: 120
-        second: 10
+        minute: 240
+        second: 20
         error_code: 429
         error_message: rate_limit_exceeded
         policy: redis
@@ -5571,7 +5571,7 @@ services:
           password: '{vault://env/kong-rate-limit-redis-password}'
     - name: request-size-limiting
       config:
-        allowed_payload_size: 2
+        allowed_payload_size: 1
   - name: middleware-get-dead-letter-platform-v1-dead-letters--operation-id--get
     hosts:
     - api.codestra.co
@@ -5650,8 +5650,8 @@ services:
         echo_downstream: true
     - name: rate-limiting
       config:
-        minute: 120
-        second: 10
+        minute: 240
+        second: 20
         error_code: 429
         error_message: rate_limit_exceeded
         policy: redis
@@ -5665,7 +5665,7 @@ services:
           password: '{vault://env/kong-rate-limit-redis-password}'
     - name: request-size-limiting
       config:
-        allowed_payload_size: 2
+        allowed_payload_size: 1
   - name: middleware-list-email-identities-platform-v1-email-identities-get
     hosts:
     - api.codestra.co
@@ -5744,8 +5744,8 @@ services:
         echo_downstream: true
     - name: rate-limiting
       config:
-        minute: 120
-        second: 10
+        minute: 240
+        second: 20
         error_code: 429
         error_message: rate_limit_exceeded
         policy: redis
@@ -5759,7 +5759,7 @@ services:
           password: '{vault://env/kong-rate-limit-redis-password}'
     - name: request-size-limiting
       config:
-        allowed_payload_size: 2
+        allowed_payload_size: 1
   - name: middleware-activate-platform-v1-email-production-activate-post
     hosts:
     - api.codestra.co
@@ -5950,8 +5950,8 @@ services:
         echo_downstream: true
     - name: rate-limiting
       config:
-        minute: 120
-        second: 10
+        minute: 240
+        second: 20
         error_code: 429
         error_message: rate_limit_exceeded
         policy: redis
@@ -5965,7 +5965,7 @@ services:
           password: '{vault://env/kong-rate-limit-redis-password}'
     - name: request-size-limiting
       config:
-        allowed_payload_size: 2
+        allowed_payload_size: 1
   - name: middleware-authorize-platform-v1-email-production-authorize-post
     hosts:
     - api.codestra.co
@@ -6259,8 +6259,8 @@ services:
         echo_downstream: true
     - name: rate-limiting
       config:
-        minute: 120
-        second: 10
+        minute: 240
+        second: 20
         error_code: 429
         error_message: rate_limit_exceeded
         policy: redis
@@ -6274,7 +6274,7 @@ services:
           password: '{vault://env/kong-rate-limit-redis-password}'
     - name: request-size-limiting
       config:
-        allowed_payload_size: 2
+        allowed_payload_size: 1
   - name: middleware-readiness-platform-v1-email-production-readiness-get
     hosts:
     - api.codestra.co
@@ -6362,8 +6362,8 @@ services:
         echo_downstream: true
     - name: rate-limiting
       config:
-        minute: 120
-        second: 10
+        minute: 240
+        second: 20
         error_code: 429
         error_message: rate_limit_exceeded
         policy: redis
@@ -6377,7 +6377,7 @@ services:
           password: '{vault://env/kong-rate-limit-redis-password}'
     - name: request-size-limiting
       config:
-        allowed_payload_size: 2
+        allowed_payload_size: 1
   - name: middleware-revoke-platform-v1-email-production-revoke-post
     hosts:
     - api.codestra.co
@@ -6568,8 +6568,8 @@ services:
         echo_downstream: true
     - name: rate-limiting
       config:
-        minute: 120
-        second: 10
+        minute: 240
+        second: 20
         error_code: 429
         error_message: rate_limit_exceeded
         policy: redis
@@ -6583,7 +6583,7 @@ services:
           password: '{vault://env/kong-rate-limit-redis-password}'
     - name: request-size-limiting
       config:
-        allowed_payload_size: 2
+        allowed_payload_size: 1
   - name: middleware-hosts-platform-v1-hosts-get
     hosts:
     - api.codestra.co
@@ -6672,8 +6672,8 @@ services:
         echo_downstream: true
     - name: rate-limiting
       config:
-        minute: 120
-        second: 10
+        minute: 240
+        second: 20
         error_code: 429
         error_message: rate_limit_exceeded
         policy: redis
@@ -6687,7 +6687,7 @@ services:
           password: '{vault://env/kong-rate-limit-redis-password}'
     - name: request-size-limiting
       config:
-        allowed_payload_size: 2
+        allowed_payload_size: 1
   - name: middleware-host-platform-v1-hosts--host-id--get
     hosts:
     - api.codestra.co
@@ -6776,8 +6776,8 @@ services:
         echo_downstream: true
     - name: rate-limiting
       config:
-        minute: 120
-        second: 10
+        minute: 240
+        second: 20
         error_code: 429
         error_message: rate_limit_exceeded
         policy: redis
@@ -6791,7 +6791,7 @@ services:
           password: '{vault://env/kong-rate-limit-redis-password}'
     - name: request-size-limiting
       config:
-        allowed_payload_size: 2
+        allowed_payload_size: 1
   - name: middleware-github-event-platform-v1-integrations-github-events-post
     hosts:
     - api.codestra.co
@@ -6879,8 +6879,8 @@ services:
         echo_downstream: true
     - name: rate-limiting
       config:
-        minute: 120
-        second: 10
+        minute: 300
+        second: 20
         error_code: 429
         error_message: rate_limit_exceeded
         policy: redis
@@ -6894,7 +6894,7 @@ services:
           password: '{vault://env/kong-rate-limit-redis-password}'
     - name: request-size-limiting
       config:
-        allowed_payload_size: 2
+        allowed_payload_size: 1
   - name: middleware-describe-kernel-platform-v1-kernel-describe-get
     hosts:
     - api.codestra.co
@@ -6973,8 +6973,8 @@ services:
         echo_downstream: true
     - name: rate-limiting
       config:
-        minute: 120
-        second: 10
+        minute: 60
+        second: 5
         error_code: 429
         error_message: rate_limit_exceeded
         policy: redis
@@ -6988,7 +6988,7 @@ services:
           password: '{vault://env/kong-rate-limit-redis-password}'
     - name: request-size-limiting
       config:
-        allowed_payload_size: 2
+        allowed_payload_size: 1
   - name: middleware-get-my-presence-platform-v1-me-presence-get
     hosts:
     - api.codestra.co
@@ -7072,8 +7072,8 @@ services:
         echo_downstream: true
     - name: rate-limiting
       config:
-        minute: 120
-        second: 10
+        minute: 240
+        second: 20
         error_code: 429
         error_message: rate_limit_exceeded
         policy: redis
@@ -7087,7 +7087,7 @@ services:
           password: '{vault://env/kong-rate-limit-redis-password}'
     - name: request-size-limiting
       config:
-        allowed_payload_size: 2
+        allowed_payload_size: 1
   - name: middleware-get-operation-platform-v1-operations--operation-id--get
     hosts:
     - api.codestra.co
@@ -7166,8 +7166,8 @@ services:
         echo_downstream: true
     - name: rate-limiting
       config:
-        minute: 120
-        second: 10
+        minute: 60
+        second: 5
         error_code: 429
         error_message: rate_limit_exceeded
         policy: redis
@@ -7181,7 +7181,7 @@ services:
           password: '{vault://env/kong-rate-limit-redis-password}'
     - name: request-size-limiting
       config:
-        allowed_payload_size: 2
+        allowed_payload_size: 1
   - name: middleware-cancel-operation-platform-v1-operations--operation-id--cancel-post
     hosts:
     - api.codestra.co
@@ -7260,8 +7260,8 @@ services:
         echo_downstream: true
     - name: rate-limiting
       config:
-        minute: 120
-        second: 10
+        minute: 60
+        second: 5
         error_code: 429
         error_message: rate_limit_exceeded
         policy: redis
@@ -7354,8 +7354,8 @@ services:
         echo_downstream: true
     - name: rate-limiting
       config:
-        minute: 120
-        second: 10
+        minute: 240
+        second: 20
         error_code: 429
         error_message: rate_limit_exceeded
         policy: redis
@@ -7369,7 +7369,7 @@ services:
           password: '{vault://env/kong-rate-limit-redis-password}'
     - name: request-size-limiting
       config:
-        allowed_payload_size: 2
+        allowed_payload_size: 1
   - name: middleware-replay-operation-platform-v1-operations--operation-id--replay-post
     hosts:
     - api.codestra.co
@@ -7457,8 +7457,8 @@ services:
         echo_downstream: true
     - name: rate-limiting
       config:
-        minute: 120
-        second: 10
+        minute: 60
+        second: 5
         error_code: 429
         error_message: rate_limit_exceeded
         policy: redis
@@ -7551,8 +7551,8 @@ services:
         echo_downstream: true
     - name: rate-limiting
       config:
-        minute: 120
-        second: 10
+        minute: 60
+        second: 5
         error_code: 429
         error_message: rate_limit_exceeded
         policy: redis
@@ -7566,7 +7566,7 @@ services:
           password: '{vault://env/kong-rate-limit-redis-password}'
     - name: request-size-limiting
       config:
-        allowed_payload_size: 2
+        allowed_payload_size: 1
   - name: middleware-list-opportunities-platform-v1-opportunities-get
     hosts:
     - api.codestra.co
@@ -7645,8 +7645,8 @@ services:
         echo_downstream: true
     - name: rate-limiting
       config:
-        minute: 120
-        second: 10
+        minute: 240
+        second: 20
         error_code: 429
         error_message: rate_limit_exceeded
         policy: redis
@@ -7660,7 +7660,7 @@ services:
           password: '{vault://env/kong-rate-limit-redis-password}'
     - name: request-size-limiting
       config:
-        allowed_payload_size: 2
+        allowed_payload_size: 1
   - name: middleware-create-opportunity-platform-v1-opportunities-post
     hosts:
     - api.codestra.co
@@ -7833,8 +7833,8 @@ services:
         echo_downstream: true
     - name: rate-limiting
       config:
-        minute: 120
-        second: 10
+        minute: 240
+        second: 20
         error_code: 429
         error_message: rate_limit_exceeded
         policy: redis
@@ -7848,7 +7848,7 @@ services:
           password: '{vault://env/kong-rate-limit-redis-password}'
     - name: request-size-limiting
       config:
-        allowed_payload_size: 2
+        allowed_payload_size: 1
   - name: middleware-update-opportunity-platform-v1-opportunities--opportunity-id--patch
     hosts:
     - api.codestra.co
@@ -8021,8 +8021,8 @@ services:
         echo_downstream: true
     - name: rate-limiting
       config:
-        minute: 120
-        second: 10
+        minute: 240
+        second: 20
         error_code: 429
         error_message: rate_limit_exceeded
         policy: redis
@@ -8036,7 +8036,7 @@ services:
           password: '{vault://env/kong-rate-limit-redis-password}'
     - name: request-size-limiting
       config:
-        allowed_payload_size: 2
+        allowed_payload_size: 1
   - name: middleware-get-queue-platform-v1-queues--queue-id--get
     hosts:
     - api.codestra.co
@@ -8115,8 +8115,8 @@ services:
         echo_downstream: true
     - name: rate-limiting
       config:
-        minute: 120
-        second: 10
+        minute: 240
+        second: 20
         error_code: 429
         error_message: rate_limit_exceeded
         policy: redis
@@ -8130,7 +8130,7 @@ services:
           password: '{vault://env/kong-rate-limit-redis-password}'
     - name: request-size-limiting
       config:
-        allowed_payload_size: 2
+        allowed_payload_size: 1
   - name: middleware-list-queue-calls-platform-v1-queues--queue-id--calls-get
     hosts:
     - api.codestra.co
@@ -8209,8 +8209,8 @@ services:
         echo_downstream: true
     - name: rate-limiting
       config:
-        minute: 120
-        second: 10
+        minute: 240
+        second: 20
         error_code: 429
         error_message: rate_limit_exceeded
         policy: redis
@@ -8224,7 +8224,7 @@ services:
           password: '{vault://env/kong-rate-limit-redis-password}'
     - name: request-size-limiting
       config:
-        allowed_payload_size: 2
+        allowed_payload_size: 1
   - name: middleware-list-queue-members-platform-v1-queues--queue-id--members-get
     hosts:
     - api.codestra.co
@@ -8303,8 +8303,8 @@ services:
         echo_downstream: true
     - name: rate-limiting
       config:
-        minute: 120
-        second: 10
+        minute: 240
+        second: 20
         error_code: 429
         error_message: rate_limit_exceeded
         policy: redis
@@ -8318,7 +8318,7 @@ services:
           password: '{vault://env/kong-rate-limit-redis-password}'
     - name: request-size-limiting
       config:
-        allowed_payload_size: 2
+        allowed_payload_size: 1
   - name: middleware-get-queue-metrics-platform-v1-queues--queue-id--metrics-get
     hosts:
     - api.codestra.co
@@ -8397,8 +8397,8 @@ services:
         echo_downstream: true
     - name: rate-limiting
       config:
-        minute: 120
-        second: 10
+        minute: 240
+        second: 20
         error_code: 429
         error_message: rate_limit_exceeded
         policy: redis
@@ -8412,7 +8412,7 @@ services:
           password: '{vault://env/kong-rate-limit-redis-password}'
     - name: request-size-limiting
       config:
-        allowed_payload_size: 2
+        allowed_payload_size: 1
   - name: middleware-run-no-effect-rehearsal-platform-v1-rehearsals-no-effect-post
     hosts:
     - api.codestra.co
@@ -8500,8 +8500,8 @@ services:
         echo_downstream: true
     - name: rate-limiting
       config:
-        minute: 120
-        second: 10
+        minute: 60
+        second: 5
         error_code: 429
         error_message: rate_limit_exceeded
         policy: redis
@@ -8594,8 +8594,8 @@ services:
         echo_downstream: true
     - name: rate-limiting
       config:
-        minute: 120
-        second: 10
+        minute: 60
+        second: 5
         error_code: 429
         error_message: rate_limit_exceeded
         policy: redis
@@ -8609,7 +8609,7 @@ services:
           password: '{vault://env/kong-rate-limit-redis-password}'
     - name: request-size-limiting
       config:
-        allowed_payload_size: 2
+        allowed_payload_size: 1
   - name: middleware-cancel-replay-platform-v1-replays--replay-id--cancel-post
     hosts:
     - api.codestra.co
@@ -8792,8 +8792,8 @@ services:
         echo_downstream: true
     - name: rate-limiting
       config:
-        minute: 120
-        second: 10
+        minute: 240
+        second: 20
         error_code: 429
         error_message: rate_limit_exceeded
         policy: redis
@@ -8807,7 +8807,7 @@ services:
           password: '{vault://env/kong-rate-limit-redis-password}'
     - name: request-size-limiting
       config:
-        allowed_payload_size: 2
+        allowed_payload_size: 1
   - name: middleware-observe-platform-v1-runtime-observations-post
     hosts:
     - api.codestra.co
@@ -9103,8 +9103,8 @@ services:
         echo_downstream: true
     - name: rate-limiting
       config:
-        minute: 120
-        second: 10
+        minute: 240
+        second: 20
         error_code: 429
         error_message: rate_limit_exceeded
         policy: redis
@@ -9118,7 +9118,7 @@ services:
           password: '{vault://env/kong-rate-limit-redis-password}'
     - name: request-size-limiting
       config:
-        allowed_payload_size: 2
+        allowed_payload_size: 1
   - name: middleware-dependencies-platform-v1-services--service-id--dependencies-get
     hosts:
     - api.codestra.co
@@ -9207,8 +9207,8 @@ services:
         echo_downstream: true
     - name: rate-limiting
       config:
-        minute: 120
-        second: 10
+        minute: 240
+        second: 20
         error_code: 429
         error_message: rate_limit_exceeded
         policy: redis
@@ -9222,7 +9222,7 @@ services:
           password: '{vault://env/kong-rate-limit-redis-password}'
     - name: request-size-limiting
       config:
-        allowed_payload_size: 2
+        allowed_payload_size: 1
   - name: middleware-deployments-platform-v1-services--service-id--deployments-get
     hosts:
     - api.codestra.co
@@ -9311,8 +9311,8 @@ services:
         echo_downstream: true
     - name: rate-limiting
       config:
-        minute: 120
-        second: 10
+        minute: 240
+        second: 20
         error_code: 429
         error_message: rate_limit_exceeded
         policy: redis
@@ -9326,7 +9326,7 @@ services:
           password: '{vault://env/kong-rate-limit-redis-password}'
     - name: request-size-limiting
       config:
-        allowed_payload_size: 2
+        allowed_payload_size: 1
   - name: middleware-endpoints-platform-v1-services--service-id--endpoints-get
     hosts:
     - api.codestra.co
@@ -9415,8 +9415,8 @@ services:
         echo_downstream: true
     - name: rate-limiting
       config:
-        minute: 120
-        second: 10
+        minute: 240
+        second: 20
         error_code: 429
         error_message: rate_limit_exceeded
         policy: redis
@@ -9430,7 +9430,7 @@ services:
           password: '{vault://env/kong-rate-limit-redis-password}'
     - name: request-size-limiting
       config:
-        allowed_payload_size: 2
+        allowed_payload_size: 1
   - name: middleware-profile-platform-v1-services--service-id--telemetry-profile-post
     hosts:
     - api.codestra.co
@@ -9613,8 +9613,8 @@ services:
         echo_downstream: true
     - name: rate-limiting
       config:
-        minute: 120
-        second: 10
+        minute: 240
+        second: 20
         error_code: 429
         error_message: rate_limit_exceeded
         policy: redis
@@ -9628,7 +9628,7 @@ services:
           password: '{vault://env/kong-rate-limit-redis-password}'
     - name: request-size-limiting
       config:
-        allowed_payload_size: 2
+        allowed_payload_size: 1
   - name: middleware-select-session-context-platform-v1-session-context-select-post
     hosts:
     - api.codestra.co
@@ -9801,8 +9801,8 @@ services:
         echo_downstream: true
     - name: rate-limiting
       config:
-        minute: 120
-        second: 10
+        minute: 240
+        second: 20
         error_code: 429
         error_message: rate_limit_exceeded
         policy: redis
@@ -9816,7 +9816,7 @@ services:
           password: '{vault://env/kong-rate-limit-redis-password}'
     - name: request-size-limiting
       config:
-        allowed_payload_size: 2
+        allowed_payload_size: 1
   - name: middleware-reconcile-platform-v1-sync-reconciliations-post
     hosts:
     - api.codestra.co
@@ -10009,8 +10009,8 @@ services:
         echo_downstream: true
     - name: rate-limiting
       config:
-        minute: 120
-        second: 10
+        minute: 240
+        second: 20
         error_code: 429
         error_message: rate_limit_exceeded
         policy: redis
@@ -10024,7 +10024,7 @@ services:
           password: '{vault://env/kong-rate-limit-redis-password}'
     - name: request-size-limiting
       config:
-        allowed_payload_size: 2
+        allowed_payload_size: 1
   - name: middleware-sync-status-platform-v1-sync-status-get
     hosts:
     - api.codestra.co
@@ -10113,8 +10113,8 @@ services:
         echo_downstream: true
     - name: rate-limiting
       config:
-        minute: 120
-        second: 10
+        minute: 240
+        second: 20
         error_code: 429
         error_message: rate_limit_exceeded
         policy: redis
@@ -10128,7 +10128,7 @@ services:
           password: '{vault://env/kong-rate-limit-redis-password}'
     - name: request-size-limiting
       config:
-        allowed_payload_size: 2
+        allowed_payload_size: 1
   - name: middleware-update-task-platform-v1-tasks--task-id--patch
     hosts:
     - api.codestra.co
@@ -10498,8 +10498,8 @@ services:
         echo_downstream: true
     - name: rate-limiting
       config:
-        minute: 120
-        second: 10
+        minute: 240
+        second: 20
         error_code: 429
         error_message: rate_limit_exceeded
         policy: redis
@@ -10513,7 +10513,7 @@ services:
           password: '{vault://env/kong-rate-limit-redis-password}'
     - name: request-size-limiting
       config:
-        allowed_payload_size: 2
+        allowed_payload_size: 1
   - name: middleware-list-tenants-platform-v1-tenants-get
     hosts:
     - api.codestra.co
@@ -10602,8 +10602,8 @@ services:
         echo_downstream: true
     - name: rate-limiting
       config:
-        minute: 120
-        second: 10
+        minute: 240
+        second: 20
         error_code: 429
         error_message: rate_limit_exceeded
         policy: redis
@@ -10617,7 +10617,7 @@ services:
           password: '{vault://env/kong-rate-limit-redis-password}'
     - name: request-size-limiting
       config:
-        allowed_payload_size: 2
+        allowed_payload_size: 1
   - name: middleware-list-authorized-tenants-platform-v1-tenants-authorized-get
     hosts:
     - api.codestra.co
@@ -10696,8 +10696,8 @@ services:
         echo_downstream: true
     - name: rate-limiting
       config:
-        minute: 120
-        second: 10
+        minute: 240
+        second: 20
         error_code: 429
         error_message: rate_limit_exceeded
         policy: redis
@@ -10711,7 +10711,7 @@ services:
           password: '{vault://env/kong-rate-limit-redis-password}'
     - name: request-size-limiting
       config:
-        allowed_payload_size: 2
+        allowed_payload_size: 1
   - name: middleware-get-tenant-platform-v1-tenants--tenant-id--get
     hosts:
     - api.codestra.co
@@ -10790,8 +10790,8 @@ services:
         echo_downstream: true
     - name: rate-limiting
       config:
-        minute: 120
-        second: 10
+        minute: 240
+        second: 20
         error_code: 429
         error_message: rate_limit_exceeded
         policy: redis
@@ -10805,7 +10805,7 @@ services:
           password: '{vault://env/kong-rate-limit-redis-password}'
     - name: request-size-limiting
       config:
-        allowed_payload_size: 2
+        allowed_payload_size: 1
   - name: middleware-list-tenant-campaigns-platform-v1-tenants--tenant-id--campaigns-get
     hosts:
     - api.codestra.co
@@ -10884,8 +10884,8 @@ services:
         echo_downstream: true
     - name: rate-limiting
       config:
-        minute: 120
-        second: 10
+        minute: 240
+        second: 20
         error_code: 429
         error_message: rate_limit_exceeded
         policy: redis
@@ -10899,7 +10899,7 @@ services:
           password: '{vault://env/kong-rate-limit-redis-password}'
     - name: request-size-limiting
       config:
-        allowed_payload_size: 2
+        allowed_payload_size: 1
   - name: middleware-get-tenant-health-platform-v1-tenants--tenant-id--health-get
     hosts:
     - api.codestra.co
@@ -10978,8 +10978,8 @@ services:
         echo_downstream: true
     - name: rate-limiting
       config:
-        minute: 120
-        second: 10
+        minute: 240
+        second: 20
         error_code: 429
         error_message: rate_limit_exceeded
         policy: redis
@@ -10993,7 +10993,7 @@ services:
           password: '{vault://env/kong-rate-limit-redis-password}'
     - name: request-size-limiting
       config:
-        allowed_payload_size: 2
+        allowed_payload_size: 1
   - name: middleware-list-tickets-platform-v1-tickets-get
     hosts:
     - api.codestra.co
@@ -11072,8 +11072,8 @@ services:
         echo_downstream: true
     - name: rate-limiting
       config:
-        minute: 120
-        second: 10
+        minute: 240
+        second: 20
         error_code: 429
         error_message: rate_limit_exceeded
         policy: redis
@@ -11087,7 +11087,7 @@ services:
           password: '{vault://env/kong-rate-limit-redis-password}'
     - name: request-size-limiting
       config:
-        allowed_payload_size: 2
+        allowed_payload_size: 1
   - name: middleware-create-ticket-platform-v1-tickets-post
     hosts:
     - api.codestra.co
@@ -11260,8 +11260,8 @@ services:
         echo_downstream: true
     - name: rate-limiting
       config:
-        minute: 120
-        second: 10
+        minute: 240
+        second: 20
         error_code: 429
         error_message: rate_limit_exceeded
         policy: redis
@@ -11275,7 +11275,7 @@ services:
           password: '{vault://env/kong-rate-limit-redis-password}'
     - name: request-size-limiting
       config:
-        allowed_payload_size: 2
+        allowed_payload_size: 1
   - name: middleware-update-ticket-platform-v1-tickets--ticket-id--patch
     hosts:
     - api.codestra.co
@@ -11448,8 +11448,8 @@ services:
         echo_downstream: true
     - name: rate-limiting
       config:
-        minute: 120
-        second: 10
+        minute: 240
+        second: 20
         error_code: 429
         error_message: rate_limit_exceeded
         policy: redis
@@ -11463,7 +11463,7 @@ services:
           password: '{vault://env/kong-rate-limit-redis-password}'
     - name: request-size-limiting
       config:
-        allowed_payload_size: 2
+        allowed_payload_size: 1
   - name: middleware-get-user-campaigns-platform-v1-users--employee-id--campaigns-get
     hosts:
     - api.codestra.co
@@ -11542,8 +11542,8 @@ services:
         echo_downstream: true
     - name: rate-limiting
       config:
-        minute: 120
-        second: 10
+        minute: 240
+        second: 20
         error_code: 429
         error_message: rate_limit_exceeded
         policy: redis
@@ -11557,7 +11557,7 @@ services:
           password: '{vault://env/kong-rate-limit-redis-password}'
     - name: request-size-limiting
       config:
-        allowed_payload_size: 2
+        allowed_payload_size: 1
   - name: middleware-get-user-entitlements-platform-v1-users--employee-id--entitlements-get
     hosts:
     - api.codestra.co
@@ -11636,8 +11636,8 @@ services:
         echo_downstream: true
     - name: rate-limiting
       config:
-        minute: 120
-        second: 10
+        minute: 240
+        second: 20
         error_code: 429
         error_message: rate_limit_exceeded
         policy: redis
@@ -11651,7 +11651,7 @@ services:
           password: '{vault://env/kong-rate-limit-redis-password}'
     - name: request-size-limiting
       config:
-        allowed_payload_size: 2
+        allowed_payload_size: 1
   - name: middleware-request-automation-approval-v2-automation-approvals-post
     hosts:
     - api.codestra.co
@@ -11824,8 +11824,8 @@ services:
         echo_downstream: true
     - name: rate-limiting
       config:
-        minute: 120
-        second: 10
+        minute: 240
+        second: 20
         error_code: 429
         error_message: rate_limit_exceeded
         policy: redis
@@ -11839,7 +11839,7 @@ services:
           password: '{vault://env/kong-rate-limit-redis-password}'
     - name: request-size-limiting
       config:
-        allowed_payload_size: 2
+        allowed_payload_size: 1
   - name: middleware-read-automation-capability-v2-automation-capabilities--capability--get
     hosts:
     - api.codestra.co
@@ -11918,8 +11918,8 @@ services:
         echo_downstream: true
     - name: rate-limiting
       config:
-        minute: 120
-        second: 10
+        minute: 240
+        second: 20
         error_code: 429
         error_message: rate_limit_exceeded
         policy: redis
@@ -11933,7 +11933,7 @@ services:
           password: '{vault://env/kong-rate-limit-redis-password}'
     - name: request-size-limiting
       config:
-        allowed_payload_size: 2
+        allowed_payload_size: 1
   - name: middleware-submit-automation-command-v2-automation-commands-post
     hosts:
     - api.codestra.co
@@ -12106,8 +12106,8 @@ services:
         echo_downstream: true
     - name: rate-limiting
       config:
-        minute: 120
-        second: 10
+        minute: 240
+        second: 20
         error_code: 429
         error_message: rate_limit_exceeded
         policy: redis
@@ -12121,7 +12121,7 @@ services:
           password: '{vault://env/kong-rate-limit-redis-password}'
     - name: request-size-limiting
       config:
-        allowed_payload_size: 2
+        allowed_payload_size: 1
   - name: middleware-replay-automation-dead-letter-v2-automation-dead-letters--dead-letter-id--replay-post
     hosts:
     - api.codestra.co
@@ -12500,8 +12500,8 @@ services:
         echo_downstream: true
     - name: rate-limiting
       config:
-        minute: 120
-        second: 10
+        minute: 240
+        second: 20
         error_code: 429
         error_message: rate_limit_exceeded
         policy: redis
@@ -12515,7 +12515,7 @@ services:
           password: '{vault://env/kong-rate-limit-redis-password}'
     - name: request-size-limiting
       config:
-        allowed_payload_size: 2
+        allowed_payload_size: 1
   - name: middleware-complete-automation-job-v2-automation-jobs--job-id--complete-post
     hosts:
     - api.codestra.co

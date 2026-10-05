@@ -351,7 +351,9 @@ def test_v2_shared_edge_routes_are_governed_from_the_authority():
             assert oidc["cache_tokens_salt"].startswith("{vault://env/") and oidc["auth_methods"] == ["bearer"]
             assert oidc["audience"] and "*" not in oidc["audience"] and oidc["scopes_required"] and oidc["consumer_claim"] == ["azp"]
             assert plugins["correlation-id"]["header_name"] == "X-Correlation-ID"
-            assert plugins["rate-limiting"]["minute"] == 120 and plugins["request-size-limiting"]["allowed_payload_size"] == 2
+            assert plugins["rate-limiting"]["minute"] in (60, 120, 240, 300)
+            assert plugins["rate-limiting"]["policy"] == "redis" and plugins["rate-limiting"]["fault_tolerant"] is False
+            assert plugins["request-size-limiting"]["allowed_payload_size"] in (1, 2)
             assert isinstance(route["regex_priority"], int) and route["regex_priority"] > 0
 
 

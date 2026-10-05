@@ -14,6 +14,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import sys
 from pathlib import Path
 from typing import Any
 
@@ -33,6 +34,8 @@ ISSUER_PROFILE = {"production": "KEYCLOAK_CODESTRA_PRODUCTION", "staging": "KEYC
 # Existing registry entries are curated; these fields may differ from the rule
 # (event/webhook ingest traffic classes and reviewer notes).
 CURATED_FIELDS = {"notes", "trafficClass"}
+# Owned by the named traffic-profile selector: rewritten, never curated by hand.
+DERIVED_FIELDS = {"rateLimitProfile", "requestSizeProfile"}
 
 TENANT_AUTHORITY = "token-claim; X-Tenant-ID is selector-only"
 BASE_DIMENSIONS = ["issuer", "audience", "azp", "scope", "tenant", "expiry"]
@@ -142,6 +145,13 @@ def route_name(row: dict[str, Any]) -> str:
     return safe_name(row["operation_id"])
 
 
+def route_traffic(row: dict[str, Any]) -> dict[str, Any]:
+    if str(ROOT) not in sys.path:
+        sys.path.insert(0, str(ROOT))
+    from scripts.kong_traffic_policy import select, selection_inputs
+    return select(row, *selection_inputs())
+
+
 def foundation_entry(row: dict[str, Any], environment: str) -> dict[str, Any]:
     """Registry entry for one shared-edge Middleware operation in one environment."""
     name = route_name(row)
@@ -161,8 +171,8 @@ def foundation_entry(row: dict[str, Any], environment: str) -> dict[str, Any]:
         "trafficClass": "READ_API" if row["method"] == "GET" else "COMMAND_API",
         "authentication": "AUTHENTICATED" if human_or_service else "SERVICE_AUTHENTICATED",
         "mechanism": "OIDC_BEARER",
-        "rateLimitProfile": "AUTHENTICATED_STANDARD_120" if human_or_service else "SERVICE_STANDARD_120",
-        "requestSizeProfile": "STANDARD_API_2MB",
+        "rateLimitProfile": route_traffic(row)["rateLimitProfile"],
+        "requestSizeProfile": route_traffic(row)["requestSizeProfile"],
         "lifecycle": "CANONICAL",
         "activation": "SOURCE_CANDIDATE",
         "disposition": "KEEP",
@@ -204,7 +214,8 @@ def access_entry(row: dict[str, Any], environment: str) -> dict[str, Any]:
 
 def upsert_entries(entries: list[dict[str, Any]], contract: dict[str, Any], build) -> list[str]:
     """Generate entries for shared-edge operations that have none. Existing entries
-    are kept but must agree with the rule outside CURATED_FIELDS."""
+    are kept but must agree with the rule outside CURATED_FIELDS; DERIVED_FIELDS
+    are rewritten from the traffic-profile selector."""
     by_id = {entry["routeId"]: entry for entry in entries}
     added: list[str] = []
     insert_at = 1 + max((i for i, e in enumerate(entries)
@@ -221,6 +232,8 @@ def upsert_entries(entries: list[dict[str, Any]], contract: dict[str, Any], buil
                 insert_at += 1
                 added.append(expected["routeId"])
                 continue
+            for key in DERIVED_FIELDS & set(expected):
+                current[key] = expected[key]
             drift = sorted(key for key in set(expected) | set(current)
                            if key not in CURATED_FIELDS and expected.get(key) != current.get(key))
             if drift:
