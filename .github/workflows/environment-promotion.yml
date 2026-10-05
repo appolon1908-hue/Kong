@@ -31,7 +31,10 @@ jobs:
           EXACT_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
         run: |
           set -Eeuo pipefail
-          test "$(git rev-parse HEAD)" = "$EXACT_SHA"
+          if [ "$(git rev-parse HEAD)" != "$EXACT_SHA" ]; then
+            echo "exact candidate mismatch: expected $EXACT_SHA got $(git rev-parse HEAD)"
+            exit 1
+          fi
           if [ "$EVENT_NAME" != "pull_request" ]; then
             echo "Manual run validates workflow presence only; it never promotes."
             exit 0
