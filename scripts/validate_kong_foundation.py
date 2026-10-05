@@ -246,8 +246,12 @@ EXPECTED_AZP_LUA = re.compile(r'local expected_azp = ("(?:[^"\\]|\\.)*")')
 
 
 def _post_function_expected_azp(plugins: list[dict]) -> str | None:
-    """The azp the generated post-function forwards as X-Codestra-Expected-Azp."""
+    """The azp the generated contract step (codestra-authz contract mode, or a
+    post-function guard) forwards as X-Codestra-Expected-Azp."""
     for plugin in plugins or []:
+        config = plugin.get("config", {}) or {}
+        if plugin.get("name") == "codestra-authz" and config.get("mode") == "contract":
+            return config.get("expected_azp")
         if plugin.get("name") == "post-function":
             for chunk in (plugin.get("config", {}) or {}).get("access", []) or []:
                 match = EXPECTED_AZP_LUA.search(str(chunk))

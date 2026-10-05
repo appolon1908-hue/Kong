@@ -23,7 +23,32 @@ local function deny(code, reason)
   end
   return kong.response.exit(code, { error = reason })
 end
+-- Client-asserted identity and contract metadata; X-Consumer-* are minted by
+-- openid-connect after signature verification and are kept.
+local CONTRACT_UNTRUSTED_HEADERS = {
+  "X-User-ID", "X-Username", "X-Email", "X-Roles", "X-Scopes", "X-Authenticated-UserID",
+  "X-Authenticated-User", "X-Authenticated-Client", "X-Authenticated-Subject", "X-Authenticated-Tenant",
+  "X-Authenticated-Campaign", "X-Authenticated-Role", "X-Authenticated-Email", "X-Codestra-Tenant",
+  "X-Codestra-Scopes", "X-Codestra-Gateway-Secret", "X-Internal-Service", "X-Admin",
+  "X-Codestra-Contract-Operation", "X-Codestra-Expected-Azp", "X-Codestra-Required-Scope",
+}
+local function contract_access(conf)
+  for _, name in ipairs(CONTRACT_UNTRUSTED_HEADERS) do
+    kong.service.request.clear_header(name)
+  end
+  local consumer = kong.client.get_consumer()
+  local username = consumer and consumer.username
+  if type(username) ~= "string" or not contains(conf.allowed_azps, username) then
+    return kong.response.exit(403, { error = "unauthorized_caller" })
+  end
+  kong.service.request.set_header("X-Codestra-Contract-Operation", conf.operation_id)
+  kong.service.request.set_header("X-Codestra-Expected-Azp", conf.expected_azp)
+  kong.service.request.set_header("X-Codestra-Required-Scope", conf.required_scope)
+end
 function Handler:access(conf)
+  if conf.mode == "contract" then
+    return contract_access(conf)
+  end
   kong.ctx.shared.codestra_authenticated_tenant = nil
   for _, name in ipairs({"X-Authenticated-Client", "X-Authenticated-Subject", "X-Authenticated-Email",
                          "X-Tenant-ID", "X-Codestra-Tenant", "X-Codestra-Scopes"}) do

@@ -15864,7 +15864,7 @@
         "ROUTE"
       ],
       "owner": "gateway-platform",
-      "purpose": "Route authorization prerequisites after openid-connect: issuer, audience, authorized party, time claims, scopes, realm roles, tenant.",
+      "purpose": "Route authorization after openid-connect. Contract mode (the 133 generated Middleware routes): reviewed concrete caller set and minted X-Codestra-Contract-* metadata. Token mode (integration templates): issuer, audience, authorized party, time claims, scopes, realm roles, tenant.",
       "securityImpact": "CRITICAL",
       "orderingDependency": "Requires openid-connect (1050) to have accepted the request; never verifies signatures itself.",
       "environments": [
@@ -15877,7 +15877,10 @@
         "config/integrations/policies/public-oidc-api.json",
         "config/integrations/policies/internal-service-jwt.json",
         "config/integrations/policies/private-mtls-api.json",
-        "config/integrations/policies/websocket-api.json"
+        "config/integrations/policies/websocket-api.json",
+        "config/kong-middleware-routes.production.yml",
+        "config/staging/kong-middleware-routes.staging.yml",
+        "config/kong-canonical-middleware-routes.json"
       ]
     },
     {
@@ -15984,7 +15987,6 @@
       "configurationSources": [
         "deploy/kong/control-plane.yml",
         "config/kong-production-route-inventory.v2.json",
-        "config/kong-canonical-middleware-routes.json",
         "config/kong-callback-routes.json",
         "config/kong-campaign-automation-routes.json",
         "config/staging/kong-campaign-automation-routes.json",
@@ -15993,8 +15995,6 @@
         "config/staging/kong-n8n-control-plane-routes.json",
         "config/kong-moneybee-identity-routes.json",
         "config/kong-calling-routes.v1.json",
-        "config/kong-middleware-routes.production.yml",
-        "config/staging/kong-middleware-routes.staging.yml",
         "config/kong-platform-api-read-routes.v1.json"
       ]
     },

@@ -7,9 +7,10 @@ Keycloak issuer. The RS256 public key is fetched from the staging JWKS endpoint
 (or supplied explicitly for offline tests) and embedded only in the rendered
 runtime artifact.
 
-The route post-function remains fail closed and is extended to verify issuer,
-audience, scope, token lifetime, and caller-selector semantics after signature
-verification. Symbolic/client-family selectors are never accepted as literal
+The route's codestra-authz contract step becomes one fail-closed post-function
+that first verifies issuer, audience, scope, token lifetime, and caller-selector
+semantics after signature verification, then applies the same contract caller
+check and metadata minting. Symbolic/client-family selectors are never accepted as literal
 AZP values; concrete caller selectors require exact AZP equality. Middleware
 remains authoritative for reviewed family membership and resource/tenant policy.
 """
@@ -18,7 +19,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import re
 import sys
 from pathlib import Path
 
@@ -29,6 +29,7 @@ SCRIPTS = str(ROOT / "scripts")
 if SCRIPTS not in sys.path:
     sys.path.insert(0, SCRIPTS)
 
+from generate_middleware_routes import UNTRUSTED_IDENTITY_HEADERS
 from reconcile_kong_campaign_automation import active_rsa_key, rsa_public_key_pem
 
 DEFAULT_SOURCE = ROOT / "config" / "staging" / "kong-middleware-routes.staging.yml"
@@ -37,10 +38,6 @@ STAGING_ISSUER = "https://auth-staging.codestra.co/realms/codestra"
 STAGING_JWKS = STAGING_ISSUER + "/protocol/openid-connect/certs"
 CONSUMER_USERNAME = "codestra-keycloak-staging-jwks"
 DUMMY_RS256_SECRET = "unused-rs256-public-key-only"
-
-LOCAL_ASSIGNMENT = re.compile(
-    r'local\s+(operation_id|expected_azp|required_scope)\s*=\s*("(?:(?:\\.)|[^"])*")'
-)
 
 
 class FallbackError(ValueError):
@@ -52,14 +49,40 @@ def _load_profiles() -> dict:
     return value["v3CallerAuthority"]["callers"]
 
 
-def _extract_metadata(code: str) -> dict[str, str]:
-    values: dict[str, str] = {}
-    for key, encoded in LOCAL_ASSIGNMENT.findall(code):
-        values[key] = json.loads(encoded)
-    missing = {"operation_id", "expected_azp", "required_scope"} - values.keys()
+def _extract_metadata(conf: dict) -> dict:
+    if conf.get("mode") != "contract":
+        raise FallbackError("codestra-authz must run in contract mode")
+    missing = {"operation_id", "expected_azp", "required_scope", "allowed_azps"} - conf.keys()
     if missing:
-        raise FallbackError(f"post-function metadata missing: {sorted(missing)}")
-    return values
+        raise FallbackError(f"codestra-authz contract metadata missing: {sorted(missing)}")
+    return conf
+
+
+def _contract_script(conf: dict) -> str:
+    """The codestra-authz contract step as post-function Lua: strip client
+    identity, require a reviewed caller, mint the contract metadata."""
+    untrusted = ", ".join(json.dumps(name) for name in UNTRUSTED_IDENTITY_HEADERS)
+    allowed = ", ".join(json.dumps(value) for value in conf["allowed_azps"])
+    return "\n".join([
+        f"local operation_id = {json.dumps(conf['operation_id'])}",
+        f"local contract_azp = {json.dumps(conf['expected_azp'])}",
+        f"local contract_scope = {json.dumps(conf['required_scope'])}",
+        f"for _, name in ipairs({{{untrusted}}}) do",
+        "  kong.service.request.clear_header(name)",
+        "end",
+        f"local allowed_azps = {{{allowed}}}",
+        "local consumer = kong.client.get_consumer()",
+        "local matched = false",
+        "if consumer and type(consumer.username) == 'string' then",
+        "  for _, azp in ipairs(allowed_azps) do",
+        "    if consumer.username == azp then matched = true break end",
+        "  end",
+        "end",
+        "if not matched then return kong.response.exit(403, {error='unauthorized_caller'}) end",
+        "kong.service.request.set_header('X-Codestra-Contract-Operation', operation_id)",
+        "kong.service.request.set_header('X-Codestra-Expected-Azp', contract_azp)",
+        "kong.service.request.set_header('X-Codestra-Required-Scope', contract_scope)",
+    ])
 
 
 def _normalize_selector(value: str) -> str:
@@ -164,13 +187,10 @@ def transform_manifest(manifest: dict, public_key: str) -> dict:
         if len(audiences) != 1 or len(scopes) != 1:
             raise FallbackError(f"{route.get('name')}: expected one audience and one scope")
 
-        post = [plugin for plugin in plugins if plugin.get("name") == "post-function"]
-        if len(post) != 1:
-            raise FallbackError(f"{route.get('name')}: expected exactly one post-function")
-        access = post[0].get("config", {}).get("access") or []
-        if len(access) != 1:
-            raise FallbackError(f"{route.get('name')}: expected one post-function access script")
-        metadata = _extract_metadata(access[0])
+        authz = [plugin for plugin in plugins if plugin.get("name") == "codestra-authz"]
+        if len(authz) != 1 or any(plugin.get("name") == "post-function" for plugin in plugins):
+            raise FallbackError(f"{route.get('name')}: expected exactly one codestra-authz contract step")
+        metadata = _extract_metadata(authz[0].get("config", {}))
         expected_azp = _normalize_selector(metadata["expected_azp"])
         caller = callers.get(expected_azp)
         if caller is None:
@@ -183,11 +203,13 @@ def transform_manifest(manifest: dict, public_key: str) -> dict:
             expected_azp=expected_azp,
             caller_class=caller["class"],
         )
-        post[0]["config"]["access"] = [guard + "\n" + access[0]]
         new_plugins = []
         for plugin in plugins:
             if plugin.get("name") == "openid-connect":
                 new_plugins.append(_jwt_plugin())
+            elif plugin.get("name") == "codestra-authz":
+                new_plugins.append({"name": "post-function",
+                                    "config": {"access": [guard + "\n" + _contract_script(metadata)]}})
             else:
                 new_plugins.append(plugin)
         route["plugins"] = new_plugins

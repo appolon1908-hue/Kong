@@ -469,7 +469,8 @@ FORBIDDEN_AUTHENTICATION_PLUGINS = {"jwt", "key-auth", "basic-auth", "hmac-auth"
 def relying_party_violations(plugins: list[dict[str, Any]], issuer: str, audience: str) -> list[str]:
     """Generator-independent invariants for a shared_edge route: openid-connect is
     the only authentication, verifies a strict RS-signed bearer token from the one
-    issuer, never falls back to anonymous, and authorization runs only after it."""
+    issuer, never falls back to anonymous, and authorization runs only after it
+    (codestra-authz priority 900 is below openid-connect 1050)."""
     violations: list[str] = []
     names = [plugin.get("name") for plugin in plugins]
     oidc = [plugin for plugin in plugins if plugin.get("name") == "openid-connect"]
@@ -490,8 +491,11 @@ def relying_party_violations(plugins: list[dict[str, Any]], issuer: str, audienc
         violations.append("openid-connect scopes_required must name concrete scopes")
     if FORBIDDEN_AUTHENTICATION_PLUGINS & set(names):
         violations.append("a second authentication plugin is forbidden next to openid-connect")
-    if names.count("post-function") != 1:
-        violations.append("exactly one post-function authorization step is required")
+    authz = [plugin for plugin in plugins if plugin.get("name") == "codestra-authz"]
+    if len(authz) != 1 or (authz[0].get("config") or {}).get("mode") != "contract":
+        violations.append("exactly one codestra-authz contract authorization step is required")
+    if "post-function" in names:
+        violations.append("generated post-function code is forbidden; authorization belongs to codestra-authz")
     if any("ordering" in plugin for plugin in plugins):
         violations.append("dynamic plugin ordering could run policy before authentication")
     for plugin in plugins:
@@ -536,7 +540,7 @@ def validate_generated_manifests(root: Path = ROOT) -> None:
             require(isinstance(plugins, list), f"{relative}: {name} missing identity plugins")
             violations = relying_party_violations(plugins, issuer, row["audience"])
             require(not violations, f"{relative}: {name} relying-party drift: {'; '.join(violations)}")
-            identity_names = {"pre-function", "openid-connect", "post-function"}
+            identity_names = {"pre-function", "openid-connect", "codestra-authz"}
             for expected in route_plugins(row, issuer):
                 if expected["name"] not in identity_names:
                     continue

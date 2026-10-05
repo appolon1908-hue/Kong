@@ -37,7 +37,7 @@ REQUIRED_PLUGINS = [
     "codestra-request-context",
     "pre-function",
     "openid-connect",
-    "post-function",
+    "codestra-authz",
     "correlation-id",
     "rate-limiting",
     "request-size-limiting",
@@ -45,7 +45,7 @@ REQUIRED_PLUGINS = [
 PARAMETER_PATTERN = re.compile(r"\{[^{}]+\}")
 PATH_VALUE_PATTERN = r"[A-Za-z0-9][A-Za-z0-9._:-]{0,127}"
 # Client-asserted identity headers the gateway never trusts: cleared before the
-# generated post-function mints the contract metadata. Kong's own X-Consumer-*
+# codestra-authz plugin mints the contract metadata. Kong's own X-Consumer-*
 # headers are set by openid-connect after signature verification and are not
 # in this list because they are gateway-owned, not client-supplied.
 UNTRUSTED_IDENTITY_HEADERS = (
@@ -266,47 +266,20 @@ def pre_auth_function() -> str:
     ))
 
 
-def post_function(row: dict[str, Any]) -> str:
-    operation_id = json.dumps(row["operation_id"])
-    expected_azp_value = row["calling_client"]
-    if not isinstance(expected_azp_value, str):
-        expected_azp_value = json.dumps(
-            expected_azp_value,
-            sort_keys=True,
-            separators=(",", ":"),
-        )
-    expected_azp = json.dumps(expected_azp_value)
-    required_scope = json.dumps(row["scope"])
-    untrusted = ", ".join(json.dumps(name) for name in UNTRUSTED_IDENTITY_HEADERS)
-    allowed = ", ".join(json.dumps(value) for value in reviewed_concrete_callers(row))
-    return "\n".join(
-        [
-            "-- Generated fail-closed authorization metadata.",
-            f"local operation_id = {operation_id}",
-            f"local expected_azp = {expected_azp}",
-            f"local required_scope = {required_scope}",
-            "-- Strip client-asserted identity before minting trusted contract metadata;",
-            "-- X-Consumer-* are set by openid-connect after signature verification.",
-            f"for _, name in ipairs({{{untrusted}}}) do",
-            "  kong.service.request.clear_header(name)",
-            "end",
-            "-- OIDC has verified the token and mapped its azp to a Kong consumer.",
-            f"local allowed_azps = {{{allowed}}}",
-            "local consumer = kong.client.get_consumer()",
-            "local matched = false",
-            "if consumer and type(consumer.username) == 'string' then",
-            "  for _, azp in ipairs(allowed_azps) do",
-            "    if consumer.username == azp then matched = true break end",
-            "  end",
-            "end",
-            "if not matched then return kong.response.exit(403, {error='unauthorized_caller'}) end",
-            "kong.service.request.set_header('X-Codestra-Contract-Operation', operation_id)",
-            "kong.service.request.set_header('X-Codestra-Expected-Azp', expected_azp)",
-            "kong.service.request.set_header('X-Codestra-Required-Scope', required_scope)",
-            "-- openid-connect validates issuer/audience/scope; Middleware re-authorizes",
-            "-- symbolic client-family selectors and tenant/resource ownership.",
-        ]
-    )
+def contract_authz(row: dict[str, Any]) -> dict[str, Any]:
+    expected_azp = row["calling_client"]
+    if not isinstance(expected_azp, str):
+        expected_azp = json.dumps(expected_azp, sort_keys=True, separators=(",", ":"))
+    return {
+        "name": "codestra-authz",
+        "config": {
+            "mode": "contract",
+            "operation_id": row["operation_id"],
+            "expected_azp": expected_azp,
+            "required_scope": row["scope"],
+            "allowed_azps": reviewed_concrete_callers(row),
+        },
+    }
 
 
 def route_plugins(row: dict[str, Any], issuer: str) -> list[dict[str, Any]]:
@@ -350,7 +323,7 @@ def route_plugins(row: dict[str, Any], issuer: str) -> list[dict[str, Any]]:
                 "cache_tokens_salt": "{vault://env/kong-oidc-cache-tokens-salt}",
             },
         },
-        {"name": "post-function", "config": {"access": [post_function(row)]}},
+        contract_authz(row),
         {
             "name": "correlation-id",
             "config": {
