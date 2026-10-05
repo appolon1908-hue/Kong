@@ -160,12 +160,14 @@ def check_manifest(manifest, environment, docs, contract):
         assert oidc["scopes_required"] == [row["scope"]], "scope drift"
         assert oidc["consumer_claim"] == ["azp"], "AZP claim drift"
         assert not oidc.get("anonymous"), "anonymous fallback"
-        guard = "\n".join(plugins["post-function"]["config"]["access"])
+        guard = plugins["codestra-authz"]["config"]
+        assert guard["mode"] == "contract"
         caller = row["calling_client"]
         if not isinstance(caller, str):
             caller = json.dumps(caller, sort_keys=True, separators=(",", ":"))
-        for variable, value in (("operation_id", row["operation_id"]), ("expected_azp", caller), ("required_scope", row["scope"])):
-            assert f"local {variable} = {json.dumps(value)}" in guard, "trusted metadata drift"
+        assert guard["operation_id"] == row["operation_id"], "trusted metadata drift"
+        assert guard["expected_azp"] == caller, "trusted metadata drift"
+        assert guard["required_scope"] == row["scope"], "trusted metadata drift"
         strip = re.search(r"for _, name in ipairs\(\{(.*?)\}\) do\s+kong.service.request.clear_header\(name\)\s+end", guard, re.S)
         assert strip, "identity sanitization missing"
         assert set(contract["generatedGuardClears"]) <= set(re.findall(r'"([^"]+)"', strip[1])), "identity sanitization incomplete"
@@ -250,8 +252,11 @@ def test_mcr_j_rejects_edge_mutations(documents, acceptance, mutation, message):
     elif mutation == "upstream":
         service["port"] = 8080
     elif mutation in {"sanitize", "azp"}:
-        guard = plugin(route, "post-function")["config"]["access"]
-        guard[0] = guard[0].replace("clear_header", "get_header") if mutation == "sanitize" else guard[0].replace("local expected_azp =", "local untrusted_azp =")
+        guard = plugin(route, "codestra-authz")["config"]
+        if mutation == "sanitize":
+            guard["mode"] = "off"
+        else:
+            guard["expected_azp"] = "untrusted"
     elif mutation == "deny":
         manifest["routes"][0]["plugins"][0]["config"]["status_code"] = 200
     with pytest.raises(AssertionError, match=message):
