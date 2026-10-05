@@ -52,7 +52,7 @@ STG_YML = "config/staging/kong-middleware-routes.staging.yml"
 PLATFORM_READ = "config/kong-platform-api-read-routes.v1.json"
 PROD_ISSUER = "https://auth.codestra.co/realms/codestra"
 STG_ISSUER = "https://auth-staging.codestra.co/realms/codestra"
-V2_PLUGINS = {"openid-connect", "post-function", "correlation-id", "rate-limiting", "request-size-limiting"}
+V2_PLUGINS = {"openid-connect", "codestra-authz", "correlation-id", "rate-limiting", "request-size-limiting"}
 DENIED_TEMPLATES = {
     "/api/v1/integration/campaign-actions", "/api/v1/integrations/odoo/campaign-actions",
     "/api/v1/integrations/odoo/campaign-commands", "/v1/integrations/n8n/commands", "/v1/integrations/n8n/operations",
@@ -430,15 +430,19 @@ def test_generated_guard_strips_identity_before_minting_and_never_logs():
     metadata = {"X-Codestra-Contract-Operation", "X-Codestra-Expected-Azp", "X-Codestra-Required-Scope"}
     assert metadata <= never and metadata <= minted
     assert strip == never - KONG_SET_CONSUMER_HEADERS - metadata
+    handler = (ROOT / "deploy/kong/plugins/codestra-authz/handler.lua").read_text(encoding="utf-8")
+    contract = handler[handler.index("local CONTRACT_UNTRUSTED_HEADERS"):handler.index("function Handler:access")]
+    assert contract.index("clear_header") < contract.index("set_header")
+    assert "kong.log" not in contract and "ngx.log" not in contract and "get_header" not in contract
+    for header in strip | metadata:
+        assert f'"{header}"' in contract, header
+    for header in metadata:
+        assert f'set_header("{header}"' in contract, header
     for path in (PROD_YML, STG_YML):
         for route in read_yaml(ROOT, path)["services"][0]["routes"]:
-            source = "\n".join(next(p for p in route["plugins"] if p["name"] == "post-function")["config"]["access"])
-            assert source.index("clear_header") < source.index("set_header"), route["name"]
-            assert "kong.log" not in source and "ngx.log" not in source and "get_header" not in source
-            for header in strip:
-                assert f'"{header}"' in source, (route["name"], header)
-            for header in metadata:
-                assert f"set_header('{header}'" in source, (route["name"], header)
+            assert not any(p["name"] == "post-function" for p in route["plugins"]), route["name"]
+            guard = [p for p in route["plugins"] if p["name"] == "codestra-authz"]
+            assert len(guard) == 1 and guard[0]["config"]["mode"] == "contract", route["name"]
 
 
 def test_environments_are_not_collapsed():
@@ -700,8 +704,9 @@ def test_v2_openid_connect_downgrades_fail(repo, mutate, match):
 def test_wrong_calling_client_in_the_generated_guard_or_the_policy_fails(repo):
     document = read_yaml(repo, PROD_YML)
     route = _first_v2_route(document)
-    guard = next(p for p in route["plugins"] if p["name"] == "post-function")["config"]
-    guard["access"] = [guard["access"][0].replace('local expected_azp = "n8n-automation"', 'local expected_azp = "someone-else"')]
+    guard = next(p for p in route["plugins"] if p["name"] == "codestra-authz")["config"]
+    assert guard["expected_azp"] == "n8n-automation"
+    guard["expected_azp"] = "someone-else"
     write_yaml(repo, PROD_YML, document)
     expect_failure(repo, "desired sources disagree.*expected_azp|contractExpectedAzp")
     write_yaml(repo, PROD_YML, read_yaml(BASE["root"], PROD_YML))

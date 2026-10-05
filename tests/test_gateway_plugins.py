@@ -312,3 +312,59 @@ def test_only_contracted_rs256_tokens_allowed(gateway, algorithm):
     plugin = handler(gateway, "codestra-authz")
     plugin.access(plugin, auth_config(gateway))
     assert gateway.globals().state.status == 401
+
+
+def contract_config(lua, allowed=("gateway-client",)):
+    return lua.table_from({"mode": "contract", "operation_id": "list_callbacks", "expected_azp": "gateway-client",
+        "required_scope": "callbacks.read", "allowed_azps": list(allowed)}, recursive=True)
+
+
+def test_contract_mode_admits_only_reviewed_callers_and_mints_metadata(gateway):
+    plugin = handler(gateway, "codestra-authz")
+    state = gateway.globals().state
+    for name in ("X-Codestra-Tenant", "X-Admin", "X-Codestra-Contract-Operation", "X-Internal-Service"):
+        state.upstream[name] = "spoofed"
+    state.upstream["X-Consumer-Username"] = "gateway-client"
+    plugin.access(plugin, contract_config(gateway))
+    assert state.status is None
+    assert state.upstream["X-Codestra-Contract-Operation"] == "list_callbacks"
+    assert state.upstream["X-Codestra-Expected-Azp"] == "gateway-client"
+    assert state.upstream["X-Codestra-Required-Scope"] == "callbacks.read"
+    assert state.upstream["X-Codestra-Tenant"] is None and state.upstream["X-Admin"] is None
+    assert state.upstream["X-Internal-Service"] is None
+    assert state.upstream["X-Consumer-Username"] == "gateway-client"
+
+
+@pytest.mark.parametrize("allowed,authenticated", [(("other-client",), True), ((), True), (("gateway-client",), False)])
+def test_contract_mode_denies_unreviewed_closed_or_unauthenticated_callers(gateway, allowed, authenticated):
+    plugin = handler(gateway, "codestra-authz")
+    state = gateway.globals().state
+    state.authenticated = authenticated
+    state.upstream["X-Codestra-Contract-Operation"] = "spoofed"
+    plugin.access(plugin, contract_config(gateway, allowed))
+    assert state.status == 403 and state.error == "unauthorized_caller"
+    assert state.upstream["X-Codestra-Contract-Operation"] is None
+
+
+def test_contract_mode_strips_exactly_the_generator_untrusted_headers():
+    import importlib.util
+    import re
+    import sys
+    scripts = Path(__file__).resolve().parents[1] / "scripts"
+    sys.path.insert(0, str(scripts))
+    spec = importlib.util.spec_from_file_location("generate_middleware_routes_k7", scripts / "generate_middleware_routes.py")
+    generator = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(generator)
+    source = (ROOT / "codestra-authz" / "handler.lua").read_text()
+    block = source[source.index("local CONTRACT_UNTRUSTED_HEADERS"):source.index("local function contract_access")]
+    assert tuple(re.findall(r'"([^"]+)"', block)) == generator.UNTRUSTED_IDENTITY_HEADERS
+
+
+def test_contract_mode_schema_requires_its_fields_conditionally(gateway):
+    schema = gateway.execute((ROOT / "codestra-authz" / "schema.lua").read_text())
+    required = {}
+    for _, check in schema.entity_checks.items():
+        cond = check.conditional
+        required.setdefault(cond.if_match.eq, set()).add(cond.then_field.removeprefix("config."))
+    assert required["contract"] == {"operation_id", "expected_azp", "required_scope", "allowed_azps"}
+    assert required["token"] == {"issuer", "audience", "authorized_parties", "scopes", "roles", "tenant_claim"}

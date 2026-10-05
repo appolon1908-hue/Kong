@@ -238,7 +238,7 @@ def test_runtime_apply_cannot_be_enabled(documents):
 @pytest.mark.parametrize("environment,plugin_name,field", [
     ("production", "openid-connect", "roles_required"),
     ("production", "openid-connect", "groups_required"),
-    ("staging", "post-function", "access"),
+    ("staging", "codestra-authz", "operation_id"),
 ])
 def test_generated_identity_gate_drift_fails(tmp_path, environment, plugin_name, field):
     contract = Path("config/middleware-public-api-route-contract.v1.json")
@@ -289,7 +289,7 @@ def test_every_shared_route_is_a_strict_relying_party():
             audience = _oidc(route["plugins"])["audience_required"][0]
             assert validator.relying_party_violations(route["plugins"], issuer, audience) == [], route["name"]
             names = [p["name"] for p in route["plugins"]]
-            assert names.index("pre-function") < names.index("openid-connect") < names.index("post-function")
+            assert names.index("pre-function") < names.index("openid-connect") < names.index("codestra-authz")
 
 
 @pytest.mark.parametrize("mutate,match", [
@@ -310,8 +310,10 @@ def test_every_shared_route_is_a_strict_relying_party():
     (lambda p: _oidc(p).pop("scopes_required"), "concrete scopes"),
     (lambda p: p.append({"name": "jwt", "config": {}}), "second authentication plugin"),
     (lambda p: p.append({"name": "key-auth", "config": {}}), "second authentication plugin"),
-    (lambda p: p.remove(next(x for x in p if x["name"] == "post-function")), "post-function"),
-    (lambda p: next(x for x in p if x["name"] == "post-function").update(ordering={"before": {"access": ["openid-connect"]}}), "ordering"),
+    (lambda p: p.remove(next(x for x in p if x["name"] == "codestra-authz")), "codestra-authz contract"),
+    (lambda p: next(x for x in p if x["name"] == "codestra-authz")["config"].update(mode="token"), "codestra-authz contract"),
+    (lambda p: p.append({"name": "post-function", "config": {"access": ["return"]}}), "post-function code is forbidden"),
+    (lambda p: next(x for x in p if x["name"] == "codestra-authz").update(ordering={"before": {"access": ["openid-connect"]}}), "ordering"),
     (lambda p: next(x for x in p if x["name"] == "pre-function")["config"]["access"].append("return kong.response.exit(200)"), "pre-function"),
     (lambda p: next(x for x in p if x["name"] == "pre-function")["config"]["access"].append("kong.service.request.set_header('X-Tenant-ID', 't')"), "pre-function"),
     (lambda p: p.append(copy.deepcopy(next(x for x in p if x["name"] == "openid-connect"))), "exactly one openid-connect"),
