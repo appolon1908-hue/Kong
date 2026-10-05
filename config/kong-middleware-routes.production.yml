@@ -4,6 +4,9 @@ plugins:
 - name: codestra-private-surface
   config:
     allow_private: false
+    private_paths:
+    - /api/v1/integration/automation-results
+    - /api/v1/integration/campaigns/actual-state
 upstreams:
 - name: middleware-integration-api
   targets:

@@ -391,13 +391,21 @@ def manifest_denied_route(row: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def private_surface_global(private: list[dict[str, Any]]) -> dict[str, Any]:
+    return {"name": "codestra-private-surface", "config": {
+        "allow_private": False,
+        "private_paths": sorted({row["path"] for row in private}),
+    }}
+
+
 def build_manifest(
-    shared: list[dict[str, Any]], denied: list[dict[str, Any]], issuer: str, environment: str
+    shared: list[dict[str, Any]], denied: list[dict[str, Any]], private: list[dict[str, Any]],
+    issuer: str, environment: str,
 ) -> dict[str, Any]:
     return {
         "_format_version": "3.0",
         "_transform": True,
-        "plugins": [{"name": "codestra-private-surface", "config": {"allow_private": False}}],
+        "plugins": [private_surface_global(private)],
         "upstreams": [{"name": UPSTREAM_HOST,
             "targets": [{"target": f"{UPSTREAM_HOST}:{UPSTREAM_PORT}", "weight": 100}],
             "healthchecks": {"passive": passive_health(), "active": {
@@ -436,6 +444,7 @@ def main() -> None:
 
     shared = [row for row in contract["routes"] if row["classification"] == "shared_edge"]
     denied = [row for row in contract["routes"] if row["classification"] == "denied"]
+    private = [row for row in contract["routes"] if row["classification"] == "private_only"]
 
     canonical = json.loads(CANONICAL_PATH.read_text(encoding="utf-8"))
     canonical["runtimeApplyAuthorized"] = False
@@ -470,7 +479,7 @@ def main() -> None:
     )
     for path, issuer, environment in manifests:
         path.parent.mkdir(parents=True, exist_ok=True)
-        manifest = build_manifest(shared, denied, issuer, environment)
+        manifest = build_manifest(shared, denied, private, issuer, environment)
         path.write_text(yaml.safe_dump(manifest, sort_keys=False, width=1000), encoding="utf-8", newline="\n")
 
     print(f"generated {len(shared)} shared routes and {len(denied)} denied routes ({digest})")

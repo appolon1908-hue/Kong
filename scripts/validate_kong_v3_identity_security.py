@@ -549,6 +549,7 @@ def validate_generated_manifests(root: Path = ROOT) -> None:
     contract = load_json(root / "config/middleware-public-api-route-contract.v1.json")
     require(canonical_digest(contract) == EXPECTED_MIDDLEWARE_DIGEST, "Middleware route contract digest drift")
     shared = [row for row in contract["routes"] if row["classification"] == "shared_edge"]
+    private_paths = sorted({row["path"] for row in contract["routes"] if row["classification"] == "private_only"})
     for relative, issuer in (
         ("config/kong-middleware-routes.production.yml", EXPECTED_PRODUCTION_ISSUER),
         ("config/staging/kong-middleware-routes.staging.yml", EXPECTED_STAGING_ISSUER),
@@ -558,6 +559,10 @@ def validate_generated_manifests(root: Path = ROOT) -> None:
             routes = manifest["services"][0]["routes"]
         except (OSError, KeyError, IndexError, TypeError, yaml.YAMLError) as exc:
             raise IdentitySecurityError(f"{relative}: invalid generated manifest") from exc
+        surface = [plugin for plugin in manifest.get("plugins") or [] if plugin.get("name") == "codestra-private-surface"]
+        require(len(surface) == 1 and surface[0].get("config", {}).get("allow_private") is False
+                and surface[0]["config"].get("private_paths") == private_paths,
+                f"{relative}: global private surface must deny exactly the contract private_only operations")
         actual = {route.get("name"): route for route in routes}
         require(len(actual) == len(routes) == len(shared), f"{relative}: shared route set drift")
         require(set(actual) == {safe_name(row["operation_id"]) for row in shared},

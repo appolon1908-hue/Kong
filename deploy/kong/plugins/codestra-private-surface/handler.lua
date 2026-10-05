@@ -102,11 +102,32 @@ local function is_private(path)
   return false
 end
 
+local function matches_template(path, template)
+  local parts = normalized_segments(path)
+  if not parts then return true end
+  local expected = {}
+  for segment in template:lower():gmatch("[^/]+") do expected[#expected + 1] = segment end
+  if #parts ~= #expected then return false end
+  for i, segment in ipairs(expected) do
+    if not segment:match("^{[^{}]+}$") and parts[i] ~= segment then return false end
+  end
+  return true
+end
+
+local function is_private_operation(path, templates)
+  for _, template in ipairs(templates or {}) do
+    if matches_template(path, template) then return true end
+  end
+  return false
+end
+
 function Handler:access(conf)
   -- This flag can be emitted only for a reviewed private route with the
   -- compiler's mandatory ip-restriction plugin. Never infer it from headers.
   if conf.allow_private == true then return end
-  if is_private(kong.request.get_path()) or is_private(kong.request.get_raw_path()) then
+  local path, raw = kong.request.get_path(), kong.request.get_raw_path()
+  if is_private(path) or is_private(raw)
+    or is_private_operation(path, conf.private_paths) or is_private_operation(raw, conf.private_paths) then
     return kong.response.exit(404, { error = "private_surface_not_found" })
   end
 end

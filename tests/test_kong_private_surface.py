@@ -164,3 +164,43 @@ def test_lua_default_schema_denies_private_and_runs_before_identity(gateway):
     handler = gateway.execute((PLUGIN / "handler.lua").read_text())
     # Request context runs at 100002; authentication and CORS run later.
     assert handler.PRIORITY > 100002
+
+
+def _contract_private_paths():
+    import json
+    contract = json.loads((ROOT / "config/middleware-public-api-route-contract.v1.json").read_text(encoding="utf-8"))
+    return sorted({r["path"] for r in contract["routes"] if r["classification"] == "private_only"})
+
+
+@pytest.mark.parametrize("path", [
+    "/api/v1/integration/automation-results", "/api/v1/integration/campaigns/actual-state",
+    "/API/V1/integration/automation-results", "/api/v1/integration/%61utomation-results",
+    "/api/v1/x/../integration/campaigns/actual-state", "//api//v1/integration/automation-results/",
+])
+def test_lua_denies_contract_private_only_operations_whatever_route_matches(gateway, path):
+    conf = {"private_paths": _contract_private_paths()}
+    assert run_plugin(gateway, path, conf).status == 404
+
+
+@pytest.mark.parametrize("path", [
+    "/api/v1/integration/automation-results/extra", "/api/v1/integration/campaigns",
+    "/api/v1/integrations/odoo/campaigns/campaign-1",
+])
+def test_lua_private_operation_match_is_exact_per_segment(gateway, path):
+    assert run_plugin(gateway, path, {"private_paths": _contract_private_paths()}).status is None
+
+
+def test_lua_private_operation_templates_match_one_segment_parameters(gateway):
+    conf = {"private_paths": ["/api/v1/integration/runs/{run_id}/close"]}
+    assert run_plugin(gateway, "/api/v1/integration/runs/r-1/close", conf).status == 404
+    gateway.globals().state.status = None
+    assert run_plugin(gateway, "/api/v1/integration/runs/r-1/x/close", conf).status is None
+
+
+def test_global_private_surface_carries_every_contract_private_operation():
+    import yaml
+    for relative in ("config/kong-middleware-routes.production.yml", "config/staging/kong-middleware-routes.staging.yml"):
+        manifest = yaml.safe_load((ROOT / relative).read_text(encoding="utf-8"))
+        (surface,) = [p for p in manifest["plugins"] if p["name"] == "codestra-private-surface"]
+        assert surface["config"] == {"allow_private": False, "private_paths": _contract_private_paths()}
+        assert len(surface["config"]["private_paths"]) == 2
