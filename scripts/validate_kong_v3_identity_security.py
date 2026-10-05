@@ -450,6 +450,60 @@ def validate(
     }
 
 
+STRICT_RELYING_PARTY = {
+    "auth_methods": ["bearer"],
+    "bearer_token_param_type": ["header"],
+    "verify_signature": True,
+    "verify_claims": True,
+    "ssl_verify": True,
+    "enable_hs_signatures": False,
+    "ignore_signature": [],
+    "introspect_jwt_tokens": False,
+    "display_errors": False,
+    "consumer_optional": False,
+    "leeway": 0,
+}
+FORBIDDEN_AUTHENTICATION_PLUGINS = {"jwt", "key-auth", "basic-auth", "hmac-auth", "oauth2", "ldap-auth"}
+
+
+def relying_party_violations(plugins: list[dict[str, Any]], issuer: str, audience: str) -> list[str]:
+    """Generator-independent invariants for a shared_edge route: openid-connect is
+    the only authentication, verifies a strict RS-signed bearer token from the one
+    issuer, never falls back to anonymous, and authorization runs only after it."""
+    violations: list[str] = []
+    names = [plugin.get("name") for plugin in plugins]
+    oidc = [plugin for plugin in plugins if plugin.get("name") == "openid-connect"]
+    if len(oidc) != 1:
+        return ["exactly one openid-connect plugin is required"]
+    config = oidc[0].get("config") or {}
+    for key, expected in STRICT_RELYING_PARTY.items():
+        if config.get(key) != expected:
+            violations.append(f"openid-connect {key} must be {expected!r}")
+    if config.get("anonymous") not in (None, ""):
+        violations.append("openid-connect must not fall back to an anonymous consumer")
+    if not audience or "*" in audience or config.get("audience_required") != [audience] or config.get("audience") != [audience]:
+        violations.append("openid-connect must require exactly the contract audience")
+    if config.get("issuers_allowed") != [issuer]:
+        violations.append("openid-connect issuers_allowed must be the single environment issuer")
+    scopes = config.get("scopes_required")
+    if not scopes or any(not isinstance(scope, str) or not scope or "*" in scope for scope in scopes):
+        violations.append("openid-connect scopes_required must name concrete scopes")
+    if FORBIDDEN_AUTHENTICATION_PLUGINS & set(names):
+        violations.append("a second authentication plugin is forbidden next to openid-connect")
+    if names.count("post-function") != 1:
+        violations.append("exactly one post-function authorization step is required")
+    if any("ordering" in plugin for plugin in plugins):
+        violations.append("dynamic plugin ordering could run policy before authentication")
+    for plugin in plugins:
+        if plugin.get("name") != "pre-function":
+            continue
+        code = "\n".join(str(chunk) for phase in (plugin.get("config") or {}).values()
+                         if isinstance(phase, list) for chunk in phase)
+        if "kong.response.exit" in code or "set_header" in code or "get_consumer" in code:
+            violations.append("pre-function may only clear client identity, never authorize or mint")
+    return violations
+
+
 def validate_generated_manifests(root: Path = ROOT) -> None:
     """Bind deployable identity gates to the pinned Middleware route contract."""
     spec = importlib.util.spec_from_file_location(
@@ -480,6 +534,8 @@ def validate_generated_manifests(root: Path = ROOT) -> None:
             name = safe_name(row["operation_id"])
             plugins = actual[name].get("plugins", [])
             require(isinstance(plugins, list), f"{relative}: {name} missing identity plugins")
+            violations = relying_party_violations(plugins, issuer, row["audience"])
+            require(not violations, f"{relative}: {name} relying-party drift: {'; '.join(violations)}")
             identity_names = {"pre-function", "openid-connect", "post-function"}
             for expected in route_plugins(row, issuer):
                 if expected["name"] not in identity_names:

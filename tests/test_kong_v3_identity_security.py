@@ -266,3 +266,59 @@ def test_generated_identity_gate_drift_fails(tmp_path, environment, plugin_name,
 
 def test_generated_identity_gates_match_contract():
     validator.validate_generated_manifests()
+
+
+def _shared_route_plugins() -> tuple[list[dict], str]:
+    manifest = yaml.safe_load((ROOT / "config/kong-middleware-routes.production.yml").read_text(encoding="utf-8"))
+    route = manifest["services"][0]["routes"][0]
+    oidc = next(p for p in route["plugins"] if p["name"] == "openid-connect")
+    return route["plugins"], oidc["config"]["audience_required"][0]
+
+
+def _oidc(plugins: list[dict]) -> dict:
+    return next(p for p in plugins if p["name"] == "openid-connect")["config"]
+
+
+def test_every_shared_route_is_a_strict_relying_party():
+    for relative, issuer in (
+        ("config/kong-middleware-routes.production.yml", validator.EXPECTED_PRODUCTION_ISSUER),
+        ("config/staging/kong-middleware-routes.staging.yml", validator.EXPECTED_STAGING_ISSUER),
+    ):
+        routes = yaml.safe_load((ROOT / relative).read_text(encoding="utf-8"))["services"][0]["routes"]
+        for route in routes:
+            audience = _oidc(route["plugins"])["audience_required"][0]
+            assert validator.relying_party_violations(route["plugins"], issuer, audience) == [], route["name"]
+            names = [p["name"] for p in route["plugins"]]
+            assert names.index("pre-function") < names.index("openid-connect") < names.index("post-function")
+
+
+@pytest.mark.parametrize("mutate,match", [
+    (lambda p: _oidc(p).update(enable_hs_signatures=True), "enable_hs_signatures"),
+    (lambda p: _oidc(p).update(verify_signature=False), "verify_signature"),
+    (lambda p: _oidc(p).update(verify_claims=False), "verify_claims"),
+    (lambda p: _oidc(p).update(ignore_signature=["introspection"]), "ignore_signature"),
+    (lambda p: _oidc(p).update(anonymous="anonymous-consumer"), "anonymous"),
+    (lambda p: _oidc(p).update(consumer_optional=True), "consumer_optional"),
+    (lambda p: _oidc(p).update(auth_methods=["bearer", "introspection"]), "auth_methods"),
+    (lambda p: _oidc(p).update(bearer_token_param_type=["header", "query"]), "bearer_token_param_type"),
+    (lambda p: _oidc(p).update(leeway=60), "leeway"),
+    (lambda p: _oidc(p).update(ssl_verify=False), "ssl_verify"),
+    (lambda p: _oidc(p).update(display_errors=True), "display_errors"),
+    (lambda p: _oidc(p).update(issuers_allowed=[validator.EXPECTED_PRODUCTION_ISSUER, validator.EXPECTED_STAGING_ISSUER]), "issuers_allowed"),
+    (lambda p: _oidc(p).update(audience_required=["*"]), "contract audience"),
+    (lambda p: _oidc(p).update(scopes_required=["*"]), "concrete scopes"),
+    (lambda p: _oidc(p).pop("scopes_required"), "concrete scopes"),
+    (lambda p: p.append({"name": "jwt", "config": {}}), "second authentication plugin"),
+    (lambda p: p.append({"name": "key-auth", "config": {}}), "second authentication plugin"),
+    (lambda p: p.remove(next(x for x in p if x["name"] == "post-function")), "post-function"),
+    (lambda p: next(x for x in p if x["name"] == "post-function").update(ordering={"before": {"access": ["openid-connect"]}}), "ordering"),
+    (lambda p: next(x for x in p if x["name"] == "pre-function")["config"]["access"].append("return kong.response.exit(200)"), "pre-function"),
+    (lambda p: next(x for x in p if x["name"] == "pre-function")["config"]["access"].append("kong.service.request.set_header('X-Tenant-ID', 't')"), "pre-function"),
+    (lambda p: p.append(copy.deepcopy(next(x for x in p if x["name"] == "openid-connect"))), "exactly one openid-connect"),
+])
+def test_relying_party_downgrades_fail_closed(mutate, match):
+    plugins, audience = _shared_route_plugins()
+    plugins = copy.deepcopy(plugins)
+    mutate(plugins)
+    violations = validator.relying_party_violations(plugins, validator.EXPECTED_PRODUCTION_ISSUER, audience)
+    assert any(match in violation for violation in violations), violations

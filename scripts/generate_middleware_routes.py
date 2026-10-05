@@ -327,6 +327,12 @@ def route_plugins(row: dict[str, Any], issuer: str) -> list[dict[str, Any]]:
                 "verify_signature": True,
                 "verify_claims": True,
                 "ssl_verify": True,
+                # Keycloak signs access tokens with the realm RSA key; HMAC-signed
+                # tokens (its refresh tokens) are never a bearer credential here.
+                "enable_hs_signatures": False,
+                "ignore_signature": [],
+                "introspect_jwt_tokens": False,
+                "display_errors": False,
                 "consumer_by": ["username"],
                 "consumer_optional": False,
                 "cache_ttl": 300,

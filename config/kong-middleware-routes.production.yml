@@ -97,6 +97,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -193,6 +197,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -285,6 +293,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -381,6 +393,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -477,6 +493,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -573,6 +593,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -669,6 +693,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -765,6 +793,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -861,6 +893,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -949,6 +985,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -1037,6 +1077,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -1125,6 +1169,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -1213,6 +1261,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -1301,6 +1353,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -1389,6 +1445,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -1477,6 +1537,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -1565,6 +1629,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -1653,6 +1721,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -1741,6 +1813,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -1829,6 +1905,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -1917,6 +1997,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -2005,6 +2089,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -2093,6 +2181,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -2181,6 +2273,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -2269,6 +2365,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -2357,6 +2457,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -2445,6 +2549,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -2533,6 +2641,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -2621,6 +2733,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -2709,6 +2825,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -2797,6 +2917,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -2885,6 +3009,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -2973,6 +3101,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -3061,6 +3193,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -3149,6 +3285,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -3237,6 +3377,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -3325,6 +3469,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -3413,6 +3561,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -3501,6 +3653,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -3589,6 +3745,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -3677,6 +3837,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -3765,6 +3929,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -3853,6 +4021,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -3941,6 +4113,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -4029,6 +4205,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -4117,6 +4297,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -4205,6 +4389,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -4293,6 +4481,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -4381,6 +4573,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -4469,6 +4665,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -4557,6 +4757,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -4645,6 +4849,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -4733,6 +4941,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -4821,6 +5033,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -4909,6 +5125,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -4997,6 +5217,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -5085,6 +5309,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -5173,6 +5401,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -5261,6 +5493,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -5349,6 +5585,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -5437,6 +5677,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -5533,6 +5777,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -5629,6 +5877,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -5725,6 +5977,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -5821,6 +6077,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -5917,6 +6177,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -6013,6 +6277,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -6109,6 +6377,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -6205,6 +6477,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -6302,6 +6578,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -6399,6 +6679,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -6495,6 +6779,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -6583,6 +6871,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -6675,6 +6967,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -6763,6 +7059,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -6851,6 +7151,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -6939,6 +7243,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -7036,6 +7344,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -7124,6 +7436,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -7212,6 +7528,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -7300,6 +7620,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -7388,6 +7712,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -7476,6 +7804,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -7564,6 +7896,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -7652,6 +7988,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -7740,6 +8080,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -7828,6 +8172,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -7916,6 +8264,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -8013,6 +8365,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -8101,6 +8457,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -8189,6 +8549,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -8286,6 +8650,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -8382,6 +8750,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -8479,6 +8851,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -8576,6 +8952,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -8673,6 +9053,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -8770,6 +9154,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -8867,6 +9255,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -8964,6 +9356,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -9052,6 +9448,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -9140,6 +9540,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -9228,6 +9632,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -9325,6 +9733,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -9422,6 +9834,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -9519,6 +9935,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -9607,6 +10027,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -9695,6 +10119,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -9791,6 +10219,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -9879,6 +10311,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -9976,6 +10412,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -10064,6 +10504,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -10152,6 +10596,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -10240,6 +10688,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -10328,6 +10780,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -10416,6 +10872,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -10504,6 +10964,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -10592,6 +11056,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -10680,6 +11148,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -10768,6 +11240,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -10856,6 +11332,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -10944,6 +11424,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -11032,6 +11516,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -11120,6 +11608,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -11208,6 +11700,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -11296,6 +11792,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -11384,6 +11884,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -11480,6 +11984,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -11568,6 +12076,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -11664,6 +12176,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -11752,6 +12268,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -11840,6 +12360,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -11928,6 +12452,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
@@ -12016,6 +12544,10 @@ services:
         verify_signature: true
         verify_claims: true
         ssl_verify: true
+        enable_hs_signatures: false
+        ignore_signature: []
+        introspect_jwt_tokens: false
+        display_errors: false
         consumer_by:
         - username
         consumer_optional: false
