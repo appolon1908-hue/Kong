@@ -813,7 +813,7 @@
       "routeCount": 145
     },
     "keycloak": {
-      "repository": "ingtrader21-spec/Keycloak",
+      "repository": "appolon1908/Keycloak",
       "commit": "45a487d71a516ae3039b00c250752897469ffe7a",
       "callerAuthorityPath": "config/contracts/middleware-caller-classification.v1.json",
       "apiAccessAuthorityPath": "config/contracts/middleware-api-access.v3.json",
