@@ -1,0 +1,60 @@
+name: Environment promotion contract
+
+on:
+  pull_request:
+    branches: [development, testing, staging, production]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: environment-promotion-${{ github.repository }}-${{ github.base_ref || github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  promotion-contract:
+    name: validate-promotion-lineage
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout exact candidate
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Enforce ordered environment promotion
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          HEAD_BRANCH: ${{ github.head_ref }}
+          BASE_BRANCH: ${{ github.base_ref }}
+          EXACT_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set -Eeuo pipefail
+          test "$(git rev-parse HEAD)" = "$EXACT_SHA"
+          if [ "$EVENT_NAME" != "pull_request" ]; then
+            echo "Manual run validates workflow presence only; it never promotes."
+            exit 0
+          fi
+          case "$BASE_BRANCH" in
+            development)
+              case "$HEAD_BRANCH" in
+                testing|staging|production) echo "reverse environment promotion denied"; exit 1 ;;
+              esac
+              ;;
+            testing)    test "$HEAD_BRANCH" = "development" ;;
+            staging)    test "$HEAD_BRANCH" = "testing" ;;
+            production) test "$HEAD_BRANCH" = "staging" ;;
+            *) echo "unsupported promotion base: $BASE_BRANCH"; exit 1 ;;
+          esac
+          git diff --check
+          echo "PROMOTION_SOURCE=$HEAD_BRANCH"
+          echo "PROMOTION_TARGET=$BASE_BRANCH"
+          echo "EXACT_SHA=$EXACT_SHA"
+      - name: Preserve production default-deny
+        if: github.base_ref == 'production'
+        shell: bash
+        run: |
+          echo "This gate validates lineage only."
+          echo "It does not deploy, mutate secrets, enable providers, or authorize production effects."
+          echo "PRODUCTION_GO=NO"
