@@ -5,10 +5,10 @@
   "legacyHost": "api.codestra.agency",
   "legacyHostEnabled": false,
   "middlewareEdgeContract": {
-    "source": "ingtrader21-spec/Middleware-:deploy/public-api-route-contract.json",
+    "source": "appolon1908/Middleware-:deploy/public-api-route-contract.json",
     "vendoredCopy": "config/middleware-public-api-route-contract.v1.json",
     "schema": "codestra.middleware.public-api-route-contract.v2",
-    "sha256": "9c32daecd4a15104c6f9ff60ce19c8f7e78707fb31d9fd9fcb55b1b8dfa3512b",
+    "sha256": "c48c20d8bc71918699abb03cefe1e3c5075536a9d91d8aea8df4fc031891db21",
     "hashRule": "sha256 over json.dumps(contract, sort_keys=True, separators=(',', ':')).encode('utf-8')",
     "generator": "scripts/generate_middleware_routes.py"
   },
@@ -512,6 +512,55 @@
       }
     },
     {
+      "name": "middleware-adopt-agent-extension-platform-v1-agent-provisioning-adopt-extension-post",
+      "hosts": [
+        "api.codestra.co"
+      ],
+      "paths": [
+        "~/platform/v1/agent\\-provisioning/adopt\\-extension$"
+      ],
+      "pathTemplate": "/platform/v1/agent-provisioning/adopt-extension",
+      "regexPriority": 4,
+      "methods": [
+        "POST"
+      ],
+      "protocols": [
+        "http"
+      ],
+      "stripPath": false,
+      "preserveHost": true,
+      "serviceHost": "middleware-integration-api",
+      "servicePort": 8095,
+      "securityAuthority": "config/kong-middleware-authority.v2.json",
+      "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
+        "openid-connect",
+        "post-function",
+        "correlation-id",
+        "rate-limiting",
+        "request-size-limiting"
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
+    },
+    {
       "name": "middleware-create-provisioning-request-platform-v1-agent-provisioning-requests-post",
       "hosts": [
         "api.codestra.co"
@@ -570,6 +619,55 @@
       ],
       "pathTemplate": "/platform/v1/agent-provisioning/requests/{request_id}",
       "regexPriority": 4,
+      "methods": [
+        "GET"
+      ],
+      "protocols": [
+        "http"
+      ],
+      "stripPath": false,
+      "preserveHost": true,
+      "serviceHost": "middleware-integration-api",
+      "servicePort": 8095,
+      "securityAuthority": "config/kong-middleware-authority.v2.json",
+      "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
+        "openid-connect",
+        "post-function",
+        "correlation-id",
+        "rate-limiting",
+        "request-size-limiting"
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
+    },
+    {
+      "name": "middleware-provisioning-history-platform-v1-agent-provisioning-requests--request-id--history-get",
+      "hosts": [
+        "api.codestra.co"
+      ],
+      "paths": [
+        "~/platform/v1/agent\\-provisioning/requests/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/history$"
+      ],
+      "pathTemplate": "/platform/v1/agent-provisioning/requests/{request_id}/history",
+      "regexPriority": 5,
       "methods": [
         "GET"
       ],
@@ -765,6 +863,398 @@
         "~/platform/v1/agent\\-provisioning/requests/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/suspend$"
       ],
       "pathTemplate": "/platform/v1/agent-provisioning/requests/{request_id}/suspend",
+      "regexPriority": 5,
+      "methods": [
+        "POST"
+      ],
+      "protocols": [
+        "http"
+      ],
+      "stripPath": false,
+      "preserveHost": true,
+      "serviceHost": "middleware-integration-api",
+      "servicePort": 8095,
+      "securityAuthority": "config/kong-middleware-authority.v2.json",
+      "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
+        "openid-connect",
+        "post-function",
+        "correlation-id",
+        "rate-limiting",
+        "request-size-limiting"
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
+    },
+    {
+      "name": "middleware-reserve-agent-extension-platform-v1-agent-provisioning-reserve-extension-post",
+      "hosts": [
+        "api.codestra.co"
+      ],
+      "paths": [
+        "~/platform/v1/agent\\-provisioning/reserve\\-extension$"
+      ],
+      "pathTemplate": "/platform/v1/agent-provisioning/reserve-extension",
+      "regexPriority": 4,
+      "methods": [
+        "POST"
+      ],
+      "protocols": [
+        "http"
+      ],
+      "stripPath": false,
+      "preserveHost": true,
+      "serviceHost": "middleware-integration-api",
+      "servicePort": 8095,
+      "securityAuthority": "config/kong-middleware-authority.v2.json",
+      "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
+        "openid-connect",
+        "post-function",
+        "correlation-id",
+        "rate-limiting",
+        "request-size-limiting"
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
+    },
+    {
+      "name": "middleware-issue-webrtc-ticket-platform-v1-agent-provisioning-webrtc-tickets-post",
+      "hosts": [
+        "api.codestra.co"
+      ],
+      "paths": [
+        "~/platform/v1/agent\\-provisioning/webrtc/tickets$"
+      ],
+      "pathTemplate": "/platform/v1/agent-provisioning/webrtc/tickets",
+      "regexPriority": 5,
+      "methods": [
+        "POST"
+      ],
+      "protocols": [
+        "http"
+      ],
+      "stripPath": false,
+      "preserveHost": true,
+      "serviceHost": "middleware-integration-api",
+      "servicePort": 8095,
+      "securityAuthority": "config/kong-middleware-authority.v2.json",
+      "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
+        "openid-connect",
+        "post-function",
+        "correlation-id",
+        "rate-limiting",
+        "request-size-limiting"
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
+    },
+    {
+      "name": "middleware-disable-agent-platform-v1-agent-provisioning--request-id--disable-post",
+      "hosts": [
+        "api.codestra.co"
+      ],
+      "paths": [
+        "~/platform/v1/agent\\-provisioning/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/disable$"
+      ],
+      "pathTemplate": "/platform/v1/agent-provisioning/{request_id}/disable",
+      "regexPriority": 4,
+      "methods": [
+        "POST"
+      ],
+      "protocols": [
+        "http"
+      ],
+      "stripPath": false,
+      "preserveHost": true,
+      "serviceHost": "middleware-integration-api",
+      "servicePort": 8095,
+      "securityAuthority": "config/kong-middleware-authority.v2.json",
+      "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
+        "openid-connect",
+        "post-function",
+        "correlation-id",
+        "rate-limiting",
+        "request-size-limiting"
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
+    },
+    {
+      "name": "middleware-provisioning-readback-platform-v1-agent-provisioning--request-id--readback-get",
+      "hosts": [
+        "api.codestra.co"
+      ],
+      "paths": [
+        "~/platform/v1/agent\\-provisioning/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/readback$"
+      ],
+      "pathTemplate": "/platform/v1/agent-provisioning/{request_id}/readback",
+      "regexPriority": 4,
+      "methods": [
+        "GET"
+      ],
+      "protocols": [
+        "http"
+      ],
+      "stripPath": false,
+      "preserveHost": true,
+      "serviceHost": "middleware-integration-api",
+      "servicePort": 8095,
+      "securityAuthority": "config/kong-middleware-authority.v2.json",
+      "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
+        "openid-connect",
+        "post-function",
+        "correlation-id",
+        "rate-limiting",
+        "request-size-limiting"
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
+    },
+    {
+      "name": "middleware-release-agent-extension-platform-v1-agent-provisioning--request-id--release-extension-post",
+      "hosts": [
+        "api.codestra.co"
+      ],
+      "paths": [
+        "~/platform/v1/agent\\-provisioning/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/release\\-extension$"
+      ],
+      "pathTemplate": "/platform/v1/agent-provisioning/{request_id}/release-extension",
+      "regexPriority": 4,
+      "methods": [
+        "POST"
+      ],
+      "protocols": [
+        "http"
+      ],
+      "stripPath": false,
+      "preserveHost": true,
+      "serviceHost": "middleware-integration-api",
+      "servicePort": 8095,
+      "securityAuthority": "config/kong-middleware-authority.v2.json",
+      "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
+        "openid-connect",
+        "post-function",
+        "correlation-id",
+        "rate-limiting",
+        "request-size-limiting"
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
+    },
+    {
+      "name": "middleware-create-repair-intent-platform-v1-agent-provisioning--request-id--repair-intents-post",
+      "hosts": [
+        "api.codestra.co"
+      ],
+      "paths": [
+        "~/platform/v1/agent\\-provisioning/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/repair\\-intents$"
+      ],
+      "pathTemplate": "/platform/v1/agent-provisioning/{request_id}/repair-intents",
+      "regexPriority": 4,
+      "methods": [
+        "POST"
+      ],
+      "protocols": [
+        "http"
+      ],
+      "stripPath": false,
+      "preserveHost": true,
+      "serviceHost": "middleware-integration-api",
+      "servicePort": 8095,
+      "securityAuthority": "config/kong-middleware-authority.v2.json",
+      "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
+        "openid-connect",
+        "post-function",
+        "correlation-id",
+        "rate-limiting",
+        "request-size-limiting"
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
+    },
+    {
+      "name": "middleware-sync-agent-platform-v1-agent-provisioning--request-id--sync-post",
+      "hosts": [
+        "api.codestra.co"
+      ],
+      "paths": [
+        "~/platform/v1/agent\\-provisioning/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/sync$"
+      ],
+      "pathTemplate": "/platform/v1/agent-provisioning/{request_id}/sync",
+      "regexPriority": 4,
+      "methods": [
+        "POST"
+      ],
+      "protocols": [
+        "http"
+      ],
+      "stripPath": false,
+      "preserveHost": true,
+      "serviceHost": "middleware-integration-api",
+      "servicePort": 8095,
+      "securityAuthority": "config/kong-middleware-authority.v2.json",
+      "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
+        "openid-connect",
+        "post-function",
+        "correlation-id",
+        "rate-limiting",
+        "request-size-limiting"
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
+    },
+    {
+      "name": "middleware-revoke-webrtc-session-platform-v1-agent-provisioning--request-id--webrtc-revoke-post",
+      "hosts": [
+        "api.codestra.co"
+      ],
+      "paths": [
+        "~/platform/v1/agent\\-provisioning/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/webrtc/revoke$"
+      ],
+      "pathTemplate": "/platform/v1/agent-provisioning/{request_id}/webrtc/revoke",
       "regexPriority": 5,
       "methods": [
         "POST"
@@ -1296,6 +1786,594 @@
       }
     },
     {
+      "name": "middleware-get-operation-platform-v1-commands--operation-id--get",
+      "hosts": [
+        "api.codestra.co"
+      ],
+      "paths": [
+        "~/platform/v1/commands/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
+      ],
+      "pathTemplate": "/platform/v1/commands/{operation_id}",
+      "regexPriority": 3,
+      "methods": [
+        "GET"
+      ],
+      "protocols": [
+        "http"
+      ],
+      "stripPath": false,
+      "preserveHost": true,
+      "serviceHost": "middleware-integration-api",
+      "servicePort": 8095,
+      "securityAuthority": "config/kong-middleware-authority.v2.json",
+      "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
+        "openid-connect",
+        "post-function",
+        "correlation-id",
+        "rate-limiting",
+        "request-size-limiting"
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
+    },
+    {
+      "name": "middleware-cancel-operation-platform-v1-commands--operation-id--cancel-post",
+      "hosts": [
+        "api.codestra.co"
+      ],
+      "paths": [
+        "~/platform/v1/commands/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/cancel$"
+      ],
+      "pathTemplate": "/platform/v1/commands/{operation_id}/cancel",
+      "regexPriority": 4,
+      "methods": [
+        "POST"
+      ],
+      "protocols": [
+        "http"
+      ],
+      "stripPath": false,
+      "preserveHost": true,
+      "serviceHost": "middleware-integration-api",
+      "servicePort": 8095,
+      "securityAuthority": "config/kong-middleware-authority.v2.json",
+      "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
+        "openid-connect",
+        "post-function",
+        "correlation-id",
+        "rate-limiting",
+        "request-size-limiting"
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
+    },
+    {
+      "name": "middleware-get-timeline-platform-v1-commands--operation-id--history-get",
+      "hosts": [
+        "api.codestra.co"
+      ],
+      "paths": [
+        "~/platform/v1/commands/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/history$"
+      ],
+      "pathTemplate": "/platform/v1/commands/{operation_id}/history",
+      "regexPriority": 4,
+      "methods": [
+        "GET"
+      ],
+      "protocols": [
+        "http"
+      ],
+      "stripPath": false,
+      "preserveHost": true,
+      "serviceHost": "middleware-integration-api",
+      "servicePort": 8095,
+      "securityAuthority": "config/kong-middleware-authority.v2.json",
+      "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
+        "openid-connect",
+        "post-function",
+        "correlation-id",
+        "rate-limiting",
+        "request-size-limiting"
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
+    },
+    {
+      "name": "middleware-replay-operation-platform-v1-commands--operation-id--replay-post",
+      "hosts": [
+        "api.codestra.co"
+      ],
+      "paths": [
+        "~/platform/v1/commands/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/replay$"
+      ],
+      "pathTemplate": "/platform/v1/commands/{operation_id}/replay",
+      "regexPriority": 4,
+      "methods": [
+        "POST"
+      ],
+      "protocols": [
+        "http"
+      ],
+      "stripPath": false,
+      "preserveHost": true,
+      "serviceHost": "middleware-integration-api",
+      "servicePort": 8095,
+      "securityAuthority": "config/kong-middleware-authority.v2.json",
+      "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
+        "openid-connect",
+        "post-function",
+        "correlation-id",
+        "rate-limiting",
+        "request-size-limiting"
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
+    },
+    {
+      "name": "middleware-get-command-result-platform-v1-commands--operation-id--result-get",
+      "hosts": [
+        "api.codestra.co"
+      ],
+      "paths": [
+        "~/platform/v1/commands/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/result$"
+      ],
+      "pathTemplate": "/platform/v1/commands/{operation_id}/result",
+      "regexPriority": 4,
+      "methods": [
+        "GET"
+      ],
+      "protocols": [
+        "http"
+      ],
+      "stripPath": false,
+      "preserveHost": true,
+      "serviceHost": "middleware-integration-api",
+      "servicePort": 8095,
+      "securityAuthority": "config/kong-middleware-authority.v2.json",
+      "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
+        "openid-connect",
+        "post-function",
+        "correlation-id",
+        "rate-limiting",
+        "request-size-limiting"
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
+    },
+    {
+      "name": "middleware-retry-command-platform-v1-commands--operation-id--retry-post",
+      "hosts": [
+        "api.codestra.co"
+      ],
+      "paths": [
+        "~/platform/v1/commands/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/retry$"
+      ],
+      "pathTemplate": "/platform/v1/commands/{operation_id}/retry",
+      "regexPriority": 4,
+      "methods": [
+        "POST"
+      ],
+      "protocols": [
+        "http"
+      ],
+      "stripPath": false,
+      "preserveHost": true,
+      "serviceHost": "middleware-integration-api",
+      "servicePort": 8095,
+      "securityAuthority": "config/kong-middleware-authority.v2.json",
+      "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
+        "openid-connect",
+        "post-function",
+        "correlation-id",
+        "rate-limiting",
+        "request-size-limiting"
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
+    },
+    {
+      "name": "middleware-connectors-catalog-platform-v1-connectors-get",
+      "hosts": [
+        "api.codestra.co"
+      ],
+      "paths": [
+        "~/platform/v1/connectors$"
+      ],
+      "pathTemplate": "/platform/v1/connectors",
+      "regexPriority": 3,
+      "methods": [
+        "GET"
+      ],
+      "protocols": [
+        "http"
+      ],
+      "stripPath": false,
+      "preserveHost": true,
+      "serviceHost": "middleware-integration-api",
+      "servicePort": 8095,
+      "securityAuthority": "config/kong-middleware-authority.v2.json",
+      "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
+        "openid-connect",
+        "post-function",
+        "correlation-id",
+        "rate-limiting",
+        "request-size-limiting"
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
+    },
+    {
+      "name": "middleware-connector-catalog-item-platform-v1-connectors--connector-id--get",
+      "hosts": [
+        "api.codestra.co"
+      ],
+      "paths": [
+        "~/platform/v1/connectors/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
+      ],
+      "pathTemplate": "/platform/v1/connectors/{connector_id}",
+      "regexPriority": 3,
+      "methods": [
+        "GET"
+      ],
+      "protocols": [
+        "http"
+      ],
+      "stripPath": false,
+      "preserveHost": true,
+      "serviceHost": "middleware-integration-api",
+      "servicePort": 8095,
+      "securityAuthority": "config/kong-middleware-authority.v2.json",
+      "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
+        "openid-connect",
+        "post-function",
+        "correlation-id",
+        "rate-limiting",
+        "request-size-limiting"
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
+    },
+    {
+      "name": "middleware-connector-capabilities-platform-v1-connectors--connector-id--capabilities-get",
+      "hosts": [
+        "api.codestra.co"
+      ],
+      "paths": [
+        "~/platform/v1/connectors/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/capabilities$"
+      ],
+      "pathTemplate": "/platform/v1/connectors/{connector_id}/capabilities",
+      "regexPriority": 4,
+      "methods": [
+        "GET"
+      ],
+      "protocols": [
+        "http"
+      ],
+      "stripPath": false,
+      "preserveHost": true,
+      "serviceHost": "middleware-integration-api",
+      "servicePort": 8095,
+      "securityAuthority": "config/kong-middleware-authority.v2.json",
+      "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
+        "openid-connect",
+        "post-function",
+        "correlation-id",
+        "rate-limiting",
+        "request-size-limiting"
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
+    },
+    {
+      "name": "middleware-connector-health-platform-v1-connectors--connector-id--health-get",
+      "hosts": [
+        "api.codestra.co"
+      ],
+      "paths": [
+        "~/platform/v1/connectors/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/health$"
+      ],
+      "pathTemplate": "/platform/v1/connectors/{connector_id}/health",
+      "regexPriority": 4,
+      "methods": [
+        "GET"
+      ],
+      "protocols": [
+        "http"
+      ],
+      "stripPath": false,
+      "preserveHost": true,
+      "serviceHost": "middleware-integration-api",
+      "servicePort": 8095,
+      "securityAuthority": "config/kong-middleware-authority.v2.json",
+      "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
+        "openid-connect",
+        "post-function",
+        "correlation-id",
+        "rate-limiting",
+        "request-size-limiting"
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
+    },
+    {
+      "name": "middleware-connector-operator-readback-platform-v1-connectors--connector-id--readback-post",
+      "hosts": [
+        "api.codestra.co"
+      ],
+      "paths": [
+        "~/platform/v1/connectors/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/readback$"
+      ],
+      "pathTemplate": "/platform/v1/connectors/{connector_id}/readback",
+      "regexPriority": 4,
+      "methods": [
+        "POST"
+      ],
+      "protocols": [
+        "http"
+      ],
+      "stripPath": false,
+      "preserveHost": true,
+      "serviceHost": "middleware-integration-api",
+      "servicePort": 8095,
+      "securityAuthority": "config/kong-middleware-authority.v2.json",
+      "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
+        "openid-connect",
+        "post-function",
+        "correlation-id",
+        "rate-limiting",
+        "request-size-limiting"
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
+    },
+    {
+      "name": "middleware-connector-operator-reconcile-platform-v1-connectors--connector-id--reconcile-post",
+      "hosts": [
+        "api.codestra.co"
+      ],
+      "paths": [
+        "~/platform/v1/connectors/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/reconcile$"
+      ],
+      "pathTemplate": "/platform/v1/connectors/{connector_id}/reconcile",
+      "regexPriority": 4,
+      "methods": [
+        "POST"
+      ],
+      "protocols": [
+        "http"
+      ],
+      "stripPath": false,
+      "preserveHost": true,
+      "serviceHost": "middleware-integration-api",
+      "servicePort": 8095,
+      "securityAuthority": "config/kong-middleware-authority.v2.json",
+      "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
+        "openid-connect",
+        "post-function",
+        "correlation-id",
+        "rate-limiting",
+        "request-size-limiting"
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
+    },
+    {
       "name": "middleware-list-contacts-platform-v1-contacts-get",
       "hosts": [
         "api.codestra.co"
@@ -1699,6 +2777,104 @@
       "regexPriority": 4,
       "methods": [
         "POST"
+      ],
+      "protocols": [
+        "http"
+      ],
+      "stripPath": false,
+      "preserveHost": true,
+      "serviceHost": "middleware-integration-api",
+      "servicePort": 8095,
+      "securityAuthority": "config/kong-middleware-authority.v2.json",
+      "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
+        "openid-connect",
+        "post-function",
+        "correlation-id",
+        "rate-limiting",
+        "request-size-limiting"
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
+    },
+    {
+      "name": "middleware-list-dead-letters-platform-v1-dead-letters-get",
+      "hosts": [
+        "api.codestra.co"
+      ],
+      "paths": [
+        "~/platform/v1/dead\\-letters$"
+      ],
+      "pathTemplate": "/platform/v1/dead-letters",
+      "regexPriority": 3,
+      "methods": [
+        "GET"
+      ],
+      "protocols": [
+        "http"
+      ],
+      "stripPath": false,
+      "preserveHost": true,
+      "serviceHost": "middleware-integration-api",
+      "servicePort": 8095,
+      "securityAuthority": "config/kong-middleware-authority.v2.json",
+      "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
+        "openid-connect",
+        "post-function",
+        "correlation-id",
+        "rate-limiting",
+        "request-size-limiting"
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
+    },
+    {
+      "name": "middleware-get-dead-letter-platform-v1-dead-letters--operation-id--get",
+      "hosts": [
+        "api.codestra.co"
+      ],
+      "paths": [
+        "~/platform/v1/dead\\-letters/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
+      ],
+      "pathTemplate": "/platform/v1/dead-letters/{operation_id}",
+      "regexPriority": 3,
+      "methods": [
+        "GET"
       ],
       "protocols": [
         "http"
@@ -2521,6 +3697,55 @@
       }
     },
     {
+      "name": "middleware-recovery-history-platform-v1-operations--operation-id--recovery-history-get",
+      "hosts": [
+        "api.codestra.co"
+      ],
+      "paths": [
+        "~/platform/v1/operations/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/recovery\\-history$"
+      ],
+      "pathTemplate": "/platform/v1/operations/{operation_id}/recovery-history",
+      "regexPriority": 4,
+      "methods": [
+        "GET"
+      ],
+      "protocols": [
+        "http"
+      ],
+      "stripPath": false,
+      "preserveHost": true,
+      "serviceHost": "middleware-integration-api",
+      "servicePort": 8095,
+      "securityAuthority": "config/kong-middleware-authority.v2.json",
+      "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
+        "openid-connect",
+        "post-function",
+        "correlation-id",
+        "rate-limiting",
+        "request-size-limiting"
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
+    },
+    {
       "name": "middleware-replay-operation-platform-v1-operations--operation-id--replay-post",
       "hosts": [
         "api.codestra.co"
@@ -3022,6 +4247,153 @@
       "regexPriority": 4,
       "methods": [
         "GET"
+      ],
+      "protocols": [
+        "http"
+      ],
+      "stripPath": false,
+      "preserveHost": true,
+      "serviceHost": "middleware-integration-api",
+      "servicePort": 8095,
+      "securityAuthority": "config/kong-middleware-authority.v2.json",
+      "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
+        "openid-connect",
+        "post-function",
+        "correlation-id",
+        "rate-limiting",
+        "request-size-limiting"
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
+    },
+    {
+      "name": "middleware-run-no-effect-rehearsal-platform-v1-rehearsals-no-effect-post",
+      "hosts": [
+        "api.codestra.co"
+      ],
+      "paths": [
+        "~/platform/v1/rehearsals/no\\-effect$"
+      ],
+      "pathTemplate": "/platform/v1/rehearsals/no-effect",
+      "regexPriority": 4,
+      "methods": [
+        "POST"
+      ],
+      "protocols": [
+        "http"
+      ],
+      "stripPath": false,
+      "preserveHost": true,
+      "serviceHost": "middleware-integration-api",
+      "servicePort": 8095,
+      "securityAuthority": "config/kong-middleware-authority.v2.json",
+      "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
+        "openid-connect",
+        "post-function",
+        "correlation-id",
+        "rate-limiting",
+        "request-size-limiting"
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
+    },
+    {
+      "name": "middleware-get-no-effect-rehearsal-platform-v1-rehearsals--rehearsal-id--get",
+      "hosts": [
+        "api.codestra.co"
+      ],
+      "paths": [
+        "~/platform/v1/rehearsals/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
+      ],
+      "pathTemplate": "/platform/v1/rehearsals/{rehearsal_id}",
+      "regexPriority": 3,
+      "methods": [
+        "GET"
+      ],
+      "protocols": [
+        "http"
+      ],
+      "stripPath": false,
+      "preserveHost": true,
+      "serviceHost": "middleware-integration-api",
+      "servicePort": 8095,
+      "securityAuthority": "config/kong-middleware-authority.v2.json",
+      "requiredPlugins": [
+        "codestra-private-surface",
+        "codestra-resource-guard",
+        "codestra-request-context",
+        "pre-function",
+        "openid-connect",
+        "post-function",
+        "correlation-id",
+        "rate-limiting",
+        "request-size-limiting"
+      ],
+      "trafficPolicy": {
+        "ratePerMinute": 120,
+        "burstPerSecond": 10,
+        "maxConcurrentPerWorker": 32,
+        "tenantQuotaPerMinute": 0,
+        "concurrencyScope": "worker",
+        "tenantQuotaScope": "shared-redis",
+        "maxBodyBytes": 2097152,
+        "timeouts": {
+          "connectMs": 5000,
+          "readMs": 30000,
+          "writeMs": 30000
+        },
+        "retries": 0,
+        "unsafeRetriesExplicitlyAuthorized": false
+      }
+    },
+    {
+      "name": "middleware-cancel-replay-platform-v1-replays--replay-id--cancel-post",
+      "hosts": [
+        "api.codestra.co"
+      ],
+      "paths": [
+        "~/platform/v1/replays/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/cancel$"
+      ],
+      "pathTemplate": "/platform/v1/replays/{replay_id}/cancel",
+      "regexPriority": 4,
+      "methods": [
+        "POST"
       ],
       "protocols": [
         "http"

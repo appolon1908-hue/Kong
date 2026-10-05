@@ -71,7 +71,7 @@ def check_inventory(docs, contract):
     unique(source["routes"], lambda r: (r["method"], r["path"]))
     assert Counter(r["classification"] for r in rows.values()) == contract["classificationCounts"]
     shared = {route_name(r): r for r in rows.values() if r["classification"] == "shared_edge"}
-    assert len(shared) == 105
+    assert len(shared) == contract["classificationCounts"]["shared_edge"]
     canonical = docs["canonical"]
     assert canonical["middlewareEdgeContract"]["sha256"] == digest
     assert canonical["runtimeApplyAuthorized"] is False

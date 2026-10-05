@@ -806,11 +806,11 @@
     "status": "SOURCE_ONLY_RUNTIME_APPLY_DISABLED",
     "runtimeApplyAuthorized": false,
     "middleware": {
-      "repository": "ingtrader21-spec/Middleware-",
-      "commit": "bd406a6508c8095a3f23b35149a2eebcb94c94c6",
+      "repository": "appolon1908/Middleware-",
+      "commit": "e873010e0b50e2659ecfc820d86868ffda3a89e5",
       "routeContractPath": "deploy/public-api-route-contract.json",
-      "routeContractSha256": "9c32daecd4a15104c6f9ff60ce19c8f7e78707fb31d9fd9fcb55b1b8dfa3512b",
-      "routeCount": 117
+      "routeContractSha256": "c48c20d8bc71918699abb03cefe1e3c5075536a9d91d8aea8df4fc031891db21",
+      "routeCount": 145
     },
     "keycloak": {
       "repository": "ingtrader21-spec/Keycloak",

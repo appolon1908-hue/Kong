@@ -1,0 +1,15 @@
+{
+  "schema": "codestra.kong.middleware-contract-pin.v1",
+  "repository": "appolon1908/Middleware-",
+  "commit": "e873010e0b50e2659ecfc820d86868ffda3a89e5",
+  "path": "deploy/public-api-route-contract.json",
+  "contractSha256": "c48c20d8bc71918699abb03cefe1e3c5075536a9d91d8aea8df4fc031891db21",
+  "hashRule": "sha256 over json.dumps(contract, sort_keys=True, separators=(',', ':'))",
+  "routeCount": 145,
+  "classificationCounts": {
+    "shared_edge": 133,
+    "denied": 10,
+    "private_only": 2
+  },
+  "canonicalUpstream": "middleware-integration-api:8095"
+}

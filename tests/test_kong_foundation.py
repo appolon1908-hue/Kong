@@ -203,6 +203,21 @@ def test_identical_matches_are_ambiguous_and_disjoint_regexes_do_not_overlap():
     }) == []
 
 
+def test_escaped_punctuation_is_literal_in_regex_prefix_overlap():
+    hyphenated = "~/platform/v1/agent\\-provisioning/requests/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/history$"
+    assert validator.literal_prefix(hyphenated) == "/platform/v1/agent-provisioning/requests/"
+    assert validator.literal_prefix("~/v1/ab?c$") == "/v1/a"
+    assert validator.analyze_precedence({
+        "a": _route("a", ("h",), (hyphenated,), ("GET",)),
+        "b": _route("b", ("h",), ("/platform/v1/agents/presence",), ("GET",)),
+    }) == []
+    overlapping = validator.analyze_precedence({
+        "a": _route("a", ("h",), (hyphenated,), ("GET",)),
+        "b": _route("b", ("h",), ("/platform/v1/agent-provisioning",), ("GET",)),
+    })
+    assert [(o.left, o.right) for o in overlapping] in ([("a", "b")], [("b", "a")])
+
+
 # --------------------------------------------------------------------------- mutations: routes and sources
 
 

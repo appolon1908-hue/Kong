@@ -60,6 +60,7 @@ jobs:
           python3 scripts/validate_middleware_edge_contract.py
           python3 scripts/validate_kong_mcr_routes.py
           python3 scripts/generate_kong_postman.py --check
+          python3 scripts/generate_kong_route_security.py --check
           python3 scripts/validate_kong_foundation.py --v3-phase auto | tee /tmp/kong-v3-foundation.txt
           python3 scripts/validate_release_supply_chain.py
           python3 tools/release_contract.py --assert-repository "${GITHUB_REPOSITORY}" --assert-owner "${GITHUB_REPOSITORY_OWNER}"

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import copy
 import importlib.util
+import json
 import sys
 import shutil
 
@@ -37,21 +38,20 @@ def replay_row(policy: dict) -> dict:
     return next(row for row in rows if row["operationId"] == validator.REPLAY_OPERATION)
 
 
-def test_final_identity_security_authority_passes_and_covers_all_117_routes(documents):
+def test_final_identity_security_authority_passes_and_covers_every_contract_route(documents):
     profiles, policy = documents
     result = validator.validate(profiles=profiles, policy=policy)
     authority = result["securityAuthority"]
     rows = authority["routeSecurity"]
 
-    assert len(rows) == 117
-    assert authority["source"]["classificationCounts"] == {
-        "shared_edge": 105,
-        "denied": 10,
-        "private_only": 2,
-    }
+    assert len(rows) == validator.EXPECTED_ROUTE_COUNT
+    assert authority["source"]["classificationCounts"] == validator.CONTRACT_PIN["classificationCounts"]
+    assert validator.CONTRACT_PIN["routeCount"] == sum(validator.CONTRACT_PIN["classificationCounts"].values())
     assert authority["callerSelectorCount"] == 18
     assert authority["unknownCallerIdentities"] == 0
-    assert sum(row["auth"] == "service-or-user-jwt" for row in rows) == 84
+    contract = json.loads((ROOT / "config/middleware-public-api-route-contract.v1.json").read_text(encoding="utf-8"))
+    assert sum(row["auth"] == "service-or-user-jwt" for row in rows) == sum(
+        row["auth"] == "service-or-user-jwt" for row in contract["routes"])
     assert set(authority["callerSelectors"]) == validator.EXPECTED_CALLERS
     assert authority["privilegedDefaultGrantsAllowed"] is False
 

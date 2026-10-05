@@ -32,7 +32,8 @@ def test_pas151_jwt_fallback_replaces_all_oidc_and_adds_rs256_consumer():
     rendered = renderer.transform_manifest(source, public_key)
 
     routes = rendered["services"][0]["routes"]
-    assert len(routes) == 105
+    shared = sum(1 for row in source["services"][0]["routes"] if "request-termination" not in plugins(row))
+    assert len(routes) == shared and shared > 0
     assert all("openid-connect" not in plugins(route) for route in routes)
     assert all("jwt" in plugins(route) for route in routes)
 

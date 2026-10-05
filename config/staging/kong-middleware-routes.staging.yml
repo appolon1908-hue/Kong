@@ -989,6 +989,94 @@ services:
     - name: request-size-limiting
       config:
         allowed_payload_size: 2
+  - name: middleware-adopt-agent-extension-platform-v1-agent-provisioning-adopt-extension-post
+    hosts:
+    - api.codestra.co
+    paths:
+    - ~/platform/v1/agent\-provisioning/adopt\-extension$
+    regex_priority: 4
+    methods:
+    - POST
+    protocols:
+    - http
+    strip_path: false
+    preserve_host: true
+    path_handling: v0
+    tags:
+    - codestra.classification.shared_edge
+    - codestra.operation.middleware-adopt-agent-extension-platform-v1-agent-provisioning-adopt-extension-post
+    plugins:
+    - name: codestra-private-surface
+      config:
+        allow_private: false
+    - name: codestra-resource-guard
+      config:
+        route_key: middleware-adopt-agent-extension-platform-v1-agent-provisioning-adopt-extension-post
+        concurrency_limit_per_worker: 32
+        tenant_quota_per_minute: 0
+    - name: codestra-request-context
+      config:
+        require_correlation_id: false
+    - name: pre-function
+      config:
+        access:
+        - "-- Clear client-supplied identity before openid-connect runs.\nfor _, name in ipairs({\"X-User-ID\", \"X-Username\", \"X-Email\", \"X-Roles\", \"X-Scopes\", \"X-Authenticated-UserID\", \"X-Authenticated-User\", \"X-Authenticated-Client\", \"X-Authenticated-Subject\", \"X-Authenticated-Tenant\", \"X-Authenticated-Campaign\", \"X-Authenticated-Role\", \"X-Authenticated-Email\", \"X-Codestra-Tenant\", \"X-Codestra-Scopes\", \"X-Codestra-Gateway-Secret\", \"X-Internal-Service\", \"X-Admin\", \"X-Codestra-Contract-Operation\", \"X-Codestra-Expected-Azp\", \"X-Codestra-Required-Scope\", \"X-Consumer-ID\", \"X-Consumer-Username\", \"X-Credential-Identifier\", \"X-Anonymous-Consumer\"}) do\n  kong.service.request.clear_header(name)\nend"
+    - name: openid-connect
+      config:
+        issuer: https://auth-staging.codestra.co/realms/codestra/.well-known/openid-configuration
+        auth_methods:
+        - bearer
+        audience:
+        - middleware-api
+        audience_required:
+        - middleware-api
+        issuers_allowed:
+        - https://auth-staging.codestra.co/realms/codestra
+        bearer_token_param_type:
+        - header
+        verify_signature: true
+        verify_claims: true
+        ssl_verify: true
+        consumer_by:
+        - username
+        consumer_optional: false
+        cache_ttl: 300
+        cache_ttl_max: 300
+        rediscovery_lifetime: 30
+        leeway: 0
+        scopes_required:
+        - identity.request
+        consumer_claim:
+        - azp
+        cache_tokens_salt: '{vault://env/kong-oidc-cache-tokens-salt}'
+    - name: post-function
+      config:
+        access:
+        - "-- Generated fail-closed authorization metadata.\nlocal operation_id = \"adopt_agent_extension_platform_v1_agent_provisioning_adopt_extension_post\"\nlocal expected_azp = \"authorized-provisioning-client\"\nlocal required_scope = \"identity.request\"\n-- Strip client-asserted identity before minting trusted contract metadata;\n-- X-Consumer-* are set by openid-connect after signature verification.\nfor _, name in ipairs({\"X-User-ID\", \"X-Username\", \"X-Email\", \"X-Roles\", \"X-Scopes\", \"X-Authenticated-UserID\", \"X-Authenticated-User\", \"X-Authenticated-Client\", \"X-Authenticated-Subject\", \"X-Authenticated-Tenant\", \"X-Authenticated-Campaign\", \"X-Authenticated-Role\", \"X-Authenticated-Email\", \"X-Codestra-Tenant\", \"X-Codestra-Scopes\", \"X-Codestra-Gateway-Secret\", \"X-Internal-Service\", \"X-Admin\", \"X-Codestra-Contract-Operation\", \"X-Codestra-Expected-Azp\", \"X-Codestra-Required-Scope\"}) do\n  kong.service.request.clear_header(name)\nend\n-- OIDC has\
+          \ verified the token and mapped its azp to a Kong consumer.\nlocal allowed_azps = {}\nlocal consumer = kong.client.get_consumer()\nlocal matched = false\nif consumer and type(consumer.username) == 'string' then\n  for _, azp in ipairs(allowed_azps) do\n    if consumer.username == azp then matched = true break end\n  end\nend\nif not matched then return kong.response.exit(403, {error='unauthorized_caller'}) end\nkong.service.request.set_header('X-Codestra-Contract-Operation', operation_id)\nkong.service.request.set_header('X-Codestra-Expected-Azp', expected_azp)\nkong.service.request.set_header('X-Codestra-Required-Scope', required_scope)\n-- openid-connect validates issuer/audience/scope; Middleware re-authorizes\n-- symbolic client-family selectors and tenant/resource ownership."
+    - name: correlation-id
+      config:
+        header_name: X-Correlation-ID
+        generator: uuid
+        echo_downstream: true
+    - name: rate-limiting
+      config:
+        minute: 120
+        second: 10
+        error_code: 429
+        error_message: rate_limit_exceeded
+        policy: redis
+        fault_tolerant: false
+        hide_client_headers: false
+        redis:
+          host: codestra-redis
+          port: 6379
+          database: 0
+          timeout: 2000
+          password: '{vault://env/kong-rate-limit-redis-password}'
+    - name: request-size-limiting
+      config:
+        allowed_payload_size: 2
   - name: middleware-create-provisioning-request-platform-v1-agent-provisioning-requests-post
     hosts:
     - api.codestra.co
@@ -1142,6 +1230,94 @@ services:
         access:
         - "-- Generated fail-closed authorization metadata.\nlocal operation_id = \"get_provisioning_request_platform_v1_agent_provisioning_requests__request_id__get\"\nlocal expected_azp = \"authorized-provisioning-client\"\nlocal required_scope = \"identity.request\"\n-- Strip client-asserted identity before minting trusted contract metadata;\n-- X-Consumer-* are set by openid-connect after signature verification.\nfor _, name in ipairs({\"X-User-ID\", \"X-Username\", \"X-Email\", \"X-Roles\", \"X-Scopes\", \"X-Authenticated-UserID\", \"X-Authenticated-User\", \"X-Authenticated-Client\", \"X-Authenticated-Subject\", \"X-Authenticated-Tenant\", \"X-Authenticated-Campaign\", \"X-Authenticated-Role\", \"X-Authenticated-Email\", \"X-Codestra-Tenant\", \"X-Codestra-Scopes\", \"X-Codestra-Gateway-Secret\", \"X-Internal-Service\", \"X-Admin\", \"X-Codestra-Contract-Operation\", \"X-Codestra-Expected-Azp\", \"X-Codestra-Required-Scope\"}) do\n  kong.service.request.clear_header(name)\nend\n--\
           \ OIDC has verified the token and mapped its azp to a Kong consumer.\nlocal allowed_azps = {}\nlocal consumer = kong.client.get_consumer()\nlocal matched = false\nif consumer and type(consumer.username) == 'string' then\n  for _, azp in ipairs(allowed_azps) do\n    if consumer.username == azp then matched = true break end\n  end\nend\nif not matched then return kong.response.exit(403, {error='unauthorized_caller'}) end\nkong.service.request.set_header('X-Codestra-Contract-Operation', operation_id)\nkong.service.request.set_header('X-Codestra-Expected-Azp', expected_azp)\nkong.service.request.set_header('X-Codestra-Required-Scope', required_scope)\n-- openid-connect validates issuer/audience/scope; Middleware re-authorizes\n-- symbolic client-family selectors and tenant/resource ownership."
+    - name: correlation-id
+      config:
+        header_name: X-Correlation-ID
+        generator: uuid
+        echo_downstream: true
+    - name: rate-limiting
+      config:
+        minute: 120
+        second: 10
+        error_code: 429
+        error_message: rate_limit_exceeded
+        policy: redis
+        fault_tolerant: false
+        hide_client_headers: false
+        redis:
+          host: codestra-redis
+          port: 6379
+          database: 0
+          timeout: 2000
+          password: '{vault://env/kong-rate-limit-redis-password}'
+    - name: request-size-limiting
+      config:
+        allowed_payload_size: 2
+  - name: middleware-provisioning-history-platform-v1-agent-provisioning-requests--request-id--history-get
+    hosts:
+    - api.codestra.co
+    paths:
+    - ~/platform/v1/agent\-provisioning/requests/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/history$
+    regex_priority: 5
+    methods:
+    - GET
+    protocols:
+    - http
+    strip_path: false
+    preserve_host: true
+    path_handling: v0
+    tags:
+    - codestra.classification.shared_edge
+    - codestra.operation.middleware-provisioning-history-platform-v1-agent-provisioning-requests--request-id--history-get
+    plugins:
+    - name: codestra-private-surface
+      config:
+        allow_private: false
+    - name: codestra-resource-guard
+      config:
+        route_key: middleware-provisioning-history-platform-v1-agent-provisioning-requests--request-id--history-get
+        concurrency_limit_per_worker: 32
+        tenant_quota_per_minute: 0
+    - name: codestra-request-context
+      config:
+        require_correlation_id: false
+    - name: pre-function
+      config:
+        access:
+        - "-- Clear client-supplied identity before openid-connect runs.\nfor _, name in ipairs({\"X-User-ID\", \"X-Username\", \"X-Email\", \"X-Roles\", \"X-Scopes\", \"X-Authenticated-UserID\", \"X-Authenticated-User\", \"X-Authenticated-Client\", \"X-Authenticated-Subject\", \"X-Authenticated-Tenant\", \"X-Authenticated-Campaign\", \"X-Authenticated-Role\", \"X-Authenticated-Email\", \"X-Codestra-Tenant\", \"X-Codestra-Scopes\", \"X-Codestra-Gateway-Secret\", \"X-Internal-Service\", \"X-Admin\", \"X-Codestra-Contract-Operation\", \"X-Codestra-Expected-Azp\", \"X-Codestra-Required-Scope\", \"X-Consumer-ID\", \"X-Consumer-Username\", \"X-Credential-Identifier\", \"X-Anonymous-Consumer\"}) do\n  kong.service.request.clear_header(name)\nend"
+    - name: openid-connect
+      config:
+        issuer: https://auth-staging.codestra.co/realms/codestra/.well-known/openid-configuration
+        auth_methods:
+        - bearer
+        audience:
+        - middleware-api
+        audience_required:
+        - middleware-api
+        issuers_allowed:
+        - https://auth-staging.codestra.co/realms/codestra
+        bearer_token_param_type:
+        - header
+        verify_signature: true
+        verify_claims: true
+        ssl_verify: true
+        consumer_by:
+        - username
+        consumer_optional: false
+        cache_ttl: 300
+        cache_ttl_max: 300
+        rediscovery_lifetime: 30
+        leeway: 0
+        scopes_required:
+        - identity.request
+        consumer_claim:
+        - azp
+        cache_tokens_salt: '{vault://env/kong-oidc-cache-tokens-salt}'
+    - name: post-function
+      config:
+        access:
+        - "-- Generated fail-closed authorization metadata.\nlocal operation_id = \"provisioning_history_platform_v1_agent_provisioning_requests__request_id__history_get\"\nlocal expected_azp = \"authorized-provisioning-client\"\nlocal required_scope = \"identity.request\"\n-- Strip client-asserted identity before minting trusted contract metadata;\n-- X-Consumer-* are set by openid-connect after signature verification.\nfor _, name in ipairs({\"X-User-ID\", \"X-Username\", \"X-Email\", \"X-Roles\", \"X-Scopes\", \"X-Authenticated-UserID\", \"X-Authenticated-User\", \"X-Authenticated-Client\", \"X-Authenticated-Subject\", \"X-Authenticated-Tenant\", \"X-Authenticated-Campaign\", \"X-Authenticated-Role\", \"X-Authenticated-Email\", \"X-Codestra-Tenant\", \"X-Codestra-Scopes\", \"X-Codestra-Gateway-Secret\", \"X-Internal-Service\", \"X-Admin\", \"X-Codestra-Contract-Operation\", \"X-Codestra-Expected-Azp\", \"X-Codestra-Required-Scope\"}) do\n  kong.service.request.clear_header(name)\nend\n\
+          -- OIDC has verified the token and mapped its azp to a Kong consumer.\nlocal allowed_azps = {}\nlocal consumer = kong.client.get_consumer()\nlocal matched = false\nif consumer and type(consumer.username) == 'string' then\n  for _, azp in ipairs(allowed_azps) do\n    if consumer.username == azp then matched = true break end\n  end\nend\nif not matched then return kong.response.exit(403, {error='unauthorized_caller'}) end\nkong.service.request.set_header('X-Codestra-Contract-Operation', operation_id)\nkong.service.request.set_header('X-Codestra-Expected-Azp', expected_azp)\nkong.service.request.set_header('X-Codestra-Required-Scope', required_scope)\n-- openid-connect validates issuer/audience/scope; Middleware re-authorizes\n-- symbolic client-family selectors and tenant/resource ownership."
     - name: correlation-id
       config:
         header_name: X-Correlation-ID
@@ -1494,6 +1670,710 @@ services:
         access:
         - "-- Generated fail-closed authorization metadata.\nlocal operation_id = \"suspend_provisioning_request_platform_v1_agent_provisioning_requests__request_id__suspend_post\"\nlocal expected_azp = \"authorized-provisioning-client\"\nlocal required_scope = \"identity.request\"\n-- Strip client-asserted identity before minting trusted contract metadata;\n-- X-Consumer-* are set by openid-connect after signature verification.\nfor _, name in ipairs({\"X-User-ID\", \"X-Username\", \"X-Email\", \"X-Roles\", \"X-Scopes\", \"X-Authenticated-UserID\", \"X-Authenticated-User\", \"X-Authenticated-Client\", \"X-Authenticated-Subject\", \"X-Authenticated-Tenant\", \"X-Authenticated-Campaign\", \"X-Authenticated-Role\", \"X-Authenticated-Email\", \"X-Codestra-Tenant\", \"X-Codestra-Scopes\", \"X-Codestra-Gateway-Secret\", \"X-Internal-Service\", \"X-Admin\", \"X-Codestra-Contract-Operation\", \"X-Codestra-Expected-Azp\", \"X-Codestra-Required-Scope\"}) do\n  kong.service.request.clear_header(name)\n\
           end\n-- OIDC has verified the token and mapped its azp to a Kong consumer.\nlocal allowed_azps = {}\nlocal consumer = kong.client.get_consumer()\nlocal matched = false\nif consumer and type(consumer.username) == 'string' then\n  for _, azp in ipairs(allowed_azps) do\n    if consumer.username == azp then matched = true break end\n  end\nend\nif not matched then return kong.response.exit(403, {error='unauthorized_caller'}) end\nkong.service.request.set_header('X-Codestra-Contract-Operation', operation_id)\nkong.service.request.set_header('X-Codestra-Expected-Azp', expected_azp)\nkong.service.request.set_header('X-Codestra-Required-Scope', required_scope)\n-- openid-connect validates issuer/audience/scope; Middleware re-authorizes\n-- symbolic client-family selectors and tenant/resource ownership."
+    - name: correlation-id
+      config:
+        header_name: X-Correlation-ID
+        generator: uuid
+        echo_downstream: true
+    - name: rate-limiting
+      config:
+        minute: 120
+        second: 10
+        error_code: 429
+        error_message: rate_limit_exceeded
+        policy: redis
+        fault_tolerant: false
+        hide_client_headers: false
+        redis:
+          host: codestra-redis
+          port: 6379
+          database: 0
+          timeout: 2000
+          password: '{vault://env/kong-rate-limit-redis-password}'
+    - name: request-size-limiting
+      config:
+        allowed_payload_size: 2
+  - name: middleware-reserve-agent-extension-platform-v1-agent-provisioning-reserve-extension-post
+    hosts:
+    - api.codestra.co
+    paths:
+    - ~/platform/v1/agent\-provisioning/reserve\-extension$
+    regex_priority: 4
+    methods:
+    - POST
+    protocols:
+    - http
+    strip_path: false
+    preserve_host: true
+    path_handling: v0
+    tags:
+    - codestra.classification.shared_edge
+    - codestra.operation.middleware-reserve-agent-extension-platform-v1-agent-provisioning-reserve-extension-post
+    plugins:
+    - name: codestra-private-surface
+      config:
+        allow_private: false
+    - name: codestra-resource-guard
+      config:
+        route_key: middleware-reserve-agent-extension-platform-v1-agent-provisioning-reserve-extension-post
+        concurrency_limit_per_worker: 32
+        tenant_quota_per_minute: 0
+    - name: codestra-request-context
+      config:
+        require_correlation_id: false
+    - name: pre-function
+      config:
+        access:
+        - "-- Clear client-supplied identity before openid-connect runs.\nfor _, name in ipairs({\"X-User-ID\", \"X-Username\", \"X-Email\", \"X-Roles\", \"X-Scopes\", \"X-Authenticated-UserID\", \"X-Authenticated-User\", \"X-Authenticated-Client\", \"X-Authenticated-Subject\", \"X-Authenticated-Tenant\", \"X-Authenticated-Campaign\", \"X-Authenticated-Role\", \"X-Authenticated-Email\", \"X-Codestra-Tenant\", \"X-Codestra-Scopes\", \"X-Codestra-Gateway-Secret\", \"X-Internal-Service\", \"X-Admin\", \"X-Codestra-Contract-Operation\", \"X-Codestra-Expected-Azp\", \"X-Codestra-Required-Scope\", \"X-Consumer-ID\", \"X-Consumer-Username\", \"X-Credential-Identifier\", \"X-Anonymous-Consumer\"}) do\n  kong.service.request.clear_header(name)\nend"
+    - name: openid-connect
+      config:
+        issuer: https://auth-staging.codestra.co/realms/codestra/.well-known/openid-configuration
+        auth_methods:
+        - bearer
+        audience:
+        - middleware-api
+        audience_required:
+        - middleware-api
+        issuers_allowed:
+        - https://auth-staging.codestra.co/realms/codestra
+        bearer_token_param_type:
+        - header
+        verify_signature: true
+        verify_claims: true
+        ssl_verify: true
+        consumer_by:
+        - username
+        consumer_optional: false
+        cache_ttl: 300
+        cache_ttl_max: 300
+        rediscovery_lifetime: 30
+        leeway: 0
+        scopes_required:
+        - identity.request
+        consumer_claim:
+        - azp
+        cache_tokens_salt: '{vault://env/kong-oidc-cache-tokens-salt}'
+    - name: post-function
+      config:
+        access:
+        - "-- Generated fail-closed authorization metadata.\nlocal operation_id = \"reserve_agent_extension_platform_v1_agent_provisioning_reserve_extension_post\"\nlocal expected_azp = \"authorized-provisioning-client\"\nlocal required_scope = \"identity.request\"\n-- Strip client-asserted identity before minting trusted contract metadata;\n-- X-Consumer-* are set by openid-connect after signature verification.\nfor _, name in ipairs({\"X-User-ID\", \"X-Username\", \"X-Email\", \"X-Roles\", \"X-Scopes\", \"X-Authenticated-UserID\", \"X-Authenticated-User\", \"X-Authenticated-Client\", \"X-Authenticated-Subject\", \"X-Authenticated-Tenant\", \"X-Authenticated-Campaign\", \"X-Authenticated-Role\", \"X-Authenticated-Email\", \"X-Codestra-Tenant\", \"X-Codestra-Scopes\", \"X-Codestra-Gateway-Secret\", \"X-Internal-Service\", \"X-Admin\", \"X-Codestra-Contract-Operation\", \"X-Codestra-Expected-Azp\", \"X-Codestra-Required-Scope\"}) do\n  kong.service.request.clear_header(name)\nend\n-- OIDC\
+          \ has verified the token and mapped its azp to a Kong consumer.\nlocal allowed_azps = {}\nlocal consumer = kong.client.get_consumer()\nlocal matched = false\nif consumer and type(consumer.username) == 'string' then\n  for _, azp in ipairs(allowed_azps) do\n    if consumer.username == azp then matched = true break end\n  end\nend\nif not matched then return kong.response.exit(403, {error='unauthorized_caller'}) end\nkong.service.request.set_header('X-Codestra-Contract-Operation', operation_id)\nkong.service.request.set_header('X-Codestra-Expected-Azp', expected_azp)\nkong.service.request.set_header('X-Codestra-Required-Scope', required_scope)\n-- openid-connect validates issuer/audience/scope; Middleware re-authorizes\n-- symbolic client-family selectors and tenant/resource ownership."
+    - name: correlation-id
+      config:
+        header_name: X-Correlation-ID
+        generator: uuid
+        echo_downstream: true
+    - name: rate-limiting
+      config:
+        minute: 120
+        second: 10
+        error_code: 429
+        error_message: rate_limit_exceeded
+        policy: redis
+        fault_tolerant: false
+        hide_client_headers: false
+        redis:
+          host: codestra-redis
+          port: 6379
+          database: 0
+          timeout: 2000
+          password: '{vault://env/kong-rate-limit-redis-password}'
+    - name: request-size-limiting
+      config:
+        allowed_payload_size: 2
+  - name: middleware-issue-webrtc-ticket-platform-v1-agent-provisioning-webrtc-tickets-post
+    hosts:
+    - api.codestra.co
+    paths:
+    - ~/platform/v1/agent\-provisioning/webrtc/tickets$
+    regex_priority: 5
+    methods:
+    - POST
+    protocols:
+    - http
+    strip_path: false
+    preserve_host: true
+    path_handling: v0
+    tags:
+    - codestra.classification.shared_edge
+    - codestra.operation.middleware-issue-webrtc-ticket-platform-v1-agent-provisioning-webrtc-tickets-post
+    plugins:
+    - name: codestra-private-surface
+      config:
+        allow_private: false
+    - name: codestra-resource-guard
+      config:
+        route_key: middleware-issue-webrtc-ticket-platform-v1-agent-provisioning-webrtc-tickets-post
+        concurrency_limit_per_worker: 32
+        tenant_quota_per_minute: 0
+    - name: codestra-request-context
+      config:
+        require_correlation_id: false
+    - name: pre-function
+      config:
+        access:
+        - "-- Clear client-supplied identity before openid-connect runs.\nfor _, name in ipairs({\"X-User-ID\", \"X-Username\", \"X-Email\", \"X-Roles\", \"X-Scopes\", \"X-Authenticated-UserID\", \"X-Authenticated-User\", \"X-Authenticated-Client\", \"X-Authenticated-Subject\", \"X-Authenticated-Tenant\", \"X-Authenticated-Campaign\", \"X-Authenticated-Role\", \"X-Authenticated-Email\", \"X-Codestra-Tenant\", \"X-Codestra-Scopes\", \"X-Codestra-Gateway-Secret\", \"X-Internal-Service\", \"X-Admin\", \"X-Codestra-Contract-Operation\", \"X-Codestra-Expected-Azp\", \"X-Codestra-Required-Scope\", \"X-Consumer-ID\", \"X-Consumer-Username\", \"X-Credential-Identifier\", \"X-Anonymous-Consumer\"}) do\n  kong.service.request.clear_header(name)\nend"
+    - name: openid-connect
+      config:
+        issuer: https://auth-staging.codestra.co/realms/codestra/.well-known/openid-configuration
+        auth_methods:
+        - bearer
+        audience:
+        - middleware-api
+        audience_required:
+        - middleware-api
+        issuers_allowed:
+        - https://auth-staging.codestra.co/realms/codestra
+        bearer_token_param_type:
+        - header
+        verify_signature: true
+        verify_claims: true
+        ssl_verify: true
+        consumer_by:
+        - username
+        consumer_optional: false
+        cache_ttl: 300
+        cache_ttl_max: 300
+        rediscovery_lifetime: 30
+        leeway: 0
+        scopes_required:
+        - identity.request
+        consumer_claim:
+        - azp
+        cache_tokens_salt: '{vault://env/kong-oidc-cache-tokens-salt}'
+    - name: post-function
+      config:
+        access:
+        - "-- Generated fail-closed authorization metadata.\nlocal operation_id = \"issue_webrtc_ticket_platform_v1_agent_provisioning_webrtc_tickets_post\"\nlocal expected_azp = \"authorized-provisioning-client\"\nlocal required_scope = \"identity.request\"\n-- Strip client-asserted identity before minting trusted contract metadata;\n-- X-Consumer-* are set by openid-connect after signature verification.\nfor _, name in ipairs({\"X-User-ID\", \"X-Username\", \"X-Email\", \"X-Roles\", \"X-Scopes\", \"X-Authenticated-UserID\", \"X-Authenticated-User\", \"X-Authenticated-Client\", \"X-Authenticated-Subject\", \"X-Authenticated-Tenant\", \"X-Authenticated-Campaign\", \"X-Authenticated-Role\", \"X-Authenticated-Email\", \"X-Codestra-Tenant\", \"X-Codestra-Scopes\", \"X-Codestra-Gateway-Secret\", \"X-Internal-Service\", \"X-Admin\", \"X-Codestra-Contract-Operation\", \"X-Codestra-Expected-Azp\", \"X-Codestra-Required-Scope\"}) do\n  kong.service.request.clear_header(name)\nend\n-- OIDC has verified\
+          \ the token and mapped its azp to a Kong consumer.\nlocal allowed_azps = {}\nlocal consumer = kong.client.get_consumer()\nlocal matched = false\nif consumer and type(consumer.username) == 'string' then\n  for _, azp in ipairs(allowed_azps) do\n    if consumer.username == azp then matched = true break end\n  end\nend\nif not matched then return kong.response.exit(403, {error='unauthorized_caller'}) end\nkong.service.request.set_header('X-Codestra-Contract-Operation', operation_id)\nkong.service.request.set_header('X-Codestra-Expected-Azp', expected_azp)\nkong.service.request.set_header('X-Codestra-Required-Scope', required_scope)\n-- openid-connect validates issuer/audience/scope; Middleware re-authorizes\n-- symbolic client-family selectors and tenant/resource ownership."
+    - name: correlation-id
+      config:
+        header_name: X-Correlation-ID
+        generator: uuid
+        echo_downstream: true
+    - name: rate-limiting
+      config:
+        minute: 120
+        second: 10
+        error_code: 429
+        error_message: rate_limit_exceeded
+        policy: redis
+        fault_tolerant: false
+        hide_client_headers: false
+        redis:
+          host: codestra-redis
+          port: 6379
+          database: 0
+          timeout: 2000
+          password: '{vault://env/kong-rate-limit-redis-password}'
+    - name: request-size-limiting
+      config:
+        allowed_payload_size: 2
+  - name: middleware-disable-agent-platform-v1-agent-provisioning--request-id--disable-post
+    hosts:
+    - api.codestra.co
+    paths:
+    - ~/platform/v1/agent\-provisioning/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/disable$
+    regex_priority: 4
+    methods:
+    - POST
+    protocols:
+    - http
+    strip_path: false
+    preserve_host: true
+    path_handling: v0
+    tags:
+    - codestra.classification.shared_edge
+    - codestra.operation.middleware-disable-agent-platform-v1-agent-provisioning--request-id--disable-post
+    plugins:
+    - name: codestra-private-surface
+      config:
+        allow_private: false
+    - name: codestra-resource-guard
+      config:
+        route_key: middleware-disable-agent-platform-v1-agent-provisioning--request-id--disable-post
+        concurrency_limit_per_worker: 32
+        tenant_quota_per_minute: 0
+    - name: codestra-request-context
+      config:
+        require_correlation_id: false
+    - name: pre-function
+      config:
+        access:
+        - "-- Clear client-supplied identity before openid-connect runs.\nfor _, name in ipairs({\"X-User-ID\", \"X-Username\", \"X-Email\", \"X-Roles\", \"X-Scopes\", \"X-Authenticated-UserID\", \"X-Authenticated-User\", \"X-Authenticated-Client\", \"X-Authenticated-Subject\", \"X-Authenticated-Tenant\", \"X-Authenticated-Campaign\", \"X-Authenticated-Role\", \"X-Authenticated-Email\", \"X-Codestra-Tenant\", \"X-Codestra-Scopes\", \"X-Codestra-Gateway-Secret\", \"X-Internal-Service\", \"X-Admin\", \"X-Codestra-Contract-Operation\", \"X-Codestra-Expected-Azp\", \"X-Codestra-Required-Scope\", \"X-Consumer-ID\", \"X-Consumer-Username\", \"X-Credential-Identifier\", \"X-Anonymous-Consumer\"}) do\n  kong.service.request.clear_header(name)\nend"
+    - name: openid-connect
+      config:
+        issuer: https://auth-staging.codestra.co/realms/codestra/.well-known/openid-configuration
+        auth_methods:
+        - bearer
+        audience:
+        - middleware-api
+        audience_required:
+        - middleware-api
+        issuers_allowed:
+        - https://auth-staging.codestra.co/realms/codestra
+        bearer_token_param_type:
+        - header
+        verify_signature: true
+        verify_claims: true
+        ssl_verify: true
+        consumer_by:
+        - username
+        consumer_optional: false
+        cache_ttl: 300
+        cache_ttl_max: 300
+        rediscovery_lifetime: 30
+        leeway: 0
+        scopes_required:
+        - identity.request
+        consumer_claim:
+        - azp
+        cache_tokens_salt: '{vault://env/kong-oidc-cache-tokens-salt}'
+    - name: post-function
+      config:
+        access:
+        - "-- Generated fail-closed authorization metadata.\nlocal operation_id = \"disable_agent_platform_v1_agent_provisioning__request_id__disable_post\"\nlocal expected_azp = \"authorized-provisioning-client\"\nlocal required_scope = \"identity.request\"\n-- Strip client-asserted identity before minting trusted contract metadata;\n-- X-Consumer-* are set by openid-connect after signature verification.\nfor _, name in ipairs({\"X-User-ID\", \"X-Username\", \"X-Email\", \"X-Roles\", \"X-Scopes\", \"X-Authenticated-UserID\", \"X-Authenticated-User\", \"X-Authenticated-Client\", \"X-Authenticated-Subject\", \"X-Authenticated-Tenant\", \"X-Authenticated-Campaign\", \"X-Authenticated-Role\", \"X-Authenticated-Email\", \"X-Codestra-Tenant\", \"X-Codestra-Scopes\", \"X-Codestra-Gateway-Secret\", \"X-Internal-Service\", \"X-Admin\", \"X-Codestra-Contract-Operation\", \"X-Codestra-Expected-Azp\", \"X-Codestra-Required-Scope\"}) do\n  kong.service.request.clear_header(name)\nend\n-- OIDC has verified\
+          \ the token and mapped its azp to a Kong consumer.\nlocal allowed_azps = {}\nlocal consumer = kong.client.get_consumer()\nlocal matched = false\nif consumer and type(consumer.username) == 'string' then\n  for _, azp in ipairs(allowed_azps) do\n    if consumer.username == azp then matched = true break end\n  end\nend\nif not matched then return kong.response.exit(403, {error='unauthorized_caller'}) end\nkong.service.request.set_header('X-Codestra-Contract-Operation', operation_id)\nkong.service.request.set_header('X-Codestra-Expected-Azp', expected_azp)\nkong.service.request.set_header('X-Codestra-Required-Scope', required_scope)\n-- openid-connect validates issuer/audience/scope; Middleware re-authorizes\n-- symbolic client-family selectors and tenant/resource ownership."
+    - name: correlation-id
+      config:
+        header_name: X-Correlation-ID
+        generator: uuid
+        echo_downstream: true
+    - name: rate-limiting
+      config:
+        minute: 120
+        second: 10
+        error_code: 429
+        error_message: rate_limit_exceeded
+        policy: redis
+        fault_tolerant: false
+        hide_client_headers: false
+        redis:
+          host: codestra-redis
+          port: 6379
+          database: 0
+          timeout: 2000
+          password: '{vault://env/kong-rate-limit-redis-password}'
+    - name: request-size-limiting
+      config:
+        allowed_payload_size: 2
+  - name: middleware-provisioning-readback-platform-v1-agent-provisioning--request-id--readback-get
+    hosts:
+    - api.codestra.co
+    paths:
+    - ~/platform/v1/agent\-provisioning/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/readback$
+    regex_priority: 4
+    methods:
+    - GET
+    protocols:
+    - http
+    strip_path: false
+    preserve_host: true
+    path_handling: v0
+    tags:
+    - codestra.classification.shared_edge
+    - codestra.operation.middleware-provisioning-readback-platform-v1-agent-provisioning--request-id--readback-get
+    plugins:
+    - name: codestra-private-surface
+      config:
+        allow_private: false
+    - name: codestra-resource-guard
+      config:
+        route_key: middleware-provisioning-readback-platform-v1-agent-provisioning--request-id--readback-get
+        concurrency_limit_per_worker: 32
+        tenant_quota_per_minute: 0
+    - name: codestra-request-context
+      config:
+        require_correlation_id: false
+    - name: pre-function
+      config:
+        access:
+        - "-- Clear client-supplied identity before openid-connect runs.\nfor _, name in ipairs({\"X-User-ID\", \"X-Username\", \"X-Email\", \"X-Roles\", \"X-Scopes\", \"X-Authenticated-UserID\", \"X-Authenticated-User\", \"X-Authenticated-Client\", \"X-Authenticated-Subject\", \"X-Authenticated-Tenant\", \"X-Authenticated-Campaign\", \"X-Authenticated-Role\", \"X-Authenticated-Email\", \"X-Codestra-Tenant\", \"X-Codestra-Scopes\", \"X-Codestra-Gateway-Secret\", \"X-Internal-Service\", \"X-Admin\", \"X-Codestra-Contract-Operation\", \"X-Codestra-Expected-Azp\", \"X-Codestra-Required-Scope\", \"X-Consumer-ID\", \"X-Consumer-Username\", \"X-Credential-Identifier\", \"X-Anonymous-Consumer\"}) do\n  kong.service.request.clear_header(name)\nend"
+    - name: openid-connect
+      config:
+        issuer: https://auth-staging.codestra.co/realms/codestra/.well-known/openid-configuration
+        auth_methods:
+        - bearer
+        audience:
+        - middleware-api
+        audience_required:
+        - middleware-api
+        issuers_allowed:
+        - https://auth-staging.codestra.co/realms/codestra
+        bearer_token_param_type:
+        - header
+        verify_signature: true
+        verify_claims: true
+        ssl_verify: true
+        consumer_by:
+        - username
+        consumer_optional: false
+        cache_ttl: 300
+        cache_ttl_max: 300
+        rediscovery_lifetime: 30
+        leeway: 0
+        scopes_required:
+        - identity.request
+        consumer_claim:
+        - azp
+        cache_tokens_salt: '{vault://env/kong-oidc-cache-tokens-salt}'
+    - name: post-function
+      config:
+        access:
+        - "-- Generated fail-closed authorization metadata.\nlocal operation_id = \"provisioning_readback_platform_v1_agent_provisioning__request_id__readback_get\"\nlocal expected_azp = \"authorized-provisioning-client\"\nlocal required_scope = \"identity.request\"\n-- Strip client-asserted identity before minting trusted contract metadata;\n-- X-Consumer-* are set by openid-connect after signature verification.\nfor _, name in ipairs({\"X-User-ID\", \"X-Username\", \"X-Email\", \"X-Roles\", \"X-Scopes\", \"X-Authenticated-UserID\", \"X-Authenticated-User\", \"X-Authenticated-Client\", \"X-Authenticated-Subject\", \"X-Authenticated-Tenant\", \"X-Authenticated-Campaign\", \"X-Authenticated-Role\", \"X-Authenticated-Email\", \"X-Codestra-Tenant\", \"X-Codestra-Scopes\", \"X-Codestra-Gateway-Secret\", \"X-Internal-Service\", \"X-Admin\", \"X-Codestra-Contract-Operation\", \"X-Codestra-Expected-Azp\", \"X-Codestra-Required-Scope\"}) do\n  kong.service.request.clear_header(name)\nend\n-- OIDC\
+          \ has verified the token and mapped its azp to a Kong consumer.\nlocal allowed_azps = {}\nlocal consumer = kong.client.get_consumer()\nlocal matched = false\nif consumer and type(consumer.username) == 'string' then\n  for _, azp in ipairs(allowed_azps) do\n    if consumer.username == azp then matched = true break end\n  end\nend\nif not matched then return kong.response.exit(403, {error='unauthorized_caller'}) end\nkong.service.request.set_header('X-Codestra-Contract-Operation', operation_id)\nkong.service.request.set_header('X-Codestra-Expected-Azp', expected_azp)\nkong.service.request.set_header('X-Codestra-Required-Scope', required_scope)\n-- openid-connect validates issuer/audience/scope; Middleware re-authorizes\n-- symbolic client-family selectors and tenant/resource ownership."
+    - name: correlation-id
+      config:
+        header_name: X-Correlation-ID
+        generator: uuid
+        echo_downstream: true
+    - name: rate-limiting
+      config:
+        minute: 120
+        second: 10
+        error_code: 429
+        error_message: rate_limit_exceeded
+        policy: redis
+        fault_tolerant: false
+        hide_client_headers: false
+        redis:
+          host: codestra-redis
+          port: 6379
+          database: 0
+          timeout: 2000
+          password: '{vault://env/kong-rate-limit-redis-password}'
+    - name: request-size-limiting
+      config:
+        allowed_payload_size: 2
+  - name: middleware-release-agent-extension-platform-v1-agent-provisioning--request-id--release-extension-post
+    hosts:
+    - api.codestra.co
+    paths:
+    - ~/platform/v1/agent\-provisioning/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/release\-extension$
+    regex_priority: 4
+    methods:
+    - POST
+    protocols:
+    - http
+    strip_path: false
+    preserve_host: true
+    path_handling: v0
+    tags:
+    - codestra.classification.shared_edge
+    - codestra.operation.middleware-release-agent-extension-platform-v1-agent-provisioning--request-id--release-extension-post
+    plugins:
+    - name: codestra-private-surface
+      config:
+        allow_private: false
+    - name: codestra-resource-guard
+      config:
+        route_key: middleware-release-agent-extension-platform-v1-agent-provisioning--request-id--release-extension-post
+        concurrency_limit_per_worker: 32
+        tenant_quota_per_minute: 0
+    - name: codestra-request-context
+      config:
+        require_correlation_id: false
+    - name: pre-function
+      config:
+        access:
+        - "-- Clear client-supplied identity before openid-connect runs.\nfor _, name in ipairs({\"X-User-ID\", \"X-Username\", \"X-Email\", \"X-Roles\", \"X-Scopes\", \"X-Authenticated-UserID\", \"X-Authenticated-User\", \"X-Authenticated-Client\", \"X-Authenticated-Subject\", \"X-Authenticated-Tenant\", \"X-Authenticated-Campaign\", \"X-Authenticated-Role\", \"X-Authenticated-Email\", \"X-Codestra-Tenant\", \"X-Codestra-Scopes\", \"X-Codestra-Gateway-Secret\", \"X-Internal-Service\", \"X-Admin\", \"X-Codestra-Contract-Operation\", \"X-Codestra-Expected-Azp\", \"X-Codestra-Required-Scope\", \"X-Consumer-ID\", \"X-Consumer-Username\", \"X-Credential-Identifier\", \"X-Anonymous-Consumer\"}) do\n  kong.service.request.clear_header(name)\nend"
+    - name: openid-connect
+      config:
+        issuer: https://auth-staging.codestra.co/realms/codestra/.well-known/openid-configuration
+        auth_methods:
+        - bearer
+        audience:
+        - middleware-api
+        audience_required:
+        - middleware-api
+        issuers_allowed:
+        - https://auth-staging.codestra.co/realms/codestra
+        bearer_token_param_type:
+        - header
+        verify_signature: true
+        verify_claims: true
+        ssl_verify: true
+        consumer_by:
+        - username
+        consumer_optional: false
+        cache_ttl: 300
+        cache_ttl_max: 300
+        rediscovery_lifetime: 30
+        leeway: 0
+        scopes_required:
+        - identity.request
+        consumer_claim:
+        - azp
+        cache_tokens_salt: '{vault://env/kong-oidc-cache-tokens-salt}'
+    - name: post-function
+      config:
+        access:
+        - "-- Generated fail-closed authorization metadata.\nlocal operation_id = \"release_agent_extension_platform_v1_agent_provisioning__request_id__release_extension_post\"\nlocal expected_azp = \"authorized-provisioning-client\"\nlocal required_scope = \"identity.request\"\n-- Strip client-asserted identity before minting trusted contract metadata;\n-- X-Consumer-* are set by openid-connect after signature verification.\nfor _, name in ipairs({\"X-User-ID\", \"X-Username\", \"X-Email\", \"X-Roles\", \"X-Scopes\", \"X-Authenticated-UserID\", \"X-Authenticated-User\", \"X-Authenticated-Client\", \"X-Authenticated-Subject\", \"X-Authenticated-Tenant\", \"X-Authenticated-Campaign\", \"X-Authenticated-Role\", \"X-Authenticated-Email\", \"X-Codestra-Tenant\", \"X-Codestra-Scopes\", \"X-Codestra-Gateway-Secret\", \"X-Internal-Service\", \"X-Admin\", \"X-Codestra-Contract-Operation\", \"X-Codestra-Expected-Azp\", \"X-Codestra-Required-Scope\"}) do\n  kong.service.request.clear_header(name)\n\
+          end\n-- OIDC has verified the token and mapped its azp to a Kong consumer.\nlocal allowed_azps = {}\nlocal consumer = kong.client.get_consumer()\nlocal matched = false\nif consumer and type(consumer.username) == 'string' then\n  for _, azp in ipairs(allowed_azps) do\n    if consumer.username == azp then matched = true break end\n  end\nend\nif not matched then return kong.response.exit(403, {error='unauthorized_caller'}) end\nkong.service.request.set_header('X-Codestra-Contract-Operation', operation_id)\nkong.service.request.set_header('X-Codestra-Expected-Azp', expected_azp)\nkong.service.request.set_header('X-Codestra-Required-Scope', required_scope)\n-- openid-connect validates issuer/audience/scope; Middleware re-authorizes\n-- symbolic client-family selectors and tenant/resource ownership."
+    - name: correlation-id
+      config:
+        header_name: X-Correlation-ID
+        generator: uuid
+        echo_downstream: true
+    - name: rate-limiting
+      config:
+        minute: 120
+        second: 10
+        error_code: 429
+        error_message: rate_limit_exceeded
+        policy: redis
+        fault_tolerant: false
+        hide_client_headers: false
+        redis:
+          host: codestra-redis
+          port: 6379
+          database: 0
+          timeout: 2000
+          password: '{vault://env/kong-rate-limit-redis-password}'
+    - name: request-size-limiting
+      config:
+        allowed_payload_size: 2
+  - name: middleware-create-repair-intent-platform-v1-agent-provisioning--request-id--repair-intents-post
+    hosts:
+    - api.codestra.co
+    paths:
+    - ~/platform/v1/agent\-provisioning/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/repair\-intents$
+    regex_priority: 4
+    methods:
+    - POST
+    protocols:
+    - http
+    strip_path: false
+    preserve_host: true
+    path_handling: v0
+    tags:
+    - codestra.classification.shared_edge
+    - codestra.operation.middleware-create-repair-intent-platform-v1-agent-provisioning--request-id--repair-intents-post
+    plugins:
+    - name: codestra-private-surface
+      config:
+        allow_private: false
+    - name: codestra-resource-guard
+      config:
+        route_key: middleware-create-repair-intent-platform-v1-agent-provisioning--request-id--repair-intents-post
+        concurrency_limit_per_worker: 32
+        tenant_quota_per_minute: 0
+    - name: codestra-request-context
+      config:
+        require_correlation_id: false
+    - name: pre-function
+      config:
+        access:
+        - "-- Clear client-supplied identity before openid-connect runs.\nfor _, name in ipairs({\"X-User-ID\", \"X-Username\", \"X-Email\", \"X-Roles\", \"X-Scopes\", \"X-Authenticated-UserID\", \"X-Authenticated-User\", \"X-Authenticated-Client\", \"X-Authenticated-Subject\", \"X-Authenticated-Tenant\", \"X-Authenticated-Campaign\", \"X-Authenticated-Role\", \"X-Authenticated-Email\", \"X-Codestra-Tenant\", \"X-Codestra-Scopes\", \"X-Codestra-Gateway-Secret\", \"X-Internal-Service\", \"X-Admin\", \"X-Codestra-Contract-Operation\", \"X-Codestra-Expected-Azp\", \"X-Codestra-Required-Scope\", \"X-Consumer-ID\", \"X-Consumer-Username\", \"X-Credential-Identifier\", \"X-Anonymous-Consumer\"}) do\n  kong.service.request.clear_header(name)\nend"
+    - name: openid-connect
+      config:
+        issuer: https://auth-staging.codestra.co/realms/codestra/.well-known/openid-configuration
+        auth_methods:
+        - bearer
+        audience:
+        - middleware-api
+        audience_required:
+        - middleware-api
+        issuers_allowed:
+        - https://auth-staging.codestra.co/realms/codestra
+        bearer_token_param_type:
+        - header
+        verify_signature: true
+        verify_claims: true
+        ssl_verify: true
+        consumer_by:
+        - username
+        consumer_optional: false
+        cache_ttl: 300
+        cache_ttl_max: 300
+        rediscovery_lifetime: 30
+        leeway: 0
+        scopes_required:
+        - identity.request
+        consumer_claim:
+        - azp
+        cache_tokens_salt: '{vault://env/kong-oidc-cache-tokens-salt}'
+    - name: post-function
+      config:
+        access:
+        - "-- Generated fail-closed authorization metadata.\nlocal operation_id = \"create_repair_intent_platform_v1_agent_provisioning__request_id__repair_intents_post\"\nlocal expected_azp = \"authorized-provisioning-client\"\nlocal required_scope = \"identity.request\"\n-- Strip client-asserted identity before minting trusted contract metadata;\n-- X-Consumer-* are set by openid-connect after signature verification.\nfor _, name in ipairs({\"X-User-ID\", \"X-Username\", \"X-Email\", \"X-Roles\", \"X-Scopes\", \"X-Authenticated-UserID\", \"X-Authenticated-User\", \"X-Authenticated-Client\", \"X-Authenticated-Subject\", \"X-Authenticated-Tenant\", \"X-Authenticated-Campaign\", \"X-Authenticated-Role\", \"X-Authenticated-Email\", \"X-Codestra-Tenant\", \"X-Codestra-Scopes\", \"X-Codestra-Gateway-Secret\", \"X-Internal-Service\", \"X-Admin\", \"X-Codestra-Contract-Operation\", \"X-Codestra-Expected-Azp\", \"X-Codestra-Required-Scope\"}) do\n  kong.service.request.clear_header(name)\nend\n\
+          -- OIDC has verified the token and mapped its azp to a Kong consumer.\nlocal allowed_azps = {}\nlocal consumer = kong.client.get_consumer()\nlocal matched = false\nif consumer and type(consumer.username) == 'string' then\n  for _, azp in ipairs(allowed_azps) do\n    if consumer.username == azp then matched = true break end\n  end\nend\nif not matched then return kong.response.exit(403, {error='unauthorized_caller'}) end\nkong.service.request.set_header('X-Codestra-Contract-Operation', operation_id)\nkong.service.request.set_header('X-Codestra-Expected-Azp', expected_azp)\nkong.service.request.set_header('X-Codestra-Required-Scope', required_scope)\n-- openid-connect validates issuer/audience/scope; Middleware re-authorizes\n-- symbolic client-family selectors and tenant/resource ownership."
+    - name: correlation-id
+      config:
+        header_name: X-Correlation-ID
+        generator: uuid
+        echo_downstream: true
+    - name: rate-limiting
+      config:
+        minute: 120
+        second: 10
+        error_code: 429
+        error_message: rate_limit_exceeded
+        policy: redis
+        fault_tolerant: false
+        hide_client_headers: false
+        redis:
+          host: codestra-redis
+          port: 6379
+          database: 0
+          timeout: 2000
+          password: '{vault://env/kong-rate-limit-redis-password}'
+    - name: request-size-limiting
+      config:
+        allowed_payload_size: 2
+  - name: middleware-sync-agent-platform-v1-agent-provisioning--request-id--sync-post
+    hosts:
+    - api.codestra.co
+    paths:
+    - ~/platform/v1/agent\-provisioning/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/sync$
+    regex_priority: 4
+    methods:
+    - POST
+    protocols:
+    - http
+    strip_path: false
+    preserve_host: true
+    path_handling: v0
+    tags:
+    - codestra.classification.shared_edge
+    - codestra.operation.middleware-sync-agent-platform-v1-agent-provisioning--request-id--sync-post
+    plugins:
+    - name: codestra-private-surface
+      config:
+        allow_private: false
+    - name: codestra-resource-guard
+      config:
+        route_key: middleware-sync-agent-platform-v1-agent-provisioning--request-id--sync-post
+        concurrency_limit_per_worker: 32
+        tenant_quota_per_minute: 0
+    - name: codestra-request-context
+      config:
+        require_correlation_id: false
+    - name: pre-function
+      config:
+        access:
+        - "-- Clear client-supplied identity before openid-connect runs.\nfor _, name in ipairs({\"X-User-ID\", \"X-Username\", \"X-Email\", \"X-Roles\", \"X-Scopes\", \"X-Authenticated-UserID\", \"X-Authenticated-User\", \"X-Authenticated-Client\", \"X-Authenticated-Subject\", \"X-Authenticated-Tenant\", \"X-Authenticated-Campaign\", \"X-Authenticated-Role\", \"X-Authenticated-Email\", \"X-Codestra-Tenant\", \"X-Codestra-Scopes\", \"X-Codestra-Gateway-Secret\", \"X-Internal-Service\", \"X-Admin\", \"X-Codestra-Contract-Operation\", \"X-Codestra-Expected-Azp\", \"X-Codestra-Required-Scope\", \"X-Consumer-ID\", \"X-Consumer-Username\", \"X-Credential-Identifier\", \"X-Anonymous-Consumer\"}) do\n  kong.service.request.clear_header(name)\nend"
+    - name: openid-connect
+      config:
+        issuer: https://auth-staging.codestra.co/realms/codestra/.well-known/openid-configuration
+        auth_methods:
+        - bearer
+        audience:
+        - middleware-api
+        audience_required:
+        - middleware-api
+        issuers_allowed:
+        - https://auth-staging.codestra.co/realms/codestra
+        bearer_token_param_type:
+        - header
+        verify_signature: true
+        verify_claims: true
+        ssl_verify: true
+        consumer_by:
+        - username
+        consumer_optional: false
+        cache_ttl: 300
+        cache_ttl_max: 300
+        rediscovery_lifetime: 30
+        leeway: 0
+        scopes_required:
+        - identity.request
+        consumer_claim:
+        - azp
+        cache_tokens_salt: '{vault://env/kong-oidc-cache-tokens-salt}'
+    - name: post-function
+      config:
+        access:
+        - "-- Generated fail-closed authorization metadata.\nlocal operation_id = \"sync_agent_platform_v1_agent_provisioning__request_id__sync_post\"\nlocal expected_azp = \"authorized-provisioning-client\"\nlocal required_scope = \"identity.request\"\n-- Strip client-asserted identity before minting trusted contract metadata;\n-- X-Consumer-* are set by openid-connect after signature verification.\nfor _, name in ipairs({\"X-User-ID\", \"X-Username\", \"X-Email\", \"X-Roles\", \"X-Scopes\", \"X-Authenticated-UserID\", \"X-Authenticated-User\", \"X-Authenticated-Client\", \"X-Authenticated-Subject\", \"X-Authenticated-Tenant\", \"X-Authenticated-Campaign\", \"X-Authenticated-Role\", \"X-Authenticated-Email\", \"X-Codestra-Tenant\", \"X-Codestra-Scopes\", \"X-Codestra-Gateway-Secret\", \"X-Internal-Service\", \"X-Admin\", \"X-Codestra-Contract-Operation\", \"X-Codestra-Expected-Azp\", \"X-Codestra-Required-Scope\"}) do\n  kong.service.request.clear_header(name)\nend\n-- OIDC has verified\
+          \ the token and mapped its azp to a Kong consumer.\nlocal allowed_azps = {}\nlocal consumer = kong.client.get_consumer()\nlocal matched = false\nif consumer and type(consumer.username) == 'string' then\n  for _, azp in ipairs(allowed_azps) do\n    if consumer.username == azp then matched = true break end\n  end\nend\nif not matched then return kong.response.exit(403, {error='unauthorized_caller'}) end\nkong.service.request.set_header('X-Codestra-Contract-Operation', operation_id)\nkong.service.request.set_header('X-Codestra-Expected-Azp', expected_azp)\nkong.service.request.set_header('X-Codestra-Required-Scope', required_scope)\n-- openid-connect validates issuer/audience/scope; Middleware re-authorizes\n-- symbolic client-family selectors and tenant/resource ownership."
+    - name: correlation-id
+      config:
+        header_name: X-Correlation-ID
+        generator: uuid
+        echo_downstream: true
+    - name: rate-limiting
+      config:
+        minute: 120
+        second: 10
+        error_code: 429
+        error_message: rate_limit_exceeded
+        policy: redis
+        fault_tolerant: false
+        hide_client_headers: false
+        redis:
+          host: codestra-redis
+          port: 6379
+          database: 0
+          timeout: 2000
+          password: '{vault://env/kong-rate-limit-redis-password}'
+    - name: request-size-limiting
+      config:
+        allowed_payload_size: 2
+  - name: middleware-revoke-webrtc-session-platform-v1-agent-provisioning--request-id--webrtc-revoke-post
+    hosts:
+    - api.codestra.co
+    paths:
+    - ~/platform/v1/agent\-provisioning/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/webrtc/revoke$
+    regex_priority: 5
+    methods:
+    - POST
+    protocols:
+    - http
+    strip_path: false
+    preserve_host: true
+    path_handling: v0
+    tags:
+    - codestra.classification.shared_edge
+    - codestra.operation.middleware-revoke-webrtc-session-platform-v1-agent-provisioning--request-id--webrtc-revoke-post
+    plugins:
+    - name: codestra-private-surface
+      config:
+        allow_private: false
+    - name: codestra-resource-guard
+      config:
+        route_key: middleware-revoke-webrtc-session-platform-v1-agent-provisioning--request-id--webrtc-revoke-post
+        concurrency_limit_per_worker: 32
+        tenant_quota_per_minute: 0
+    - name: codestra-request-context
+      config:
+        require_correlation_id: false
+    - name: pre-function
+      config:
+        access:
+        - "-- Clear client-supplied identity before openid-connect runs.\nfor _, name in ipairs({\"X-User-ID\", \"X-Username\", \"X-Email\", \"X-Roles\", \"X-Scopes\", \"X-Authenticated-UserID\", \"X-Authenticated-User\", \"X-Authenticated-Client\", \"X-Authenticated-Subject\", \"X-Authenticated-Tenant\", \"X-Authenticated-Campaign\", \"X-Authenticated-Role\", \"X-Authenticated-Email\", \"X-Codestra-Tenant\", \"X-Codestra-Scopes\", \"X-Codestra-Gateway-Secret\", \"X-Internal-Service\", \"X-Admin\", \"X-Codestra-Contract-Operation\", \"X-Codestra-Expected-Azp\", \"X-Codestra-Required-Scope\", \"X-Consumer-ID\", \"X-Consumer-Username\", \"X-Credential-Identifier\", \"X-Anonymous-Consumer\"}) do\n  kong.service.request.clear_header(name)\nend"
+    - name: openid-connect
+      config:
+        issuer: https://auth-staging.codestra.co/realms/codestra/.well-known/openid-configuration
+        auth_methods:
+        - bearer
+        audience:
+        - middleware-api
+        audience_required:
+        - middleware-api
+        issuers_allowed:
+        - https://auth-staging.codestra.co/realms/codestra
+        bearer_token_param_type:
+        - header
+        verify_signature: true
+        verify_claims: true
+        ssl_verify: true
+        consumer_by:
+        - username
+        consumer_optional: false
+        cache_ttl: 300
+        cache_ttl_max: 300
+        rediscovery_lifetime: 30
+        leeway: 0
+        scopes_required:
+        - identity.request
+        consumer_claim:
+        - azp
+        cache_tokens_salt: '{vault://env/kong-oidc-cache-tokens-salt}'
+    - name: post-function
+      config:
+        access:
+        - "-- Generated fail-closed authorization metadata.\nlocal operation_id = \"revoke_webrtc_session_platform_v1_agent_provisioning__request_id__webrtc_revoke_post\"\nlocal expected_azp = \"authorized-provisioning-client\"\nlocal required_scope = \"identity.request\"\n-- Strip client-asserted identity before minting trusted contract metadata;\n-- X-Consumer-* are set by openid-connect after signature verification.\nfor _, name in ipairs({\"X-User-ID\", \"X-Username\", \"X-Email\", \"X-Roles\", \"X-Scopes\", \"X-Authenticated-UserID\", \"X-Authenticated-User\", \"X-Authenticated-Client\", \"X-Authenticated-Subject\", \"X-Authenticated-Tenant\", \"X-Authenticated-Campaign\", \"X-Authenticated-Role\", \"X-Authenticated-Email\", \"X-Codestra-Tenant\", \"X-Codestra-Scopes\", \"X-Codestra-Gateway-Secret\", \"X-Internal-Service\", \"X-Admin\", \"X-Codestra-Contract-Operation\", \"X-Codestra-Expected-Azp\", \"X-Codestra-Required-Scope\"}) do\n  kong.service.request.clear_header(name)\nend\n\
+          -- OIDC has verified the token and mapped its azp to a Kong consumer.\nlocal allowed_azps = {}\nlocal consumer = kong.client.get_consumer()\nlocal matched = false\nif consumer and type(consumer.username) == 'string' then\n  for _, azp in ipairs(allowed_azps) do\n    if consumer.username == azp then matched = true break end\n  end\nend\nif not matched then return kong.response.exit(403, {error='unauthorized_caller'}) end\nkong.service.request.set_header('X-Codestra-Contract-Operation', operation_id)\nkong.service.request.set_header('X-Codestra-Expected-Azp', expected_azp)\nkong.service.request.set_header('X-Codestra-Required-Scope', required_scope)\n-- openid-connect validates issuer/audience/scope; Middleware re-authorizes\n-- symbolic client-family selectors and tenant/resource ownership."
     - name: correlation-id
       config:
         header_name: X-Correlation-ID
@@ -2397,6 +3277,1062 @@ services:
     - name: request-size-limiting
       config:
         allowed_payload_size: 2
+  - name: middleware-get-operation-platform-v1-commands--operation-id--get
+    hosts:
+    - api.codestra.co
+    paths:
+    - ~/platform/v1/commands/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
+    regex_priority: 3
+    methods:
+    - GET
+    protocols:
+    - http
+    strip_path: false
+    preserve_host: true
+    path_handling: v0
+    tags:
+    - codestra.classification.shared_edge
+    - codestra.operation.middleware-get-operation-platform-v1-commands--operation-id--get
+    plugins:
+    - name: codestra-private-surface
+      config:
+        allow_private: false
+    - name: codestra-resource-guard
+      config:
+        route_key: middleware-get-operation-platform-v1-commands--operation-id--get
+        concurrency_limit_per_worker: 32
+        tenant_quota_per_minute: 0
+    - name: codestra-request-context
+      config:
+        require_correlation_id: false
+    - name: pre-function
+      config:
+        access:
+        - "-- Clear client-supplied identity before openid-connect runs.\nfor _, name in ipairs({\"X-User-ID\", \"X-Username\", \"X-Email\", \"X-Roles\", \"X-Scopes\", \"X-Authenticated-UserID\", \"X-Authenticated-User\", \"X-Authenticated-Client\", \"X-Authenticated-Subject\", \"X-Authenticated-Tenant\", \"X-Authenticated-Campaign\", \"X-Authenticated-Role\", \"X-Authenticated-Email\", \"X-Codestra-Tenant\", \"X-Codestra-Scopes\", \"X-Codestra-Gateway-Secret\", \"X-Internal-Service\", \"X-Admin\", \"X-Codestra-Contract-Operation\", \"X-Codestra-Expected-Azp\", \"X-Codestra-Required-Scope\", \"X-Consumer-ID\", \"X-Consumer-Username\", \"X-Credential-Identifier\", \"X-Anonymous-Consumer\"}) do\n  kong.service.request.clear_header(name)\nend"
+    - name: openid-connect
+      config:
+        issuer: https://auth-staging.codestra.co/realms/codestra/.well-known/openid-configuration
+        auth_methods:
+        - bearer
+        audience:
+        - middleware-api
+        audience_required:
+        - middleware-api
+        issuers_allowed:
+        - https://auth-staging.codestra.co/realms/codestra
+        bearer_token_param_type:
+        - header
+        verify_signature: true
+        verify_claims: true
+        ssl_verify: true
+        consumer_by:
+        - username
+        consumer_optional: false
+        cache_ttl: 300
+        cache_ttl_max: 300
+        rediscovery_lifetime: 30
+        leeway: 0
+        scopes_required:
+        - identity.request
+        consumer_claim:
+        - azp
+        cache_tokens_salt: '{vault://env/kong-oidc-cache-tokens-salt}'
+    - name: post-function
+      config:
+        access:
+        - "-- Generated fail-closed authorization metadata.\nlocal operation_id = \"get_operation_platform_v1_commands__operation_id__get\"\nlocal expected_azp = \"authorized-provisioning-client\"\nlocal required_scope = \"identity.request\"\n-- Strip client-asserted identity before minting trusted contract metadata;\n-- X-Consumer-* are set by openid-connect after signature verification.\nfor _, name in ipairs({\"X-User-ID\", \"X-Username\", \"X-Email\", \"X-Roles\", \"X-Scopes\", \"X-Authenticated-UserID\", \"X-Authenticated-User\", \"X-Authenticated-Client\", \"X-Authenticated-Subject\", \"X-Authenticated-Tenant\", \"X-Authenticated-Campaign\", \"X-Authenticated-Role\", \"X-Authenticated-Email\", \"X-Codestra-Tenant\", \"X-Codestra-Scopes\", \"X-Codestra-Gateway-Secret\", \"X-Internal-Service\", \"X-Admin\", \"X-Codestra-Contract-Operation\", \"X-Codestra-Expected-Azp\", \"X-Codestra-Required-Scope\"}) do\n  kong.service.request.clear_header(name)\nend\n-- OIDC has verified the token\
+          \ and mapped its azp to a Kong consumer.\nlocal allowed_azps = {}\nlocal consumer = kong.client.get_consumer()\nlocal matched = false\nif consumer and type(consumer.username) == 'string' then\n  for _, azp in ipairs(allowed_azps) do\n    if consumer.username == azp then matched = true break end\n  end\nend\nif not matched then return kong.response.exit(403, {error='unauthorized_caller'}) end\nkong.service.request.set_header('X-Codestra-Contract-Operation', operation_id)\nkong.service.request.set_header('X-Codestra-Expected-Azp', expected_azp)\nkong.service.request.set_header('X-Codestra-Required-Scope', required_scope)\n-- openid-connect validates issuer/audience/scope; Middleware re-authorizes\n-- symbolic client-family selectors and tenant/resource ownership."
+    - name: correlation-id
+      config:
+        header_name: X-Correlation-ID
+        generator: uuid
+        echo_downstream: true
+    - name: rate-limiting
+      config:
+        minute: 120
+        second: 10
+        error_code: 429
+        error_message: rate_limit_exceeded
+        policy: redis
+        fault_tolerant: false
+        hide_client_headers: false
+        redis:
+          host: codestra-redis
+          port: 6379
+          database: 0
+          timeout: 2000
+          password: '{vault://env/kong-rate-limit-redis-password}'
+    - name: request-size-limiting
+      config:
+        allowed_payload_size: 2
+  - name: middleware-cancel-operation-platform-v1-commands--operation-id--cancel-post
+    hosts:
+    - api.codestra.co
+    paths:
+    - ~/platform/v1/commands/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/cancel$
+    regex_priority: 4
+    methods:
+    - POST
+    protocols:
+    - http
+    strip_path: false
+    preserve_host: true
+    path_handling: v0
+    tags:
+    - codestra.classification.shared_edge
+    - codestra.operation.middleware-cancel-operation-platform-v1-commands--operation-id--cancel-post
+    plugins:
+    - name: codestra-private-surface
+      config:
+        allow_private: false
+    - name: codestra-resource-guard
+      config:
+        route_key: middleware-cancel-operation-platform-v1-commands--operation-id--cancel-post
+        concurrency_limit_per_worker: 32
+        tenant_quota_per_minute: 0
+    - name: codestra-request-context
+      config:
+        require_correlation_id: false
+    - name: pre-function
+      config:
+        access:
+        - "-- Clear client-supplied identity before openid-connect runs.\nfor _, name in ipairs({\"X-User-ID\", \"X-Username\", \"X-Email\", \"X-Roles\", \"X-Scopes\", \"X-Authenticated-UserID\", \"X-Authenticated-User\", \"X-Authenticated-Client\", \"X-Authenticated-Subject\", \"X-Authenticated-Tenant\", \"X-Authenticated-Campaign\", \"X-Authenticated-Role\", \"X-Authenticated-Email\", \"X-Codestra-Tenant\", \"X-Codestra-Scopes\", \"X-Codestra-Gateway-Secret\", \"X-Internal-Service\", \"X-Admin\", \"X-Codestra-Contract-Operation\", \"X-Codestra-Expected-Azp\", \"X-Codestra-Required-Scope\", \"X-Consumer-ID\", \"X-Consumer-Username\", \"X-Credential-Identifier\", \"X-Anonymous-Consumer\"}) do\n  kong.service.request.clear_header(name)\nend"
+    - name: openid-connect
+      config:
+        issuer: https://auth-staging.codestra.co/realms/codestra/.well-known/openid-configuration
+        auth_methods:
+        - bearer
+        audience:
+        - middleware-api
+        audience_required:
+        - middleware-api
+        issuers_allowed:
+        - https://auth-staging.codestra.co/realms/codestra
+        bearer_token_param_type:
+        - header
+        verify_signature: true
+        verify_claims: true
+        ssl_verify: true
+        consumer_by:
+        - username
+        consumer_optional: false
+        cache_ttl: 300
+        cache_ttl_max: 300
+        rediscovery_lifetime: 30
+        leeway: 0
+        scopes_required:
+        - identity.request
+        consumer_claim:
+        - azp
+        cache_tokens_salt: '{vault://env/kong-oidc-cache-tokens-salt}'
+    - name: post-function
+      config:
+        access:
+        - "-- Generated fail-closed authorization metadata.\nlocal operation_id = \"cancel_operation_platform_v1_commands__operation_id__cancel_post\"\nlocal expected_azp = \"authorized-provisioning-client\"\nlocal required_scope = \"identity.request\"\n-- Strip client-asserted identity before minting trusted contract metadata;\n-- X-Consumer-* are set by openid-connect after signature verification.\nfor _, name in ipairs({\"X-User-ID\", \"X-Username\", \"X-Email\", \"X-Roles\", \"X-Scopes\", \"X-Authenticated-UserID\", \"X-Authenticated-User\", \"X-Authenticated-Client\", \"X-Authenticated-Subject\", \"X-Authenticated-Tenant\", \"X-Authenticated-Campaign\", \"X-Authenticated-Role\", \"X-Authenticated-Email\", \"X-Codestra-Tenant\", \"X-Codestra-Scopes\", \"X-Codestra-Gateway-Secret\", \"X-Internal-Service\", \"X-Admin\", \"X-Codestra-Contract-Operation\", \"X-Codestra-Expected-Azp\", \"X-Codestra-Required-Scope\"}) do\n  kong.service.request.clear_header(name)\nend\n-- OIDC has verified\
+          \ the token and mapped its azp to a Kong consumer.\nlocal allowed_azps = {}\nlocal consumer = kong.client.get_consumer()\nlocal matched = false\nif consumer and type(consumer.username) == 'string' then\n  for _, azp in ipairs(allowed_azps) do\n    if consumer.username == azp then matched = true break end\n  end\nend\nif not matched then return kong.response.exit(403, {error='unauthorized_caller'}) end\nkong.service.request.set_header('X-Codestra-Contract-Operation', operation_id)\nkong.service.request.set_header('X-Codestra-Expected-Azp', expected_azp)\nkong.service.request.set_header('X-Codestra-Required-Scope', required_scope)\n-- openid-connect validates issuer/audience/scope; Middleware re-authorizes\n-- symbolic client-family selectors and tenant/resource ownership."
+    - name: correlation-id
+      config:
+        header_name: X-Correlation-ID
+        generator: uuid
+        echo_downstream: true
+    - name: rate-limiting
+      config:
+        minute: 120
+        second: 10
+        error_code: 429
+        error_message: rate_limit_exceeded
+        policy: redis
+        fault_tolerant: false
+        hide_client_headers: false
+        redis:
+          host: codestra-redis
+          port: 6379
+          database: 0
+          timeout: 2000
+          password: '{vault://env/kong-rate-limit-redis-password}'
+    - name: request-size-limiting
+      config:
+        allowed_payload_size: 2
+  - name: middleware-get-timeline-platform-v1-commands--operation-id--history-get
+    hosts:
+    - api.codestra.co
+    paths:
+    - ~/platform/v1/commands/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/history$
+    regex_priority: 4
+    methods:
+    - GET
+    protocols:
+    - http
+    strip_path: false
+    preserve_host: true
+    path_handling: v0
+    tags:
+    - codestra.classification.shared_edge
+    - codestra.operation.middleware-get-timeline-platform-v1-commands--operation-id--history-get
+    plugins:
+    - name: codestra-private-surface
+      config:
+        allow_private: false
+    - name: codestra-resource-guard
+      config:
+        route_key: middleware-get-timeline-platform-v1-commands--operation-id--history-get
+        concurrency_limit_per_worker: 32
+        tenant_quota_per_minute: 0
+    - name: codestra-request-context
+      config:
+        require_correlation_id: false
+    - name: pre-function
+      config:
+        access:
+        - "-- Clear client-supplied identity before openid-connect runs.\nfor _, name in ipairs({\"X-User-ID\", \"X-Username\", \"X-Email\", \"X-Roles\", \"X-Scopes\", \"X-Authenticated-UserID\", \"X-Authenticated-User\", \"X-Authenticated-Client\", \"X-Authenticated-Subject\", \"X-Authenticated-Tenant\", \"X-Authenticated-Campaign\", \"X-Authenticated-Role\", \"X-Authenticated-Email\", \"X-Codestra-Tenant\", \"X-Codestra-Scopes\", \"X-Codestra-Gateway-Secret\", \"X-Internal-Service\", \"X-Admin\", \"X-Codestra-Contract-Operation\", \"X-Codestra-Expected-Azp\", \"X-Codestra-Required-Scope\", \"X-Consumer-ID\", \"X-Consumer-Username\", \"X-Credential-Identifier\", \"X-Anonymous-Consumer\"}) do\n  kong.service.request.clear_header(name)\nend"
+    - name: openid-connect
+      config:
+        issuer: https://auth-staging.codestra.co/realms/codestra/.well-known/openid-configuration
+        auth_methods:
+        - bearer
+        audience:
+        - middleware-api
+        audience_required:
+        - middleware-api
+        issuers_allowed:
+        - https://auth-staging.codestra.co/realms/codestra
+        bearer_token_param_type:
+        - header
+        verify_signature: true
+        verify_claims: true
+        ssl_verify: true
+        consumer_by:
+        - username
+        consumer_optional: false
+        cache_ttl: 300
+        cache_ttl_max: 300
+        rediscovery_lifetime: 30
+        leeway: 0
+        scopes_required:
+        - identity.request
+        consumer_claim:
+        - azp
+        cache_tokens_salt: '{vault://env/kong-oidc-cache-tokens-salt}'
+    - name: post-function
+      config:
+        access:
+        - "-- Generated fail-closed authorization metadata.\nlocal operation_id = \"get_timeline_platform_v1_commands__operation_id__history_get\"\nlocal expected_azp = \"authorized-provisioning-client\"\nlocal required_scope = \"identity.request\"\n-- Strip client-asserted identity before minting trusted contract metadata;\n-- X-Consumer-* are set by openid-connect after signature verification.\nfor _, name in ipairs({\"X-User-ID\", \"X-Username\", \"X-Email\", \"X-Roles\", \"X-Scopes\", \"X-Authenticated-UserID\", \"X-Authenticated-User\", \"X-Authenticated-Client\", \"X-Authenticated-Subject\", \"X-Authenticated-Tenant\", \"X-Authenticated-Campaign\", \"X-Authenticated-Role\", \"X-Authenticated-Email\", \"X-Codestra-Tenant\", \"X-Codestra-Scopes\", \"X-Codestra-Gateway-Secret\", \"X-Internal-Service\", \"X-Admin\", \"X-Codestra-Contract-Operation\", \"X-Codestra-Expected-Azp\", \"X-Codestra-Required-Scope\"}) do\n  kong.service.request.clear_header(name)\nend\n-- OIDC has verified the\
+          \ token and mapped its azp to a Kong consumer.\nlocal allowed_azps = {}\nlocal consumer = kong.client.get_consumer()\nlocal matched = false\nif consumer and type(consumer.username) == 'string' then\n  for _, azp in ipairs(allowed_azps) do\n    if consumer.username == azp then matched = true break end\n  end\nend\nif not matched then return kong.response.exit(403, {error='unauthorized_caller'}) end\nkong.service.request.set_header('X-Codestra-Contract-Operation', operation_id)\nkong.service.request.set_header('X-Codestra-Expected-Azp', expected_azp)\nkong.service.request.set_header('X-Codestra-Required-Scope', required_scope)\n-- openid-connect validates issuer/audience/scope; Middleware re-authorizes\n-- symbolic client-family selectors and tenant/resource ownership."
+    - name: correlation-id
+      config:
+        header_name: X-Correlation-ID
+        generator: uuid
+        echo_downstream: true
+    - name: rate-limiting
+      config:
+        minute: 120
+        second: 10
+        error_code: 429
+        error_message: rate_limit_exceeded
+        policy: redis
+        fault_tolerant: false
+        hide_client_headers: false
+        redis:
+          host: codestra-redis
+          port: 6379
+          database: 0
+          timeout: 2000
+          password: '{vault://env/kong-rate-limit-redis-password}'
+    - name: request-size-limiting
+      config:
+        allowed_payload_size: 2
+  - name: middleware-replay-operation-platform-v1-commands--operation-id--replay-post
+    hosts:
+    - api.codestra.co
+    paths:
+    - ~/platform/v1/commands/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/replay$
+    regex_priority: 4
+    methods:
+    - POST
+    protocols:
+    - http
+    strip_path: false
+    preserve_host: true
+    path_handling: v0
+    tags:
+    - codestra.classification.shared_edge
+    - codestra.operation.middleware-replay-operation-platform-v1-commands--operation-id--replay-post
+    plugins:
+    - name: codestra-private-surface
+      config:
+        allow_private: false
+    - name: codestra-resource-guard
+      config:
+        route_key: middleware-replay-operation-platform-v1-commands--operation-id--replay-post
+        concurrency_limit_per_worker: 32
+        tenant_quota_per_minute: 0
+    - name: codestra-request-context
+      config:
+        require_correlation_id: false
+    - name: pre-function
+      config:
+        access:
+        - "-- Clear client-supplied identity before openid-connect runs.\nfor _, name in ipairs({\"X-User-ID\", \"X-Username\", \"X-Email\", \"X-Roles\", \"X-Scopes\", \"X-Authenticated-UserID\", \"X-Authenticated-User\", \"X-Authenticated-Client\", \"X-Authenticated-Subject\", \"X-Authenticated-Tenant\", \"X-Authenticated-Campaign\", \"X-Authenticated-Role\", \"X-Authenticated-Email\", \"X-Codestra-Tenant\", \"X-Codestra-Scopes\", \"X-Codestra-Gateway-Secret\", \"X-Internal-Service\", \"X-Admin\", \"X-Codestra-Contract-Operation\", \"X-Codestra-Expected-Azp\", \"X-Codestra-Required-Scope\", \"X-Consumer-ID\", \"X-Consumer-Username\", \"X-Credential-Identifier\", \"X-Anonymous-Consumer\"}) do\n  kong.service.request.clear_header(name)\nend"
+    - name: openid-connect
+      config:
+        issuer: https://auth-staging.codestra.co/realms/codestra/.well-known/openid-configuration
+        auth_methods:
+        - bearer
+        audience:
+        - middleware-api
+        audience_required:
+        - middleware-api
+        issuers_allowed:
+        - https://auth-staging.codestra.co/realms/codestra
+        bearer_token_param_type:
+        - header
+        verify_signature: true
+        verify_claims: true
+        ssl_verify: true
+        consumer_by:
+        - username
+        consumer_optional: false
+        cache_ttl: 300
+        cache_ttl_max: 300
+        rediscovery_lifetime: 30
+        leeway: 0
+        scopes_required:
+        - identity.request
+        consumer_claim:
+        - azp
+        cache_tokens_salt: '{vault://env/kong-oidc-cache-tokens-salt}'
+    - name: post-function
+      config:
+        access:
+        - "-- Generated fail-closed authorization metadata.\nlocal operation_id = \"replay_operation_platform_v1_commands__operation_id__replay_post\"\nlocal expected_azp = \"authorized-provisioning-client\"\nlocal required_scope = \"identity.request\"\n-- Strip client-asserted identity before minting trusted contract metadata;\n-- X-Consumer-* are set by openid-connect after signature verification.\nfor _, name in ipairs({\"X-User-ID\", \"X-Username\", \"X-Email\", \"X-Roles\", \"X-Scopes\", \"X-Authenticated-UserID\", \"X-Authenticated-User\", \"X-Authenticated-Client\", \"X-Authenticated-Subject\", \"X-Authenticated-Tenant\", \"X-Authenticated-Campaign\", \"X-Authenticated-Role\", \"X-Authenticated-Email\", \"X-Codestra-Tenant\", \"X-Codestra-Scopes\", \"X-Codestra-Gateway-Secret\", \"X-Internal-Service\", \"X-Admin\", \"X-Codestra-Contract-Operation\", \"X-Codestra-Expected-Azp\", \"X-Codestra-Required-Scope\"}) do\n  kong.service.request.clear_header(name)\nend\n-- OIDC has verified\
+          \ the token and mapped its azp to a Kong consumer.\nlocal allowed_azps = {}\nlocal consumer = kong.client.get_consumer()\nlocal matched = false\nif consumer and type(consumer.username) == 'string' then\n  for _, azp in ipairs(allowed_azps) do\n    if consumer.username == azp then matched = true break end\n  end\nend\nif not matched then return kong.response.exit(403, {error='unauthorized_caller'}) end\nkong.service.request.set_header('X-Codestra-Contract-Operation', operation_id)\nkong.service.request.set_header('X-Codestra-Expected-Azp', expected_azp)\nkong.service.request.set_header('X-Codestra-Required-Scope', required_scope)\n-- openid-connect validates issuer/audience/scope; Middleware re-authorizes\n-- symbolic client-family selectors and tenant/resource ownership."
+    - name: correlation-id
+      config:
+        header_name: X-Correlation-ID
+        generator: uuid
+        echo_downstream: true
+    - name: rate-limiting
+      config:
+        minute: 120
+        second: 10
+        error_code: 429
+        error_message: rate_limit_exceeded
+        policy: redis
+        fault_tolerant: false
+        hide_client_headers: false
+        redis:
+          host: codestra-redis
+          port: 6379
+          database: 0
+          timeout: 2000
+          password: '{vault://env/kong-rate-limit-redis-password}'
+    - name: request-size-limiting
+      config:
+        allowed_payload_size: 2
+  - name: middleware-get-command-result-platform-v1-commands--operation-id--result-get
+    hosts:
+    - api.codestra.co
+    paths:
+    - ~/platform/v1/commands/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/result$
+    regex_priority: 4
+    methods:
+    - GET
+    protocols:
+    - http
+    strip_path: false
+    preserve_host: true
+    path_handling: v0
+    tags:
+    - codestra.classification.shared_edge
+    - codestra.operation.middleware-get-command-result-platform-v1-commands--operation-id--result-get
+    plugins:
+    - name: codestra-private-surface
+      config:
+        allow_private: false
+    - name: codestra-resource-guard
+      config:
+        route_key: middleware-get-command-result-platform-v1-commands--operation-id--result-get
+        concurrency_limit_per_worker: 32
+        tenant_quota_per_minute: 0
+    - name: codestra-request-context
+      config:
+        require_correlation_id: false
+    - name: pre-function
+      config:
+        access:
+        - "-- Clear client-supplied identity before openid-connect runs.\nfor _, name in ipairs({\"X-User-ID\", \"X-Username\", \"X-Email\", \"X-Roles\", \"X-Scopes\", \"X-Authenticated-UserID\", \"X-Authenticated-User\", \"X-Authenticated-Client\", \"X-Authenticated-Subject\", \"X-Authenticated-Tenant\", \"X-Authenticated-Campaign\", \"X-Authenticated-Role\", \"X-Authenticated-Email\", \"X-Codestra-Tenant\", \"X-Codestra-Scopes\", \"X-Codestra-Gateway-Secret\", \"X-Internal-Service\", \"X-Admin\", \"X-Codestra-Contract-Operation\", \"X-Codestra-Expected-Azp\", \"X-Codestra-Required-Scope\", \"X-Consumer-ID\", \"X-Consumer-Username\", \"X-Credential-Identifier\", \"X-Anonymous-Consumer\"}) do\n  kong.service.request.clear_header(name)\nend"
+    - name: openid-connect
+      config:
+        issuer: https://auth-staging.codestra.co/realms/codestra/.well-known/openid-configuration
+        auth_methods:
+        - bearer
+        audience:
+        - middleware-api
+        audience_required:
+        - middleware-api
+        issuers_allowed:
+        - https://auth-staging.codestra.co/realms/codestra
+        bearer_token_param_type:
+        - header
+        verify_signature: true
+        verify_claims: true
+        ssl_verify: true
+        consumer_by:
+        - username
+        consumer_optional: false
+        cache_ttl: 300
+        cache_ttl_max: 300
+        rediscovery_lifetime: 30
+        leeway: 0
+        scopes_required:
+        - identity.request
+        consumer_claim:
+        - azp
+        cache_tokens_salt: '{vault://env/kong-oidc-cache-tokens-salt}'
+    - name: post-function
+      config:
+        access:
+        - "-- Generated fail-closed authorization metadata.\nlocal operation_id = \"get_command_result_platform_v1_commands__operation_id__result_get\"\nlocal expected_azp = \"authorized-provisioning-client\"\nlocal required_scope = \"identity.request\"\n-- Strip client-asserted identity before minting trusted contract metadata;\n-- X-Consumer-* are set by openid-connect after signature verification.\nfor _, name in ipairs({\"X-User-ID\", \"X-Username\", \"X-Email\", \"X-Roles\", \"X-Scopes\", \"X-Authenticated-UserID\", \"X-Authenticated-User\", \"X-Authenticated-Client\", \"X-Authenticated-Subject\", \"X-Authenticated-Tenant\", \"X-Authenticated-Campaign\", \"X-Authenticated-Role\", \"X-Authenticated-Email\", \"X-Codestra-Tenant\", \"X-Codestra-Scopes\", \"X-Codestra-Gateway-Secret\", \"X-Internal-Service\", \"X-Admin\", \"X-Codestra-Contract-Operation\", \"X-Codestra-Expected-Azp\", \"X-Codestra-Required-Scope\"}) do\n  kong.service.request.clear_header(name)\nend\n-- OIDC has verified\
+          \ the token and mapped its azp to a Kong consumer.\nlocal allowed_azps = {}\nlocal consumer = kong.client.get_consumer()\nlocal matched = false\nif consumer and type(consumer.username) == 'string' then\n  for _, azp in ipairs(allowed_azps) do\n    if consumer.username == azp then matched = true break end\n  end\nend\nif not matched then return kong.response.exit(403, {error='unauthorized_caller'}) end\nkong.service.request.set_header('X-Codestra-Contract-Operation', operation_id)\nkong.service.request.set_header('X-Codestra-Expected-Azp', expected_azp)\nkong.service.request.set_header('X-Codestra-Required-Scope', required_scope)\n-- openid-connect validates issuer/audience/scope; Middleware re-authorizes\n-- symbolic client-family selectors and tenant/resource ownership."
+    - name: correlation-id
+      config:
+        header_name: X-Correlation-ID
+        generator: uuid
+        echo_downstream: true
+    - name: rate-limiting
+      config:
+        minute: 120
+        second: 10
+        error_code: 429
+        error_message: rate_limit_exceeded
+        policy: redis
+        fault_tolerant: false
+        hide_client_headers: false
+        redis:
+          host: codestra-redis
+          port: 6379
+          database: 0
+          timeout: 2000
+          password: '{vault://env/kong-rate-limit-redis-password}'
+    - name: request-size-limiting
+      config:
+        allowed_payload_size: 2
+  - name: middleware-retry-command-platform-v1-commands--operation-id--retry-post
+    hosts:
+    - api.codestra.co
+    paths:
+    - ~/platform/v1/commands/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/retry$
+    regex_priority: 4
+    methods:
+    - POST
+    protocols:
+    - http
+    strip_path: false
+    preserve_host: true
+    path_handling: v0
+    tags:
+    - codestra.classification.shared_edge
+    - codestra.operation.middleware-retry-command-platform-v1-commands--operation-id--retry-post
+    plugins:
+    - name: codestra-private-surface
+      config:
+        allow_private: false
+    - name: codestra-resource-guard
+      config:
+        route_key: middleware-retry-command-platform-v1-commands--operation-id--retry-post
+        concurrency_limit_per_worker: 32
+        tenant_quota_per_minute: 0
+    - name: codestra-request-context
+      config:
+        require_correlation_id: false
+    - name: pre-function
+      config:
+        access:
+        - "-- Clear client-supplied identity before openid-connect runs.\nfor _, name in ipairs({\"X-User-ID\", \"X-Username\", \"X-Email\", \"X-Roles\", \"X-Scopes\", \"X-Authenticated-UserID\", \"X-Authenticated-User\", \"X-Authenticated-Client\", \"X-Authenticated-Subject\", \"X-Authenticated-Tenant\", \"X-Authenticated-Campaign\", \"X-Authenticated-Role\", \"X-Authenticated-Email\", \"X-Codestra-Tenant\", \"X-Codestra-Scopes\", \"X-Codestra-Gateway-Secret\", \"X-Internal-Service\", \"X-Admin\", \"X-Codestra-Contract-Operation\", \"X-Codestra-Expected-Azp\", \"X-Codestra-Required-Scope\", \"X-Consumer-ID\", \"X-Consumer-Username\", \"X-Credential-Identifier\", \"X-Anonymous-Consumer\"}) do\n  kong.service.request.clear_header(name)\nend"
+    - name: openid-connect
+      config:
+        issuer: https://auth-staging.codestra.co/realms/codestra/.well-known/openid-configuration
+        auth_methods:
+        - bearer
+        audience:
+        - middleware-api
+        audience_required:
+        - middleware-api
+        issuers_allowed:
+        - https://auth-staging.codestra.co/realms/codestra
+        bearer_token_param_type:
+        - header
+        verify_signature: true
+        verify_claims: true
+        ssl_verify: true
+        consumer_by:
+        - username
+        consumer_optional: false
+        cache_ttl: 300
+        cache_ttl_max: 300
+        rediscovery_lifetime: 30
+        leeway: 0
+        scopes_required:
+        - identity.request
+        consumer_claim:
+        - azp
+        cache_tokens_salt: '{vault://env/kong-oidc-cache-tokens-salt}'
+    - name: post-function
+      config:
+        access:
+        - "-- Generated fail-closed authorization metadata.\nlocal operation_id = \"retry_command_platform_v1_commands__operation_id__retry_post\"\nlocal expected_azp = \"authorized-provisioning-client\"\nlocal required_scope = \"identity.request\"\n-- Strip client-asserted identity before minting trusted contract metadata;\n-- X-Consumer-* are set by openid-connect after signature verification.\nfor _, name in ipairs({\"X-User-ID\", \"X-Username\", \"X-Email\", \"X-Roles\", \"X-Scopes\", \"X-Authenticated-UserID\", \"X-Authenticated-User\", \"X-Authenticated-Client\", \"X-Authenticated-Subject\", \"X-Authenticated-Tenant\", \"X-Authenticated-Campaign\", \"X-Authenticated-Role\", \"X-Authenticated-Email\", \"X-Codestra-Tenant\", \"X-Codestra-Scopes\", \"X-Codestra-Gateway-Secret\", \"X-Internal-Service\", \"X-Admin\", \"X-Codestra-Contract-Operation\", \"X-Codestra-Expected-Azp\", \"X-Codestra-Required-Scope\"}) do\n  kong.service.request.clear_header(name)\nend\n-- OIDC has verified the\
+          \ token and mapped its azp to a Kong consumer.\nlocal allowed_azps = {}\nlocal consumer = kong.client.get_consumer()\nlocal matched = false\nif consumer and type(consumer.username) == 'string' then\n  for _, azp in ipairs(allowed_azps) do\n    if consumer.username == azp then matched = true break end\n  end\nend\nif not matched then return kong.response.exit(403, {error='unauthorized_caller'}) end\nkong.service.request.set_header('X-Codestra-Contract-Operation', operation_id)\nkong.service.request.set_header('X-Codestra-Expected-Azp', expected_azp)\nkong.service.request.set_header('X-Codestra-Required-Scope', required_scope)\n-- openid-connect validates issuer/audience/scope; Middleware re-authorizes\n-- symbolic client-family selectors and tenant/resource ownership."
+    - name: correlation-id
+      config:
+        header_name: X-Correlation-ID
+        generator: uuid
+        echo_downstream: true
+    - name: rate-limiting
+      config:
+        minute: 120
+        second: 10
+        error_code: 429
+        error_message: rate_limit_exceeded
+        policy: redis
+        fault_tolerant: false
+        hide_client_headers: false
+        redis:
+          host: codestra-redis
+          port: 6379
+          database: 0
+          timeout: 2000
+          password: '{vault://env/kong-rate-limit-redis-password}'
+    - name: request-size-limiting
+      config:
+        allowed_payload_size: 2
+  - name: middleware-connectors-catalog-platform-v1-connectors-get
+    hosts:
+    - api.codestra.co
+    paths:
+    - ~/platform/v1/connectors$
+    regex_priority: 3
+    methods:
+    - GET
+    protocols:
+    - http
+    strip_path: false
+    preserve_host: true
+    path_handling: v0
+    tags:
+    - codestra.classification.shared_edge
+    - codestra.operation.middleware-connectors-catalog-platform-v1-connectors-get
+    plugins:
+    - name: codestra-private-surface
+      config:
+        allow_private: false
+    - name: codestra-resource-guard
+      config:
+        route_key: middleware-connectors-catalog-platform-v1-connectors-get
+        concurrency_limit_per_worker: 32
+        tenant_quota_per_minute: 0
+    - name: codestra-request-context
+      config:
+        require_correlation_id: false
+    - name: pre-function
+      config:
+        access:
+        - "-- Clear client-supplied identity before openid-connect runs.\nfor _, name in ipairs({\"X-User-ID\", \"X-Username\", \"X-Email\", \"X-Roles\", \"X-Scopes\", \"X-Authenticated-UserID\", \"X-Authenticated-User\", \"X-Authenticated-Client\", \"X-Authenticated-Subject\", \"X-Authenticated-Tenant\", \"X-Authenticated-Campaign\", \"X-Authenticated-Role\", \"X-Authenticated-Email\", \"X-Codestra-Tenant\", \"X-Codestra-Scopes\", \"X-Codestra-Gateway-Secret\", \"X-Internal-Service\", \"X-Admin\", \"X-Codestra-Contract-Operation\", \"X-Codestra-Expected-Azp\", \"X-Codestra-Required-Scope\", \"X-Consumer-ID\", \"X-Consumer-Username\", \"X-Credential-Identifier\", \"X-Anonymous-Consumer\"}) do\n  kong.service.request.clear_header(name)\nend"
+    - name: openid-connect
+      config:
+        issuer: https://auth-staging.codestra.co/realms/codestra/.well-known/openid-configuration
+        auth_methods:
+        - bearer
+        audience:
+        - middleware-api
+        audience_required:
+        - middleware-api
+        issuers_allowed:
+        - https://auth-staging.codestra.co/realms/codestra
+        bearer_token_param_type:
+        - header
+        verify_signature: true
+        verify_claims: true
+        ssl_verify: true
+        consumer_by:
+        - username
+        consumer_optional: false
+        cache_ttl: 300
+        cache_ttl_max: 300
+        rediscovery_lifetime: 30
+        leeway: 0
+        scopes_required:
+        - identity.request
+        consumer_claim:
+        - azp
+        cache_tokens_salt: '{vault://env/kong-oidc-cache-tokens-salt}'
+    - name: post-function
+      config:
+        access:
+        - "-- Generated fail-closed authorization metadata.\nlocal operation_id = \"connectors_catalog_platform_v1_connectors_get\"\nlocal expected_azp = \"authorized-provisioning-client\"\nlocal required_scope = \"identity.request\"\n-- Strip client-asserted identity before minting trusted contract metadata;\n-- X-Consumer-* are set by openid-connect after signature verification.\nfor _, name in ipairs({\"X-User-ID\", \"X-Username\", \"X-Email\", \"X-Roles\", \"X-Scopes\", \"X-Authenticated-UserID\", \"X-Authenticated-User\", \"X-Authenticated-Client\", \"X-Authenticated-Subject\", \"X-Authenticated-Tenant\", \"X-Authenticated-Campaign\", \"X-Authenticated-Role\", \"X-Authenticated-Email\", \"X-Codestra-Tenant\", \"X-Codestra-Scopes\", \"X-Codestra-Gateway-Secret\", \"X-Internal-Service\", \"X-Admin\", \"X-Codestra-Contract-Operation\", \"X-Codestra-Expected-Azp\", \"X-Codestra-Required-Scope\"}) do\n  kong.service.request.clear_header(name)\nend\n-- OIDC has verified the token and mapped\
+          \ its azp to a Kong consumer.\nlocal allowed_azps = {}\nlocal consumer = kong.client.get_consumer()\nlocal matched = false\nif consumer and type(consumer.username) == 'string' then\n  for _, azp in ipairs(allowed_azps) do\n    if consumer.username == azp then matched = true break end\n  end\nend\nif not matched then return kong.response.exit(403, {error='unauthorized_caller'}) end\nkong.service.request.set_header('X-Codestra-Contract-Operation', operation_id)\nkong.service.request.set_header('X-Codestra-Expected-Azp', expected_azp)\nkong.service.request.set_header('X-Codestra-Required-Scope', required_scope)\n-- openid-connect validates issuer/audience/scope; Middleware re-authorizes\n-- symbolic client-family selectors and tenant/resource ownership."
+    - name: correlation-id
+      config:
+        header_name: X-Correlation-ID
+        generator: uuid
+        echo_downstream: true
+    - name: rate-limiting
+      config:
+        minute: 120
+        second: 10
+        error_code: 429
+        error_message: rate_limit_exceeded
+        policy: redis
+        fault_tolerant: false
+        hide_client_headers: false
+        redis:
+          host: codestra-redis
+          port: 6379
+          database: 0
+          timeout: 2000
+          password: '{vault://env/kong-rate-limit-redis-password}'
+    - name: request-size-limiting
+      config:
+        allowed_payload_size: 2
+  - name: middleware-connector-catalog-item-platform-v1-connectors--connector-id--get
+    hosts:
+    - api.codestra.co
+    paths:
+    - ~/platform/v1/connectors/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
+    regex_priority: 3
+    methods:
+    - GET
+    protocols:
+    - http
+    strip_path: false
+    preserve_host: true
+    path_handling: v0
+    tags:
+    - codestra.classification.shared_edge
+    - codestra.operation.middleware-connector-catalog-item-platform-v1-connectors--connector-id--get
+    plugins:
+    - name: codestra-private-surface
+      config:
+        allow_private: false
+    - name: codestra-resource-guard
+      config:
+        route_key: middleware-connector-catalog-item-platform-v1-connectors--connector-id--get
+        concurrency_limit_per_worker: 32
+        tenant_quota_per_minute: 0
+    - name: codestra-request-context
+      config:
+        require_correlation_id: false
+    - name: pre-function
+      config:
+        access:
+        - "-- Clear client-supplied identity before openid-connect runs.\nfor _, name in ipairs({\"X-User-ID\", \"X-Username\", \"X-Email\", \"X-Roles\", \"X-Scopes\", \"X-Authenticated-UserID\", \"X-Authenticated-User\", \"X-Authenticated-Client\", \"X-Authenticated-Subject\", \"X-Authenticated-Tenant\", \"X-Authenticated-Campaign\", \"X-Authenticated-Role\", \"X-Authenticated-Email\", \"X-Codestra-Tenant\", \"X-Codestra-Scopes\", \"X-Codestra-Gateway-Secret\", \"X-Internal-Service\", \"X-Admin\", \"X-Codestra-Contract-Operation\", \"X-Codestra-Expected-Azp\", \"X-Codestra-Required-Scope\", \"X-Consumer-ID\", \"X-Consumer-Username\", \"X-Credential-Identifier\", \"X-Anonymous-Consumer\"}) do\n  kong.service.request.clear_header(name)\nend"
+    - name: openid-connect
+      config:
+        issuer: https://auth-staging.codestra.co/realms/codestra/.well-known/openid-configuration
+        auth_methods:
+        - bearer
+        audience:
+        - middleware-api
+        audience_required:
+        - middleware-api
+        issuers_allowed:
+        - https://auth-staging.codestra.co/realms/codestra
+        bearer_token_param_type:
+        - header
+        verify_signature: true
+        verify_claims: true
+        ssl_verify: true
+        consumer_by:
+        - username
+        consumer_optional: false
+        cache_ttl: 300
+        cache_ttl_max: 300
+        rediscovery_lifetime: 30
+        leeway: 0
+        scopes_required:
+        - identity.request
+        consumer_claim:
+        - azp
+        cache_tokens_salt: '{vault://env/kong-oidc-cache-tokens-salt}'
+    - name: post-function
+      config:
+        access:
+        - "-- Generated fail-closed authorization metadata.\nlocal operation_id = \"connector_catalog_item_platform_v1_connectors__connector_id__get\"\nlocal expected_azp = \"authorized-provisioning-client\"\nlocal required_scope = \"identity.request\"\n-- Strip client-asserted identity before minting trusted contract metadata;\n-- X-Consumer-* are set by openid-connect after signature verification.\nfor _, name in ipairs({\"X-User-ID\", \"X-Username\", \"X-Email\", \"X-Roles\", \"X-Scopes\", \"X-Authenticated-UserID\", \"X-Authenticated-User\", \"X-Authenticated-Client\", \"X-Authenticated-Subject\", \"X-Authenticated-Tenant\", \"X-Authenticated-Campaign\", \"X-Authenticated-Role\", \"X-Authenticated-Email\", \"X-Codestra-Tenant\", \"X-Codestra-Scopes\", \"X-Codestra-Gateway-Secret\", \"X-Internal-Service\", \"X-Admin\", \"X-Codestra-Contract-Operation\", \"X-Codestra-Expected-Azp\", \"X-Codestra-Required-Scope\"}) do\n  kong.service.request.clear_header(name)\nend\n-- OIDC has verified\
+          \ the token and mapped its azp to a Kong consumer.\nlocal allowed_azps = {}\nlocal consumer = kong.client.get_consumer()\nlocal matched = false\nif consumer and type(consumer.username) == 'string' then\n  for _, azp in ipairs(allowed_azps) do\n    if consumer.username == azp then matched = true break end\n  end\nend\nif not matched then return kong.response.exit(403, {error='unauthorized_caller'}) end\nkong.service.request.set_header('X-Codestra-Contract-Operation', operation_id)\nkong.service.request.set_header('X-Codestra-Expected-Azp', expected_azp)\nkong.service.request.set_header('X-Codestra-Required-Scope', required_scope)\n-- openid-connect validates issuer/audience/scope; Middleware re-authorizes\n-- symbolic client-family selectors and tenant/resource ownership."
+    - name: correlation-id
+      config:
+        header_name: X-Correlation-ID
+        generator: uuid
+        echo_downstream: true
+    - name: rate-limiting
+      config:
+        minute: 120
+        second: 10
+        error_code: 429
+        error_message: rate_limit_exceeded
+        policy: redis
+        fault_tolerant: false
+        hide_client_headers: false
+        redis:
+          host: codestra-redis
+          port: 6379
+          database: 0
+          timeout: 2000
+          password: '{vault://env/kong-rate-limit-redis-password}'
+    - name: request-size-limiting
+      config:
+        allowed_payload_size: 2
+  - name: middleware-connector-capabilities-platform-v1-connectors--connector-id--capabilities-get
+    hosts:
+    - api.codestra.co
+    paths:
+    - ~/platform/v1/connectors/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/capabilities$
+    regex_priority: 4
+    methods:
+    - GET
+    protocols:
+    - http
+    strip_path: false
+    preserve_host: true
+    path_handling: v0
+    tags:
+    - codestra.classification.shared_edge
+    - codestra.operation.middleware-connector-capabilities-platform-v1-connectors--connector-id--capabilities-get
+    plugins:
+    - name: codestra-private-surface
+      config:
+        allow_private: false
+    - name: codestra-resource-guard
+      config:
+        route_key: middleware-connector-capabilities-platform-v1-connectors--connector-id--capabilities-get
+        concurrency_limit_per_worker: 32
+        tenant_quota_per_minute: 0
+    - name: codestra-request-context
+      config:
+        require_correlation_id: false
+    - name: pre-function
+      config:
+        access:
+        - "-- Clear client-supplied identity before openid-connect runs.\nfor _, name in ipairs({\"X-User-ID\", \"X-Username\", \"X-Email\", \"X-Roles\", \"X-Scopes\", \"X-Authenticated-UserID\", \"X-Authenticated-User\", \"X-Authenticated-Client\", \"X-Authenticated-Subject\", \"X-Authenticated-Tenant\", \"X-Authenticated-Campaign\", \"X-Authenticated-Role\", \"X-Authenticated-Email\", \"X-Codestra-Tenant\", \"X-Codestra-Scopes\", \"X-Codestra-Gateway-Secret\", \"X-Internal-Service\", \"X-Admin\", \"X-Codestra-Contract-Operation\", \"X-Codestra-Expected-Azp\", \"X-Codestra-Required-Scope\", \"X-Consumer-ID\", \"X-Consumer-Username\", \"X-Credential-Identifier\", \"X-Anonymous-Consumer\"}) do\n  kong.service.request.clear_header(name)\nend"
+    - name: openid-connect
+      config:
+        issuer: https://auth-staging.codestra.co/realms/codestra/.well-known/openid-configuration
+        auth_methods:
+        - bearer
+        audience:
+        - middleware-api
+        audience_required:
+        - middleware-api
+        issuers_allowed:
+        - https://auth-staging.codestra.co/realms/codestra
+        bearer_token_param_type:
+        - header
+        verify_signature: true
+        verify_claims: true
+        ssl_verify: true
+        consumer_by:
+        - username
+        consumer_optional: false
+        cache_ttl: 300
+        cache_ttl_max: 300
+        rediscovery_lifetime: 30
+        leeway: 0
+        scopes_required:
+        - identity.request
+        consumer_claim:
+        - azp
+        cache_tokens_salt: '{vault://env/kong-oidc-cache-tokens-salt}'
+    - name: post-function
+      config:
+        access:
+        - "-- Generated fail-closed authorization metadata.\nlocal operation_id = \"connector_capabilities_platform_v1_connectors__connector_id__capabilities_get\"\nlocal expected_azp = \"authorized-provisioning-client\"\nlocal required_scope = \"identity.request\"\n-- Strip client-asserted identity before minting trusted contract metadata;\n-- X-Consumer-* are set by openid-connect after signature verification.\nfor _, name in ipairs({\"X-User-ID\", \"X-Username\", \"X-Email\", \"X-Roles\", \"X-Scopes\", \"X-Authenticated-UserID\", \"X-Authenticated-User\", \"X-Authenticated-Client\", \"X-Authenticated-Subject\", \"X-Authenticated-Tenant\", \"X-Authenticated-Campaign\", \"X-Authenticated-Role\", \"X-Authenticated-Email\", \"X-Codestra-Tenant\", \"X-Codestra-Scopes\", \"X-Codestra-Gateway-Secret\", \"X-Internal-Service\", \"X-Admin\", \"X-Codestra-Contract-Operation\", \"X-Codestra-Expected-Azp\", \"X-Codestra-Required-Scope\"}) do\n  kong.service.request.clear_header(name)\nend\n-- OIDC\
+          \ has verified the token and mapped its azp to a Kong consumer.\nlocal allowed_azps = {}\nlocal consumer = kong.client.get_consumer()\nlocal matched = false\nif consumer and type(consumer.username) == 'string' then\n  for _, azp in ipairs(allowed_azps) do\n    if consumer.username == azp then matched = true break end\n  end\nend\nif not matched then return kong.response.exit(403, {error='unauthorized_caller'}) end\nkong.service.request.set_header('X-Codestra-Contract-Operation', operation_id)\nkong.service.request.set_header('X-Codestra-Expected-Azp', expected_azp)\nkong.service.request.set_header('X-Codestra-Required-Scope', required_scope)\n-- openid-connect validates issuer/audience/scope; Middleware re-authorizes\n-- symbolic client-family selectors and tenant/resource ownership."
+    - name: correlation-id
+      config:
+        header_name: X-Correlation-ID
+        generator: uuid
+        echo_downstream: true
+    - name: rate-limiting
+      config:
+        minute: 120
+        second: 10
+        error_code: 429
+        error_message: rate_limit_exceeded
+        policy: redis
+        fault_tolerant: false
+        hide_client_headers: false
+        redis:
+          host: codestra-redis
+          port: 6379
+          database: 0
+          timeout: 2000
+          password: '{vault://env/kong-rate-limit-redis-password}'
+    - name: request-size-limiting
+      config:
+        allowed_payload_size: 2
+  - name: middleware-connector-health-platform-v1-connectors--connector-id--health-get
+    hosts:
+    - api.codestra.co
+    paths:
+    - ~/platform/v1/connectors/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/health$
+    regex_priority: 4
+    methods:
+    - GET
+    protocols:
+    - http
+    strip_path: false
+    preserve_host: true
+    path_handling: v0
+    tags:
+    - codestra.classification.shared_edge
+    - codestra.operation.middleware-connector-health-platform-v1-connectors--connector-id--health-get
+    plugins:
+    - name: codestra-private-surface
+      config:
+        allow_private: false
+    - name: codestra-resource-guard
+      config:
+        route_key: middleware-connector-health-platform-v1-connectors--connector-id--health-get
+        concurrency_limit_per_worker: 32
+        tenant_quota_per_minute: 0
+    - name: codestra-request-context
+      config:
+        require_correlation_id: false
+    - name: pre-function
+      config:
+        access:
+        - "-- Clear client-supplied identity before openid-connect runs.\nfor _, name in ipairs({\"X-User-ID\", \"X-Username\", \"X-Email\", \"X-Roles\", \"X-Scopes\", \"X-Authenticated-UserID\", \"X-Authenticated-User\", \"X-Authenticated-Client\", \"X-Authenticated-Subject\", \"X-Authenticated-Tenant\", \"X-Authenticated-Campaign\", \"X-Authenticated-Role\", \"X-Authenticated-Email\", \"X-Codestra-Tenant\", \"X-Codestra-Scopes\", \"X-Codestra-Gateway-Secret\", \"X-Internal-Service\", \"X-Admin\", \"X-Codestra-Contract-Operation\", \"X-Codestra-Expected-Azp\", \"X-Codestra-Required-Scope\", \"X-Consumer-ID\", \"X-Consumer-Username\", \"X-Credential-Identifier\", \"X-Anonymous-Consumer\"}) do\n  kong.service.request.clear_header(name)\nend"
+    - name: openid-connect
+      config:
+        issuer: https://auth-staging.codestra.co/realms/codestra/.well-known/openid-configuration
+        auth_methods:
+        - bearer
+        audience:
+        - middleware-api
+        audience_required:
+        - middleware-api
+        issuers_allowed:
+        - https://auth-staging.codestra.co/realms/codestra
+        bearer_token_param_type:
+        - header
+        verify_signature: true
+        verify_claims: true
+        ssl_verify: true
+        consumer_by:
+        - username
+        consumer_optional: false
+        cache_ttl: 300
+        cache_ttl_max: 300
+        rediscovery_lifetime: 30
+        leeway: 0
+        scopes_required:
+        - identity.request
+        consumer_claim:
+        - azp
+        cache_tokens_salt: '{vault://env/kong-oidc-cache-tokens-salt}'
+    - name: post-function
+      config:
+        access:
+        - "-- Generated fail-closed authorization metadata.\nlocal operation_id = \"connector_health_platform_v1_connectors__connector_id__health_get\"\nlocal expected_azp = \"authorized-provisioning-client\"\nlocal required_scope = \"identity.request\"\n-- Strip client-asserted identity before minting trusted contract metadata;\n-- X-Consumer-* are set by openid-connect after signature verification.\nfor _, name in ipairs({\"X-User-ID\", \"X-Username\", \"X-Email\", \"X-Roles\", \"X-Scopes\", \"X-Authenticated-UserID\", \"X-Authenticated-User\", \"X-Authenticated-Client\", \"X-Authenticated-Subject\", \"X-Authenticated-Tenant\", \"X-Authenticated-Campaign\", \"X-Authenticated-Role\", \"X-Authenticated-Email\", \"X-Codestra-Tenant\", \"X-Codestra-Scopes\", \"X-Codestra-Gateway-Secret\", \"X-Internal-Service\", \"X-Admin\", \"X-Codestra-Contract-Operation\", \"X-Codestra-Expected-Azp\", \"X-Codestra-Required-Scope\"}) do\n  kong.service.request.clear_header(name)\nend\n-- OIDC has verified\
+          \ the token and mapped its azp to a Kong consumer.\nlocal allowed_azps = {}\nlocal consumer = kong.client.get_consumer()\nlocal matched = false\nif consumer and type(consumer.username) == 'string' then\n  for _, azp in ipairs(allowed_azps) do\n    if consumer.username == azp then matched = true break end\n  end\nend\nif not matched then return kong.response.exit(403, {error='unauthorized_caller'}) end\nkong.service.request.set_header('X-Codestra-Contract-Operation', operation_id)\nkong.service.request.set_header('X-Codestra-Expected-Azp', expected_azp)\nkong.service.request.set_header('X-Codestra-Required-Scope', required_scope)\n-- openid-connect validates issuer/audience/scope; Middleware re-authorizes\n-- symbolic client-family selectors and tenant/resource ownership."
+    - name: correlation-id
+      config:
+        header_name: X-Correlation-ID
+        generator: uuid
+        echo_downstream: true
+    - name: rate-limiting
+      config:
+        minute: 120
+        second: 10
+        error_code: 429
+        error_message: rate_limit_exceeded
+        policy: redis
+        fault_tolerant: false
+        hide_client_headers: false
+        redis:
+          host: codestra-redis
+          port: 6379
+          database: 0
+          timeout: 2000
+          password: '{vault://env/kong-rate-limit-redis-password}'
+    - name: request-size-limiting
+      config:
+        allowed_payload_size: 2
+  - name: middleware-connector-operator-readback-platform-v1-connectors--connector-id--readback-post
+    hosts:
+    - api.codestra.co
+    paths:
+    - ~/platform/v1/connectors/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/readback$
+    regex_priority: 4
+    methods:
+    - POST
+    protocols:
+    - http
+    strip_path: false
+    preserve_host: true
+    path_handling: v0
+    tags:
+    - codestra.classification.shared_edge
+    - codestra.operation.middleware-connector-operator-readback-platform-v1-connectors--connector-id--readback-post
+    plugins:
+    - name: codestra-private-surface
+      config:
+        allow_private: false
+    - name: codestra-resource-guard
+      config:
+        route_key: middleware-connector-operator-readback-platform-v1-connectors--connector-id--readback-post
+        concurrency_limit_per_worker: 32
+        tenant_quota_per_minute: 0
+    - name: codestra-request-context
+      config:
+        require_correlation_id: false
+    - name: pre-function
+      config:
+        access:
+        - "-- Clear client-supplied identity before openid-connect runs.\nfor _, name in ipairs({\"X-User-ID\", \"X-Username\", \"X-Email\", \"X-Roles\", \"X-Scopes\", \"X-Authenticated-UserID\", \"X-Authenticated-User\", \"X-Authenticated-Client\", \"X-Authenticated-Subject\", \"X-Authenticated-Tenant\", \"X-Authenticated-Campaign\", \"X-Authenticated-Role\", \"X-Authenticated-Email\", \"X-Codestra-Tenant\", \"X-Codestra-Scopes\", \"X-Codestra-Gateway-Secret\", \"X-Internal-Service\", \"X-Admin\", \"X-Codestra-Contract-Operation\", \"X-Codestra-Expected-Azp\", \"X-Codestra-Required-Scope\", \"X-Consumer-ID\", \"X-Consumer-Username\", \"X-Credential-Identifier\", \"X-Anonymous-Consumer\"}) do\n  kong.service.request.clear_header(name)\nend"
+    - name: openid-connect
+      config:
+        issuer: https://auth-staging.codestra.co/realms/codestra/.well-known/openid-configuration
+        auth_methods:
+        - bearer
+        audience:
+        - middleware-api
+        audience_required:
+        - middleware-api
+        issuers_allowed:
+        - https://auth-staging.codestra.co/realms/codestra
+        bearer_token_param_type:
+        - header
+        verify_signature: true
+        verify_claims: true
+        ssl_verify: true
+        consumer_by:
+        - username
+        consumer_optional: false
+        cache_ttl: 300
+        cache_ttl_max: 300
+        rediscovery_lifetime: 30
+        leeway: 0
+        scopes_required:
+        - identity.request
+        consumer_claim:
+        - azp
+        cache_tokens_salt: '{vault://env/kong-oidc-cache-tokens-salt}'
+    - name: post-function
+      config:
+        access:
+        - "-- Generated fail-closed authorization metadata.\nlocal operation_id = \"connector_operator_readback_platform_v1_connectors__connector_id__readback_post\"\nlocal expected_azp = \"authorized-provisioning-client\"\nlocal required_scope = \"identity.request\"\n-- Strip client-asserted identity before minting trusted contract metadata;\n-- X-Consumer-* are set by openid-connect after signature verification.\nfor _, name in ipairs({\"X-User-ID\", \"X-Username\", \"X-Email\", \"X-Roles\", \"X-Scopes\", \"X-Authenticated-UserID\", \"X-Authenticated-User\", \"X-Authenticated-Client\", \"X-Authenticated-Subject\", \"X-Authenticated-Tenant\", \"X-Authenticated-Campaign\", \"X-Authenticated-Role\", \"X-Authenticated-Email\", \"X-Codestra-Tenant\", \"X-Codestra-Scopes\", \"X-Codestra-Gateway-Secret\", \"X-Internal-Service\", \"X-Admin\", \"X-Codestra-Contract-Operation\", \"X-Codestra-Expected-Azp\", \"X-Codestra-Required-Scope\"}) do\n  kong.service.request.clear_header(name)\nend\n-- OIDC\
+          \ has verified the token and mapped its azp to a Kong consumer.\nlocal allowed_azps = {}\nlocal consumer = kong.client.get_consumer()\nlocal matched = false\nif consumer and type(consumer.username) == 'string' then\n  for _, azp in ipairs(allowed_azps) do\n    if consumer.username == azp then matched = true break end\n  end\nend\nif not matched then return kong.response.exit(403, {error='unauthorized_caller'}) end\nkong.service.request.set_header('X-Codestra-Contract-Operation', operation_id)\nkong.service.request.set_header('X-Codestra-Expected-Azp', expected_azp)\nkong.service.request.set_header('X-Codestra-Required-Scope', required_scope)\n-- openid-connect validates issuer/audience/scope; Middleware re-authorizes\n-- symbolic client-family selectors and tenant/resource ownership."
+    - name: correlation-id
+      config:
+        header_name: X-Correlation-ID
+        generator: uuid
+        echo_downstream: true
+    - name: rate-limiting
+      config:
+        minute: 120
+        second: 10
+        error_code: 429
+        error_message: rate_limit_exceeded
+        policy: redis
+        fault_tolerant: false
+        hide_client_headers: false
+        redis:
+          host: codestra-redis
+          port: 6379
+          database: 0
+          timeout: 2000
+          password: '{vault://env/kong-rate-limit-redis-password}'
+    - name: request-size-limiting
+      config:
+        allowed_payload_size: 2
+  - name: middleware-connector-operator-reconcile-platform-v1-connectors--connector-id--reconcile-post
+    hosts:
+    - api.codestra.co
+    paths:
+    - ~/platform/v1/connectors/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/reconcile$
+    regex_priority: 4
+    methods:
+    - POST
+    protocols:
+    - http
+    strip_path: false
+    preserve_host: true
+    path_handling: v0
+    tags:
+    - codestra.classification.shared_edge
+    - codestra.operation.middleware-connector-operator-reconcile-platform-v1-connectors--connector-id--reconcile-post
+    plugins:
+    - name: codestra-private-surface
+      config:
+        allow_private: false
+    - name: codestra-resource-guard
+      config:
+        route_key: middleware-connector-operator-reconcile-platform-v1-connectors--connector-id--reconcile-post
+        concurrency_limit_per_worker: 32
+        tenant_quota_per_minute: 0
+    - name: codestra-request-context
+      config:
+        require_correlation_id: false
+    - name: pre-function
+      config:
+        access:
+        - "-- Clear client-supplied identity before openid-connect runs.\nfor _, name in ipairs({\"X-User-ID\", \"X-Username\", \"X-Email\", \"X-Roles\", \"X-Scopes\", \"X-Authenticated-UserID\", \"X-Authenticated-User\", \"X-Authenticated-Client\", \"X-Authenticated-Subject\", \"X-Authenticated-Tenant\", \"X-Authenticated-Campaign\", \"X-Authenticated-Role\", \"X-Authenticated-Email\", \"X-Codestra-Tenant\", \"X-Codestra-Scopes\", \"X-Codestra-Gateway-Secret\", \"X-Internal-Service\", \"X-Admin\", \"X-Codestra-Contract-Operation\", \"X-Codestra-Expected-Azp\", \"X-Codestra-Required-Scope\", \"X-Consumer-ID\", \"X-Consumer-Username\", \"X-Credential-Identifier\", \"X-Anonymous-Consumer\"}) do\n  kong.service.request.clear_header(name)\nend"
+    - name: openid-connect
+      config:
+        issuer: https://auth-staging.codestra.co/realms/codestra/.well-known/openid-configuration
+        auth_methods:
+        - bearer
+        audience:
+        - middleware-api
+        audience_required:
+        - middleware-api
+        issuers_allowed:
+        - https://auth-staging.codestra.co/realms/codestra
+        bearer_token_param_type:
+        - header
+        verify_signature: true
+        verify_claims: true
+        ssl_verify: true
+        consumer_by:
+        - username
+        consumer_optional: false
+        cache_ttl: 300
+        cache_ttl_max: 300
+        rediscovery_lifetime: 30
+        leeway: 0
+        scopes_required:
+        - identity.request
+        consumer_claim:
+        - azp
+        cache_tokens_salt: '{vault://env/kong-oidc-cache-tokens-salt}'
+    - name: post-function
+      config:
+        access:
+        - "-- Generated fail-closed authorization metadata.\nlocal operation_id = \"connector_operator_reconcile_platform_v1_connectors__connector_id__reconcile_post\"\nlocal expected_azp = \"authorized-provisioning-client\"\nlocal required_scope = \"identity.request\"\n-- Strip client-asserted identity before minting trusted contract metadata;\n-- X-Consumer-* are set by openid-connect after signature verification.\nfor _, name in ipairs({\"X-User-ID\", \"X-Username\", \"X-Email\", \"X-Roles\", \"X-Scopes\", \"X-Authenticated-UserID\", \"X-Authenticated-User\", \"X-Authenticated-Client\", \"X-Authenticated-Subject\", \"X-Authenticated-Tenant\", \"X-Authenticated-Campaign\", \"X-Authenticated-Role\", \"X-Authenticated-Email\", \"X-Codestra-Tenant\", \"X-Codestra-Scopes\", \"X-Codestra-Gateway-Secret\", \"X-Internal-Service\", \"X-Admin\", \"X-Codestra-Contract-Operation\", \"X-Codestra-Expected-Azp\", \"X-Codestra-Required-Scope\"}) do\n  kong.service.request.clear_header(name)\nend\n--\
+          \ OIDC has verified the token and mapped its azp to a Kong consumer.\nlocal allowed_azps = {}\nlocal consumer = kong.client.get_consumer()\nlocal matched = false\nif consumer and type(consumer.username) == 'string' then\n  for _, azp in ipairs(allowed_azps) do\n    if consumer.username == azp then matched = true break end\n  end\nend\nif not matched then return kong.response.exit(403, {error='unauthorized_caller'}) end\nkong.service.request.set_header('X-Codestra-Contract-Operation', operation_id)\nkong.service.request.set_header('X-Codestra-Expected-Azp', expected_azp)\nkong.service.request.set_header('X-Codestra-Required-Scope', required_scope)\n-- openid-connect validates issuer/audience/scope; Middleware re-authorizes\n-- symbolic client-family selectors and tenant/resource ownership."
+    - name: correlation-id
+      config:
+        header_name: X-Correlation-ID
+        generator: uuid
+        echo_downstream: true
+    - name: rate-limiting
+      config:
+        minute: 120
+        second: 10
+        error_code: 429
+        error_message: rate_limit_exceeded
+        policy: redis
+        fault_tolerant: false
+        hide_client_headers: false
+        redis:
+          host: codestra-redis
+          port: 6379
+          database: 0
+          timeout: 2000
+          password: '{vault://env/kong-rate-limit-redis-password}'
+    - name: request-size-limiting
+      config:
+        allowed_payload_size: 2
   - name: middleware-list-contacts-platform-v1-contacts-get
     hosts:
     - api.codestra.co
@@ -3166,6 +5102,182 @@ services:
         access:
         - "-- Generated fail-closed authorization metadata.\nlocal operation_id = \"create_task_platform_v1_contacts__contact_id__tasks_post\"\nlocal expected_azp = \"authorized-provisioning-client\"\nlocal required_scope = \"identity.request\"\n-- Strip client-asserted identity before minting trusted contract metadata;\n-- X-Consumer-* are set by openid-connect after signature verification.\nfor _, name in ipairs({\"X-User-ID\", \"X-Username\", \"X-Email\", \"X-Roles\", \"X-Scopes\", \"X-Authenticated-UserID\", \"X-Authenticated-User\", \"X-Authenticated-Client\", \"X-Authenticated-Subject\", \"X-Authenticated-Tenant\", \"X-Authenticated-Campaign\", \"X-Authenticated-Role\", \"X-Authenticated-Email\", \"X-Codestra-Tenant\", \"X-Codestra-Scopes\", \"X-Codestra-Gateway-Secret\", \"X-Internal-Service\", \"X-Admin\", \"X-Codestra-Contract-Operation\", \"X-Codestra-Expected-Azp\", \"X-Codestra-Required-Scope\"}) do\n  kong.service.request.clear_header(name)\nend\n-- OIDC has verified the token\
           \ and mapped its azp to a Kong consumer.\nlocal allowed_azps = {}\nlocal consumer = kong.client.get_consumer()\nlocal matched = false\nif consumer and type(consumer.username) == 'string' then\n  for _, azp in ipairs(allowed_azps) do\n    if consumer.username == azp then matched = true break end\n  end\nend\nif not matched then return kong.response.exit(403, {error='unauthorized_caller'}) end\nkong.service.request.set_header('X-Codestra-Contract-Operation', operation_id)\nkong.service.request.set_header('X-Codestra-Expected-Azp', expected_azp)\nkong.service.request.set_header('X-Codestra-Required-Scope', required_scope)\n-- openid-connect validates issuer/audience/scope; Middleware re-authorizes\n-- symbolic client-family selectors and tenant/resource ownership."
+    - name: correlation-id
+      config:
+        header_name: X-Correlation-ID
+        generator: uuid
+        echo_downstream: true
+    - name: rate-limiting
+      config:
+        minute: 120
+        second: 10
+        error_code: 429
+        error_message: rate_limit_exceeded
+        policy: redis
+        fault_tolerant: false
+        hide_client_headers: false
+        redis:
+          host: codestra-redis
+          port: 6379
+          database: 0
+          timeout: 2000
+          password: '{vault://env/kong-rate-limit-redis-password}'
+    - name: request-size-limiting
+      config:
+        allowed_payload_size: 2
+  - name: middleware-list-dead-letters-platform-v1-dead-letters-get
+    hosts:
+    - api.codestra.co
+    paths:
+    - ~/platform/v1/dead\-letters$
+    regex_priority: 3
+    methods:
+    - GET
+    protocols:
+    - http
+    strip_path: false
+    preserve_host: true
+    path_handling: v0
+    tags:
+    - codestra.classification.shared_edge
+    - codestra.operation.middleware-list-dead-letters-platform-v1-dead-letters-get
+    plugins:
+    - name: codestra-private-surface
+      config:
+        allow_private: false
+    - name: codestra-resource-guard
+      config:
+        route_key: middleware-list-dead-letters-platform-v1-dead-letters-get
+        concurrency_limit_per_worker: 32
+        tenant_quota_per_minute: 0
+    - name: codestra-request-context
+      config:
+        require_correlation_id: false
+    - name: pre-function
+      config:
+        access:
+        - "-- Clear client-supplied identity before openid-connect runs.\nfor _, name in ipairs({\"X-User-ID\", \"X-Username\", \"X-Email\", \"X-Roles\", \"X-Scopes\", \"X-Authenticated-UserID\", \"X-Authenticated-User\", \"X-Authenticated-Client\", \"X-Authenticated-Subject\", \"X-Authenticated-Tenant\", \"X-Authenticated-Campaign\", \"X-Authenticated-Role\", \"X-Authenticated-Email\", \"X-Codestra-Tenant\", \"X-Codestra-Scopes\", \"X-Codestra-Gateway-Secret\", \"X-Internal-Service\", \"X-Admin\", \"X-Codestra-Contract-Operation\", \"X-Codestra-Expected-Azp\", \"X-Codestra-Required-Scope\", \"X-Consumer-ID\", \"X-Consumer-Username\", \"X-Credential-Identifier\", \"X-Anonymous-Consumer\"}) do\n  kong.service.request.clear_header(name)\nend"
+    - name: openid-connect
+      config:
+        issuer: https://auth-staging.codestra.co/realms/codestra/.well-known/openid-configuration
+        auth_methods:
+        - bearer
+        audience:
+        - middleware-api
+        audience_required:
+        - middleware-api
+        issuers_allowed:
+        - https://auth-staging.codestra.co/realms/codestra
+        bearer_token_param_type:
+        - header
+        verify_signature: true
+        verify_claims: true
+        ssl_verify: true
+        consumer_by:
+        - username
+        consumer_optional: false
+        cache_ttl: 300
+        cache_ttl_max: 300
+        rediscovery_lifetime: 30
+        leeway: 0
+        scopes_required:
+        - identity.request
+        consumer_claim:
+        - azp
+        cache_tokens_salt: '{vault://env/kong-oidc-cache-tokens-salt}'
+    - name: post-function
+      config:
+        access:
+        - "-- Generated fail-closed authorization metadata.\nlocal operation_id = \"list_dead_letters_platform_v1_dead_letters_get\"\nlocal expected_azp = \"authorized-provisioning-client\"\nlocal required_scope = \"identity.request\"\n-- Strip client-asserted identity before minting trusted contract metadata;\n-- X-Consumer-* are set by openid-connect after signature verification.\nfor _, name in ipairs({\"X-User-ID\", \"X-Username\", \"X-Email\", \"X-Roles\", \"X-Scopes\", \"X-Authenticated-UserID\", \"X-Authenticated-User\", \"X-Authenticated-Client\", \"X-Authenticated-Subject\", \"X-Authenticated-Tenant\", \"X-Authenticated-Campaign\", \"X-Authenticated-Role\", \"X-Authenticated-Email\", \"X-Codestra-Tenant\", \"X-Codestra-Scopes\", \"X-Codestra-Gateway-Secret\", \"X-Internal-Service\", \"X-Admin\", \"X-Codestra-Contract-Operation\", \"X-Codestra-Expected-Azp\", \"X-Codestra-Required-Scope\"}) do\n  kong.service.request.clear_header(name)\nend\n-- OIDC has verified the token and mapped\
+          \ its azp to a Kong consumer.\nlocal allowed_azps = {}\nlocal consumer = kong.client.get_consumer()\nlocal matched = false\nif consumer and type(consumer.username) == 'string' then\n  for _, azp in ipairs(allowed_azps) do\n    if consumer.username == azp then matched = true break end\n  end\nend\nif not matched then return kong.response.exit(403, {error='unauthorized_caller'}) end\nkong.service.request.set_header('X-Codestra-Contract-Operation', operation_id)\nkong.service.request.set_header('X-Codestra-Expected-Azp', expected_azp)\nkong.service.request.set_header('X-Codestra-Required-Scope', required_scope)\n-- openid-connect validates issuer/audience/scope; Middleware re-authorizes\n-- symbolic client-family selectors and tenant/resource ownership."
+    - name: correlation-id
+      config:
+        header_name: X-Correlation-ID
+        generator: uuid
+        echo_downstream: true
+    - name: rate-limiting
+      config:
+        minute: 120
+        second: 10
+        error_code: 429
+        error_message: rate_limit_exceeded
+        policy: redis
+        fault_tolerant: false
+        hide_client_headers: false
+        redis:
+          host: codestra-redis
+          port: 6379
+          database: 0
+          timeout: 2000
+          password: '{vault://env/kong-rate-limit-redis-password}'
+    - name: request-size-limiting
+      config:
+        allowed_payload_size: 2
+  - name: middleware-get-dead-letter-platform-v1-dead-letters--operation-id--get
+    hosts:
+    - api.codestra.co
+    paths:
+    - ~/platform/v1/dead\-letters/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
+    regex_priority: 3
+    methods:
+    - GET
+    protocols:
+    - http
+    strip_path: false
+    preserve_host: true
+    path_handling: v0
+    tags:
+    - codestra.classification.shared_edge
+    - codestra.operation.middleware-get-dead-letter-platform-v1-dead-letters--operation-id--get
+    plugins:
+    - name: codestra-private-surface
+      config:
+        allow_private: false
+    - name: codestra-resource-guard
+      config:
+        route_key: middleware-get-dead-letter-platform-v1-dead-letters--operation-id--get
+        concurrency_limit_per_worker: 32
+        tenant_quota_per_minute: 0
+    - name: codestra-request-context
+      config:
+        require_correlation_id: false
+    - name: pre-function
+      config:
+        access:
+        - "-- Clear client-supplied identity before openid-connect runs.\nfor _, name in ipairs({\"X-User-ID\", \"X-Username\", \"X-Email\", \"X-Roles\", \"X-Scopes\", \"X-Authenticated-UserID\", \"X-Authenticated-User\", \"X-Authenticated-Client\", \"X-Authenticated-Subject\", \"X-Authenticated-Tenant\", \"X-Authenticated-Campaign\", \"X-Authenticated-Role\", \"X-Authenticated-Email\", \"X-Codestra-Tenant\", \"X-Codestra-Scopes\", \"X-Codestra-Gateway-Secret\", \"X-Internal-Service\", \"X-Admin\", \"X-Codestra-Contract-Operation\", \"X-Codestra-Expected-Azp\", \"X-Codestra-Required-Scope\", \"X-Consumer-ID\", \"X-Consumer-Username\", \"X-Credential-Identifier\", \"X-Anonymous-Consumer\"}) do\n  kong.service.request.clear_header(name)\nend"
+    - name: openid-connect
+      config:
+        issuer: https://auth-staging.codestra.co/realms/codestra/.well-known/openid-configuration
+        auth_methods:
+        - bearer
+        audience:
+        - middleware-api
+        audience_required:
+        - middleware-api
+        issuers_allowed:
+        - https://auth-staging.codestra.co/realms/codestra
+        bearer_token_param_type:
+        - header
+        verify_signature: true
+        verify_claims: true
+        ssl_verify: true
+        consumer_by:
+        - username
+        consumer_optional: false
+        cache_ttl: 300
+        cache_ttl_max: 300
+        rediscovery_lifetime: 30
+        leeway: 0
+        scopes_required:
+        - identity.request
+        consumer_claim:
+        - azp
+        cache_tokens_salt: '{vault://env/kong-oidc-cache-tokens-salt}'
+    - name: post-function
+      config:
+        access:
+        - "-- Generated fail-closed authorization metadata.\nlocal operation_id = \"get_dead_letter_platform_v1_dead_letters__operation_id__get\"\nlocal expected_azp = \"authorized-provisioning-client\"\nlocal required_scope = \"identity.request\"\n-- Strip client-asserted identity before minting trusted contract metadata;\n-- X-Consumer-* are set by openid-connect after signature verification.\nfor _, name in ipairs({\"X-User-ID\", \"X-Username\", \"X-Email\", \"X-Roles\", \"X-Scopes\", \"X-Authenticated-UserID\", \"X-Authenticated-User\", \"X-Authenticated-Client\", \"X-Authenticated-Subject\", \"X-Authenticated-Tenant\", \"X-Authenticated-Campaign\", \"X-Authenticated-Role\", \"X-Authenticated-Email\", \"X-Codestra-Tenant\", \"X-Codestra-Scopes\", \"X-Codestra-Gateway-Secret\", \"X-Internal-Service\", \"X-Admin\", \"X-Codestra-Contract-Operation\", \"X-Codestra-Expected-Azp\", \"X-Codestra-Required-Scope\"}) do\n  kong.service.request.clear_header(name)\nend\n-- OIDC has verified the\
+          \ token and mapped its azp to a Kong consumer.\nlocal allowed_azps = {}\nlocal consumer = kong.client.get_consumer()\nlocal matched = false\nif consumer and type(consumer.username) == 'string' then\n  for _, azp in ipairs(allowed_azps) do\n    if consumer.username == azp then matched = true break end\n  end\nend\nif not matched then return kong.response.exit(403, {error='unauthorized_caller'}) end\nkong.service.request.set_header('X-Codestra-Contract-Operation', operation_id)\nkong.service.request.set_header('X-Codestra-Expected-Azp', expected_azp)\nkong.service.request.set_header('X-Codestra-Required-Scope', required_scope)\n-- openid-connect validates issuer/audience/scope; Middleware re-authorizes\n-- symbolic client-family selectors and tenant/resource ownership."
     - name: correlation-id
       config:
         header_name: X-Correlation-ID
@@ -4691,6 +6803,94 @@ services:
     - name: request-size-limiting
       config:
         allowed_payload_size: 2
+  - name: middleware-recovery-history-platform-v1-operations--operation-id--recovery-history-get
+    hosts:
+    - api.codestra.co
+    paths:
+    - ~/platform/v1/operations/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/recovery\-history$
+    regex_priority: 4
+    methods:
+    - GET
+    protocols:
+    - http
+    strip_path: false
+    preserve_host: true
+    path_handling: v0
+    tags:
+    - codestra.classification.shared_edge
+    - codestra.operation.middleware-recovery-history-platform-v1-operations--operation-id--recovery-history-get
+    plugins:
+    - name: codestra-private-surface
+      config:
+        allow_private: false
+    - name: codestra-resource-guard
+      config:
+        route_key: middleware-recovery-history-platform-v1-operations--operation-id--recovery-history-get
+        concurrency_limit_per_worker: 32
+        tenant_quota_per_minute: 0
+    - name: codestra-request-context
+      config:
+        require_correlation_id: false
+    - name: pre-function
+      config:
+        access:
+        - "-- Clear client-supplied identity before openid-connect runs.\nfor _, name in ipairs({\"X-User-ID\", \"X-Username\", \"X-Email\", \"X-Roles\", \"X-Scopes\", \"X-Authenticated-UserID\", \"X-Authenticated-User\", \"X-Authenticated-Client\", \"X-Authenticated-Subject\", \"X-Authenticated-Tenant\", \"X-Authenticated-Campaign\", \"X-Authenticated-Role\", \"X-Authenticated-Email\", \"X-Codestra-Tenant\", \"X-Codestra-Scopes\", \"X-Codestra-Gateway-Secret\", \"X-Internal-Service\", \"X-Admin\", \"X-Codestra-Contract-Operation\", \"X-Codestra-Expected-Azp\", \"X-Codestra-Required-Scope\", \"X-Consumer-ID\", \"X-Consumer-Username\", \"X-Credential-Identifier\", \"X-Anonymous-Consumer\"}) do\n  kong.service.request.clear_header(name)\nend"
+    - name: openid-connect
+      config:
+        issuer: https://auth-staging.codestra.co/realms/codestra/.well-known/openid-configuration
+        auth_methods:
+        - bearer
+        audience:
+        - middleware-api
+        audience_required:
+        - middleware-api
+        issuers_allowed:
+        - https://auth-staging.codestra.co/realms/codestra
+        bearer_token_param_type:
+        - header
+        verify_signature: true
+        verify_claims: true
+        ssl_verify: true
+        consumer_by:
+        - username
+        consumer_optional: false
+        cache_ttl: 300
+        cache_ttl_max: 300
+        rediscovery_lifetime: 30
+        leeway: 0
+        scopes_required:
+        - identity.request
+        consumer_claim:
+        - azp
+        cache_tokens_salt: '{vault://env/kong-oidc-cache-tokens-salt}'
+    - name: post-function
+      config:
+        access:
+        - "-- Generated fail-closed authorization metadata.\nlocal operation_id = \"recovery_history_platform_v1_operations__operation_id__recovery_history_get\"\nlocal expected_azp = \"authorized-provisioning-client\"\nlocal required_scope = \"identity.request\"\n-- Strip client-asserted identity before minting trusted contract metadata;\n-- X-Consumer-* are set by openid-connect after signature verification.\nfor _, name in ipairs({\"X-User-ID\", \"X-Username\", \"X-Email\", \"X-Roles\", \"X-Scopes\", \"X-Authenticated-UserID\", \"X-Authenticated-User\", \"X-Authenticated-Client\", \"X-Authenticated-Subject\", \"X-Authenticated-Tenant\", \"X-Authenticated-Campaign\", \"X-Authenticated-Role\", \"X-Authenticated-Email\", \"X-Codestra-Tenant\", \"X-Codestra-Scopes\", \"X-Codestra-Gateway-Secret\", \"X-Internal-Service\", \"X-Admin\", \"X-Codestra-Contract-Operation\", \"X-Codestra-Expected-Azp\", \"X-Codestra-Required-Scope\"}) do\n  kong.service.request.clear_header(name)\nend\n-- OIDC has\
+          \ verified the token and mapped its azp to a Kong consumer.\nlocal allowed_azps = {}\nlocal consumer = kong.client.get_consumer()\nlocal matched = false\nif consumer and type(consumer.username) == 'string' then\n  for _, azp in ipairs(allowed_azps) do\n    if consumer.username == azp then matched = true break end\n  end\nend\nif not matched then return kong.response.exit(403, {error='unauthorized_caller'}) end\nkong.service.request.set_header('X-Codestra-Contract-Operation', operation_id)\nkong.service.request.set_header('X-Codestra-Expected-Azp', expected_azp)\nkong.service.request.set_header('X-Codestra-Required-Scope', required_scope)\n-- openid-connect validates issuer/audience/scope; Middleware re-authorizes\n-- symbolic client-family selectors and tenant/resource ownership."
+    - name: correlation-id
+      config:
+        header_name: X-Correlation-ID
+        generator: uuid
+        echo_downstream: true
+    - name: rate-limiting
+      config:
+        minute: 120
+        second: 10
+        error_code: 429
+        error_message: rate_limit_exceeded
+        policy: redis
+        fault_tolerant: false
+        hide_client_headers: false
+        redis:
+          host: codestra-redis
+          port: 6379
+          database: 0
+          timeout: 2000
+          password: '{vault://env/kong-rate-limit-redis-password}'
+    - name: request-size-limiting
+      config:
+        allowed_payload_size: 2
   - name: middleware-replay-operation-platform-v1-operations--operation-id--replay-post
     hosts:
     - api.codestra.co
@@ -5645,6 +7845,279 @@ services:
         access:
         - "-- Generated fail-closed authorization metadata.\nlocal operation_id = \"get_queue_metrics_platform_v1_queues__queue_id__metrics_get\"\nlocal expected_azp = \"authorized-provisioning-client\"\nlocal required_scope = \"identity.request\"\n-- Strip client-asserted identity before minting trusted contract metadata;\n-- X-Consumer-* are set by openid-connect after signature verification.\nfor _, name in ipairs({\"X-User-ID\", \"X-Username\", \"X-Email\", \"X-Roles\", \"X-Scopes\", \"X-Authenticated-UserID\", \"X-Authenticated-User\", \"X-Authenticated-Client\", \"X-Authenticated-Subject\", \"X-Authenticated-Tenant\", \"X-Authenticated-Campaign\", \"X-Authenticated-Role\", \"X-Authenticated-Email\", \"X-Codestra-Tenant\", \"X-Codestra-Scopes\", \"X-Codestra-Gateway-Secret\", \"X-Internal-Service\", \"X-Admin\", \"X-Codestra-Contract-Operation\", \"X-Codestra-Expected-Azp\", \"X-Codestra-Required-Scope\"}) do\n  kong.service.request.clear_header(name)\nend\n-- OIDC has verified the\
           \ token and mapped its azp to a Kong consumer.\nlocal allowed_azps = {}\nlocal consumer = kong.client.get_consumer()\nlocal matched = false\nif consumer and type(consumer.username) == 'string' then\n  for _, azp in ipairs(allowed_azps) do\n    if consumer.username == azp then matched = true break end\n  end\nend\nif not matched then return kong.response.exit(403, {error='unauthorized_caller'}) end\nkong.service.request.set_header('X-Codestra-Contract-Operation', operation_id)\nkong.service.request.set_header('X-Codestra-Expected-Azp', expected_azp)\nkong.service.request.set_header('X-Codestra-Required-Scope', required_scope)\n-- openid-connect validates issuer/audience/scope; Middleware re-authorizes\n-- symbolic client-family selectors and tenant/resource ownership."
+    - name: correlation-id
+      config:
+        header_name: X-Correlation-ID
+        generator: uuid
+        echo_downstream: true
+    - name: rate-limiting
+      config:
+        minute: 120
+        second: 10
+        error_code: 429
+        error_message: rate_limit_exceeded
+        policy: redis
+        fault_tolerant: false
+        hide_client_headers: false
+        redis:
+          host: codestra-redis
+          port: 6379
+          database: 0
+          timeout: 2000
+          password: '{vault://env/kong-rate-limit-redis-password}'
+    - name: request-size-limiting
+      config:
+        allowed_payload_size: 2
+  - name: middleware-run-no-effect-rehearsal-platform-v1-rehearsals-no-effect-post
+    hosts:
+    - api.codestra.co
+    paths:
+    - ~/platform/v1/rehearsals/no\-effect$
+    regex_priority: 4
+    methods:
+    - POST
+    protocols:
+    - http
+    strip_path: false
+    preserve_host: true
+    path_handling: v0
+    tags:
+    - codestra.classification.shared_edge
+    - codestra.operation.middleware-run-no-effect-rehearsal-platform-v1-rehearsals-no-effect-post
+    plugins:
+    - name: codestra-private-surface
+      config:
+        allow_private: false
+    - name: codestra-resource-guard
+      config:
+        route_key: middleware-run-no-effect-rehearsal-platform-v1-rehearsals-no-effect-post
+        concurrency_limit_per_worker: 32
+        tenant_quota_per_minute: 0
+    - name: codestra-request-context
+      config:
+        require_correlation_id: false
+    - name: pre-function
+      config:
+        access:
+        - "-- Clear client-supplied identity before openid-connect runs.\nfor _, name in ipairs({\"X-User-ID\", \"X-Username\", \"X-Email\", \"X-Roles\", \"X-Scopes\", \"X-Authenticated-UserID\", \"X-Authenticated-User\", \"X-Authenticated-Client\", \"X-Authenticated-Subject\", \"X-Authenticated-Tenant\", \"X-Authenticated-Campaign\", \"X-Authenticated-Role\", \"X-Authenticated-Email\", \"X-Codestra-Tenant\", \"X-Codestra-Scopes\", \"X-Codestra-Gateway-Secret\", \"X-Internal-Service\", \"X-Admin\", \"X-Codestra-Contract-Operation\", \"X-Codestra-Expected-Azp\", \"X-Codestra-Required-Scope\", \"X-Consumer-ID\", \"X-Consumer-Username\", \"X-Credential-Identifier\", \"X-Anonymous-Consumer\"}) do\n  kong.service.request.clear_header(name)\nend"
+    - name: openid-connect
+      config:
+        issuer: https://auth-staging.codestra.co/realms/codestra/.well-known/openid-configuration
+        auth_methods:
+        - bearer
+        audience:
+        - middleware-api
+        audience_required:
+        - middleware-api
+        issuers_allowed:
+        - https://auth-staging.codestra.co/realms/codestra
+        bearer_token_param_type:
+        - header
+        verify_signature: true
+        verify_claims: true
+        ssl_verify: true
+        consumer_by:
+        - username
+        consumer_optional: false
+        cache_ttl: 300
+        cache_ttl_max: 300
+        rediscovery_lifetime: 30
+        leeway: 0
+        scopes_required:
+        - platform.command.replay
+        consumer_claim:
+        - azp
+        roles_claim:
+        - realm_access
+        - roles
+        roles_required:
+        - platform-operator
+        groups_claim:
+        - amr
+        groups_required:
+        - mfa
+        cache_tokens_salt: '{vault://env/kong-oidc-cache-tokens-salt}'
+    - name: post-function
+      config:
+        access:
+        - "-- Generated fail-closed authorization metadata.\nlocal operation_id = \"run_no_effect_rehearsal_platform_v1_rehearsals_no_effect_post\"\nlocal expected_azp = \"platform-command-client\"\nlocal required_scope = \"platform.command.replay\"\n-- Strip client-asserted identity before minting trusted contract metadata;\n-- X-Consumer-* are set by openid-connect after signature verification.\nfor _, name in ipairs({\"X-User-ID\", \"X-Username\", \"X-Email\", \"X-Roles\", \"X-Scopes\", \"X-Authenticated-UserID\", \"X-Authenticated-User\", \"X-Authenticated-Client\", \"X-Authenticated-Subject\", \"X-Authenticated-Tenant\", \"X-Authenticated-Campaign\", \"X-Authenticated-Role\", \"X-Authenticated-Email\", \"X-Codestra-Tenant\", \"X-Codestra-Scopes\", \"X-Codestra-Gateway-Secret\", \"X-Internal-Service\", \"X-Admin\", \"X-Codestra-Contract-Operation\", \"X-Codestra-Expected-Azp\", \"X-Codestra-Required-Scope\"}) do\n  kong.service.request.clear_header(name)\nend\n-- OIDC has verified the\
+          \ token and mapped its azp to a Kong consumer.\nlocal allowed_azps = {}\nlocal consumer = kong.client.get_consumer()\nlocal matched = false\nif consumer and type(consumer.username) == 'string' then\n  for _, azp in ipairs(allowed_azps) do\n    if consumer.username == azp then matched = true break end\n  end\nend\nif not matched then return kong.response.exit(403, {error='unauthorized_caller'}) end\nkong.service.request.set_header('X-Codestra-Contract-Operation', operation_id)\nkong.service.request.set_header('X-Codestra-Expected-Azp', expected_azp)\nkong.service.request.set_header('X-Codestra-Required-Scope', required_scope)\n-- openid-connect validates issuer/audience/scope; Middleware re-authorizes\n-- symbolic client-family selectors and tenant/resource ownership."
+    - name: correlation-id
+      config:
+        header_name: X-Correlation-ID
+        generator: uuid
+        echo_downstream: true
+    - name: rate-limiting
+      config:
+        minute: 120
+        second: 10
+        error_code: 429
+        error_message: rate_limit_exceeded
+        policy: redis
+        fault_tolerant: false
+        hide_client_headers: false
+        redis:
+          host: codestra-redis
+          port: 6379
+          database: 0
+          timeout: 2000
+          password: '{vault://env/kong-rate-limit-redis-password}'
+    - name: request-size-limiting
+      config:
+        allowed_payload_size: 2
+  - name: middleware-get-no-effect-rehearsal-platform-v1-rehearsals--rehearsal-id--get
+    hosts:
+    - api.codestra.co
+    paths:
+    - ~/platform/v1/rehearsals/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
+    regex_priority: 3
+    methods:
+    - GET
+    protocols:
+    - http
+    strip_path: false
+    preserve_host: true
+    path_handling: v0
+    tags:
+    - codestra.classification.shared_edge
+    - codestra.operation.middleware-get-no-effect-rehearsal-platform-v1-rehearsals--rehearsal-id--get
+    plugins:
+    - name: codestra-private-surface
+      config:
+        allow_private: false
+    - name: codestra-resource-guard
+      config:
+        route_key: middleware-get-no-effect-rehearsal-platform-v1-rehearsals--rehearsal-id--get
+        concurrency_limit_per_worker: 32
+        tenant_quota_per_minute: 0
+    - name: codestra-request-context
+      config:
+        require_correlation_id: false
+    - name: pre-function
+      config:
+        access:
+        - "-- Clear client-supplied identity before openid-connect runs.\nfor _, name in ipairs({\"X-User-ID\", \"X-Username\", \"X-Email\", \"X-Roles\", \"X-Scopes\", \"X-Authenticated-UserID\", \"X-Authenticated-User\", \"X-Authenticated-Client\", \"X-Authenticated-Subject\", \"X-Authenticated-Tenant\", \"X-Authenticated-Campaign\", \"X-Authenticated-Role\", \"X-Authenticated-Email\", \"X-Codestra-Tenant\", \"X-Codestra-Scopes\", \"X-Codestra-Gateway-Secret\", \"X-Internal-Service\", \"X-Admin\", \"X-Codestra-Contract-Operation\", \"X-Codestra-Expected-Azp\", \"X-Codestra-Required-Scope\", \"X-Consumer-ID\", \"X-Consumer-Username\", \"X-Credential-Identifier\", \"X-Anonymous-Consumer\"}) do\n  kong.service.request.clear_header(name)\nend"
+    - name: openid-connect
+      config:
+        issuer: https://auth-staging.codestra.co/realms/codestra/.well-known/openid-configuration
+        auth_methods:
+        - bearer
+        audience:
+        - middleware-api
+        audience_required:
+        - middleware-api
+        issuers_allowed:
+        - https://auth-staging.codestra.co/realms/codestra
+        bearer_token_param_type:
+        - header
+        verify_signature: true
+        verify_claims: true
+        ssl_verify: true
+        consumer_by:
+        - username
+        consumer_optional: false
+        cache_ttl: 300
+        cache_ttl_max: 300
+        rediscovery_lifetime: 30
+        leeway: 0
+        scopes_required:
+        - platform.command.read
+        consumer_claim:
+        - azp
+        cache_tokens_salt: '{vault://env/kong-oidc-cache-tokens-salt}'
+    - name: post-function
+      config:
+        access:
+        - "-- Generated fail-closed authorization metadata.\nlocal operation_id = \"get_no_effect_rehearsal_platform_v1_rehearsals__rehearsal_id__get\"\nlocal expected_azp = \"platform-command-client\"\nlocal required_scope = \"platform.command.read\"\n-- Strip client-asserted identity before minting trusted contract metadata;\n-- X-Consumer-* are set by openid-connect after signature verification.\nfor _, name in ipairs({\"X-User-ID\", \"X-Username\", \"X-Email\", \"X-Roles\", \"X-Scopes\", \"X-Authenticated-UserID\", \"X-Authenticated-User\", \"X-Authenticated-Client\", \"X-Authenticated-Subject\", \"X-Authenticated-Tenant\", \"X-Authenticated-Campaign\", \"X-Authenticated-Role\", \"X-Authenticated-Email\", \"X-Codestra-Tenant\", \"X-Codestra-Scopes\", \"X-Codestra-Gateway-Secret\", \"X-Internal-Service\", \"X-Admin\", \"X-Codestra-Contract-Operation\", \"X-Codestra-Expected-Azp\", \"X-Codestra-Required-Scope\"}) do\n  kong.service.request.clear_header(name)\nend\n-- OIDC has verified\
+          \ the token and mapped its azp to a Kong consumer.\nlocal allowed_azps = {}\nlocal consumer = kong.client.get_consumer()\nlocal matched = false\nif consumer and type(consumer.username) == 'string' then\n  for _, azp in ipairs(allowed_azps) do\n    if consumer.username == azp then matched = true break end\n  end\nend\nif not matched then return kong.response.exit(403, {error='unauthorized_caller'}) end\nkong.service.request.set_header('X-Codestra-Contract-Operation', operation_id)\nkong.service.request.set_header('X-Codestra-Expected-Azp', expected_azp)\nkong.service.request.set_header('X-Codestra-Required-Scope', required_scope)\n-- openid-connect validates issuer/audience/scope; Middleware re-authorizes\n-- symbolic client-family selectors and tenant/resource ownership."
+    - name: correlation-id
+      config:
+        header_name: X-Correlation-ID
+        generator: uuid
+        echo_downstream: true
+    - name: rate-limiting
+      config:
+        minute: 120
+        second: 10
+        error_code: 429
+        error_message: rate_limit_exceeded
+        policy: redis
+        fault_tolerant: false
+        hide_client_headers: false
+        redis:
+          host: codestra-redis
+          port: 6379
+          database: 0
+          timeout: 2000
+          password: '{vault://env/kong-rate-limit-redis-password}'
+    - name: request-size-limiting
+      config:
+        allowed_payload_size: 2
+  - name: middleware-cancel-replay-platform-v1-replays--replay-id--cancel-post
+    hosts:
+    - api.codestra.co
+    paths:
+    - ~/platform/v1/replays/[A-Za-z0-9][A-Za-z0-9._:-]{0,127}/cancel$
+    regex_priority: 4
+    methods:
+    - POST
+    protocols:
+    - http
+    strip_path: false
+    preserve_host: true
+    path_handling: v0
+    tags:
+    - codestra.classification.shared_edge
+    - codestra.operation.middleware-cancel-replay-platform-v1-replays--replay-id--cancel-post
+    plugins:
+    - name: codestra-private-surface
+      config:
+        allow_private: false
+    - name: codestra-resource-guard
+      config:
+        route_key: middleware-cancel-replay-platform-v1-replays--replay-id--cancel-post
+        concurrency_limit_per_worker: 32
+        tenant_quota_per_minute: 0
+    - name: codestra-request-context
+      config:
+        require_correlation_id: false
+    - name: pre-function
+      config:
+        access:
+        - "-- Clear client-supplied identity before openid-connect runs.\nfor _, name in ipairs({\"X-User-ID\", \"X-Username\", \"X-Email\", \"X-Roles\", \"X-Scopes\", \"X-Authenticated-UserID\", \"X-Authenticated-User\", \"X-Authenticated-Client\", \"X-Authenticated-Subject\", \"X-Authenticated-Tenant\", \"X-Authenticated-Campaign\", \"X-Authenticated-Role\", \"X-Authenticated-Email\", \"X-Codestra-Tenant\", \"X-Codestra-Scopes\", \"X-Codestra-Gateway-Secret\", \"X-Internal-Service\", \"X-Admin\", \"X-Codestra-Contract-Operation\", \"X-Codestra-Expected-Azp\", \"X-Codestra-Required-Scope\", \"X-Consumer-ID\", \"X-Consumer-Username\", \"X-Credential-Identifier\", \"X-Anonymous-Consumer\"}) do\n  kong.service.request.clear_header(name)\nend"
+    - name: openid-connect
+      config:
+        issuer: https://auth-staging.codestra.co/realms/codestra/.well-known/openid-configuration
+        auth_methods:
+        - bearer
+        audience:
+        - middleware-api
+        audience_required:
+        - middleware-api
+        issuers_allowed:
+        - https://auth-staging.codestra.co/realms/codestra
+        bearer_token_param_type:
+        - header
+        verify_signature: true
+        verify_claims: true
+        ssl_verify: true
+        consumer_by:
+        - username
+        consumer_optional: false
+        cache_ttl: 300
+        cache_ttl_max: 300
+        rediscovery_lifetime: 30
+        leeway: 0
+        scopes_required:
+        - identity.request
+        consumer_claim:
+        - azp
+        cache_tokens_salt: '{vault://env/kong-oidc-cache-tokens-salt}'
+    - name: post-function
+      config:
+        access:
+        - "-- Generated fail-closed authorization metadata.\nlocal operation_id = \"cancel_replay_platform_v1_replays__replay_id__cancel_post\"\nlocal expected_azp = \"authorized-provisioning-client\"\nlocal required_scope = \"identity.request\"\n-- Strip client-asserted identity before minting trusted contract metadata;\n-- X-Consumer-* are set by openid-connect after signature verification.\nfor _, name in ipairs({\"X-User-ID\", \"X-Username\", \"X-Email\", \"X-Roles\", \"X-Scopes\", \"X-Authenticated-UserID\", \"X-Authenticated-User\", \"X-Authenticated-Client\", \"X-Authenticated-Subject\", \"X-Authenticated-Tenant\", \"X-Authenticated-Campaign\", \"X-Authenticated-Role\", \"X-Authenticated-Email\", \"X-Codestra-Tenant\", \"X-Codestra-Scopes\", \"X-Codestra-Gateway-Secret\", \"X-Internal-Service\", \"X-Admin\", \"X-Codestra-Contract-Operation\", \"X-Codestra-Expected-Azp\", \"X-Codestra-Required-Scope\"}) do\n  kong.service.request.clear_header(name)\nend\n-- OIDC has verified the token\
+          \ and mapped its azp to a Kong consumer.\nlocal allowed_azps = {}\nlocal consumer = kong.client.get_consumer()\nlocal matched = false\nif consumer and type(consumer.username) == 'string' then\n  for _, azp in ipairs(allowed_azps) do\n    if consumer.username == azp then matched = true break end\n  end\nend\nif not matched then return kong.response.exit(403, {error='unauthorized_caller'}) end\nkong.service.request.set_header('X-Codestra-Contract-Operation', operation_id)\nkong.service.request.set_header('X-Codestra-Expected-Azp', expected_azp)\nkong.service.request.set_header('X-Codestra-Required-Scope', required_scope)\n-- openid-connect validates issuer/audience/scope; Middleware re-authorizes\n-- symbolic client-family selectors and tenant/resource ownership."
     - name: correlation-id
       config:
         header_name: X-Correlation-ID

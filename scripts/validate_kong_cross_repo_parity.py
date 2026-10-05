@@ -81,7 +81,7 @@ def validate_config(config: dict[str, Any]) -> None:
         if name not in sources:
             raise ParityError(f"missing source pin: {name}")
     final = sources["middleware"]["contract_sha256"]
-    if final != "9c32daecd4a15104c6f9ff60ce19c8f7e78707fb31d9fd9fcb55b1b8dfa3512b":
+    if final != json.loads((ROOT / "config" / "middleware-public-api-route-contract.pin.json").read_text(encoding="utf-8"))["contractSha256"]:
         raise ParityError("unexpected final Middleware digest")
     if sources["kong"]["final_contract_sha256"] != final:
         raise ParityError("Kong final digest target differs from Middleware")

@@ -13,19 +13,19 @@
       "contract_path": "config/middleware-public-api-route-contract.v1.json",
       "authority_path": "config/kong-middleware-authority.v2.json",
       "base_contract_sha256": "be25ea3a15687616fc1a17c451bb731c9e8bb85bbbd970e563d2baedc062b99e",
-      "final_contract_sha256": "9c32daecd4a15104c6f9ff60ce19c8f7e78707fb31d9fd9fcb55b1b8dfa3512b",
+      "final_contract_sha256": "c48c20d8bc71918699abb03cefe1e3c5075536a9d91d8aea8df4fc031891db21",
       "lane_a_dependency": "mission/kong-v3-contract-authority-20260920",
       "final_repin_required": true
     },
     "middleware": {
-      "repository": "ingtrader21-spec/Middleware-",
-      "source_sha": "bd406a6508c8095a3f23b35149a2eebcb94c94c6",
+      "repository": "appolon1908/Middleware-",
+      "source_sha": "e873010e0b50e2659ecfc820d86868ffda3a89e5",
       "contract_path": "deploy/public-api-route-contract.json",
       "contract_sha256_path": "deploy/public-api-route-contract.sha256",
-      "contract_sha256": "9c32daecd4a15104c6f9ff60ce19c8f7e78707fb31d9fd9fcb55b1b8dfa3512b",
+      "contract_sha256": "c48c20d8bc71918699abb03cefe1e3c5075536a9d91d8aea8df4fc031891db21",
       "route_counts": {
-        "total": 117,
-        "shared_edge": 105,
+        "total": 145,
+        "shared_edge": 133,
         "denied": 10,
         "private_only": 2
       },
@@ -45,7 +45,7 @@
       "public_edge_registry": "config/public-edge-registry.v1.json",
       "webhook_edge_registry": "config/webhook-edge-registry.v1.json",
       "edge_contract_chain": "config/edge-contract-chain.v1.json",
-      "required_middleware_contract_sha256": "9c32daecd4a15104c6f9ff60ce19c8f7e78707fb31d9fd9fcb55b1b8dfa3512b",
+      "required_middleware_contract_sha256": "c48c20d8bc71918699abb03cefe1e3c5075536a9d91d8aea8df4fc031891db21",
       "required_public_namespaces": [
         "/platform/v1/*",
         "/v2/automation/*",

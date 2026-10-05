@@ -388,13 +388,6 @@
       },
       {
         "left": "codestra-platform-presence-list",
-        "right": "middleware-get-provisioning-request-platform-v1-agent-provisioning-requests--request-id--get",
-        "winner": "middleware-get-provisioning-request-platform-v1-agent-provisioning-requests--request-id--get",
-        "resolution": "SUCCESSOR_REPLACES_LEGACY_ON_APPLY",
-        "note": "The v2 regex route wins the router over codestra-platform-presence-list; the apply that activates it must delete codestra-platform-presence-list in the same change."
-      },
-      {
-        "left": "codestra-platform-presence-list",
         "right": "middleware-list-agents-presence-platform-v1-agents-presence-get",
         "winner": "middleware-list-agents-presence-platform-v1-agents-presence-get",
         "resolution": "SUCCESSOR_REPLACES_LEGACY_ON_APPLY",
@@ -1237,6 +1230,10 @@
         "reason": "Middleware's vendored contract, pinned by sha256 through config/kong-canonical-middleware-routes.json whose contractRoutes are registered"
       },
       {
+        "path": "config/middleware-public-api-route-contract.pin.json",
+        "reason": "identity of the vendored Middleware contract (repository, commit, digest, counts) read by the route generators and validators; carries no routes"
+      },
+      {
         "path": "config/staging/marketing-platform-edge-bindings.v1.yaml",
         "reason": "edge binding plan for the marketing fragment, not a Kong source; the fragment itself is registered"
       },
@@ -1442,7 +1439,7 @@
       "environment": "production",
       "role": "DEPLOYED_CANDIDATE",
       "activation": "SOURCE_CANDIDATE",
-      "notes": "Generated from the final 117-entry Middleware authority: 105 shared-edge routes on api.codestra.co -> middleware-integration-api:8095 plus 10 gateway-terminated denied aliases."
+      "notes": "Generated from the Middleware contract pinned in config/middleware-public-api-route-contract.pin.json: every shared-edge route on api.codestra.co -> middleware-integration-api:8095 plus gateway-terminated denied aliases."
     },
     {
       "path": "config/staging/kong-middleware-routes.staging.yml",
@@ -1450,7 +1447,7 @@
       "environment": "staging",
       "role": "DEPLOYED_CANDIDATE",
       "activation": "SOURCE_CANDIDATE",
-      "notes": "Staging twin of the final generated Middleware authority: 105 shared-edge routes plus 10 deny guards, staging issuer, same canonical 8095 upstream."
+      "notes": "Staging twin of the generated Middleware authority: every shared-edge route plus the deny guards, staging issuer, same canonical 8095 upstream."
     },
     {
       "path": "config/kong-platform-api-read-routes.v1.json",
@@ -2623,7 +2620,7 @@
       "serviceId": "middleware-integration-api",
       "owner": "middleware-integration",
       "environment": "production",
-      "purpose": "Canonical Middleware public API edge: final 105 shared-edge operations from the protected 117-entry Middleware contract.",
+      "purpose": "Canonical Middleware public API edge: the shared-edge operations of the Middleware contract pinned in config/middleware-public-api-route-contract.pin.json.",
       "trafficClass": "COMMAND_API",
       "upstreamClass": "MIDDLEWARE_GOVERNED",
       "upstream": {
@@ -13261,6 +13258,1910 @@
       "contractOperation": "get_timeline_platform_v1_operations__operation_id__timeline_get",
       "contractAuthentication": "service-or-user-jwt",
       "contractExpectedAzp": "platform-command-client"
+    },
+    {
+      "routeId": "middleware-adopt-agent-extension-platform-v1-agent-provisioning-adopt-extension-post",
+      "serviceId": "middleware-integration-api",
+      "environment": "production",
+      "bindings": [
+        {
+          "source": "config/kong-canonical-middleware-routes.json",
+          "route": "middleware-adopt-agent-extension-platform-v1-agent-provisioning-adopt-extension-post",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-routes.production.yml",
+          "route": "middleware-adopt-agent-extension-platform-v1-agent-provisioning-adopt-extension-post",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-authority.v2.json",
+          "route": "middleware-adopt-agent-extension-platform-v1-agent-provisioning-adopt-extension-post",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "COMMAND_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
+      "requestSizeProfile": "STANDARD_API_2MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "identity.request"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "adopt_agent_extension_platform_v1_agent_provisioning_adopt_extension_post",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "authorized-provisioning-client"
+    },
+    {
+      "routeId": "middleware-adopt-agent-extension-platform-v1-agent-provisioning-adopt-extension-post@staging",
+      "serviceId": "middleware-integration-api@staging",
+      "environment": "staging",
+      "bindings": [
+        {
+          "source": "config/staging/kong-middleware-routes.staging.yml",
+          "route": "middleware-adopt-agent-extension-platform-v1-agent-provisioning-adopt-extension-post",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "COMMAND_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
+      "requestSizeProfile": "STANDARD_API_2MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "identity.request"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "adopt_agent_extension_platform_v1_agent_provisioning_adopt_extension_post",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "authorized-provisioning-client"
+    },
+    {
+      "routeId": "middleware-provisioning-history-platform-v1-agent-provisioning-requests--request-id--history-get",
+      "serviceId": "middleware-integration-api",
+      "environment": "production",
+      "bindings": [
+        {
+          "source": "config/kong-canonical-middleware-routes.json",
+          "route": "middleware-provisioning-history-platform-v1-agent-provisioning-requests--request-id--history-get",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-routes.production.yml",
+          "route": "middleware-provisioning-history-platform-v1-agent-provisioning-requests--request-id--history-get",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-authority.v2.json",
+          "route": "middleware-provisioning-history-platform-v1-agent-provisioning-requests--request-id--history-get",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "READ_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
+      "requestSizeProfile": "STANDARD_API_2MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "identity.request"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "provisioning_history_platform_v1_agent_provisioning_requests__request_id__history_get",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "authorized-provisioning-client"
+    },
+    {
+      "routeId": "middleware-provisioning-history-platform-v1-agent-provisioning-requests--request-id--history-get@staging",
+      "serviceId": "middleware-integration-api@staging",
+      "environment": "staging",
+      "bindings": [
+        {
+          "source": "config/staging/kong-middleware-routes.staging.yml",
+          "route": "middleware-provisioning-history-platform-v1-agent-provisioning-requests--request-id--history-get",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "READ_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
+      "requestSizeProfile": "STANDARD_API_2MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "identity.request"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "provisioning_history_platform_v1_agent_provisioning_requests__request_id__history_get",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "authorized-provisioning-client"
+    },
+    {
+      "routeId": "middleware-reserve-agent-extension-platform-v1-agent-provisioning-reserve-extension-post",
+      "serviceId": "middleware-integration-api",
+      "environment": "production",
+      "bindings": [
+        {
+          "source": "config/kong-canonical-middleware-routes.json",
+          "route": "middleware-reserve-agent-extension-platform-v1-agent-provisioning-reserve-extension-post",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-routes.production.yml",
+          "route": "middleware-reserve-agent-extension-platform-v1-agent-provisioning-reserve-extension-post",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-authority.v2.json",
+          "route": "middleware-reserve-agent-extension-platform-v1-agent-provisioning-reserve-extension-post",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "COMMAND_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
+      "requestSizeProfile": "STANDARD_API_2MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "identity.request"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "reserve_agent_extension_platform_v1_agent_provisioning_reserve_extension_post",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "authorized-provisioning-client"
+    },
+    {
+      "routeId": "middleware-reserve-agent-extension-platform-v1-agent-provisioning-reserve-extension-post@staging",
+      "serviceId": "middleware-integration-api@staging",
+      "environment": "staging",
+      "bindings": [
+        {
+          "source": "config/staging/kong-middleware-routes.staging.yml",
+          "route": "middleware-reserve-agent-extension-platform-v1-agent-provisioning-reserve-extension-post",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "COMMAND_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
+      "requestSizeProfile": "STANDARD_API_2MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "identity.request"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "reserve_agent_extension_platform_v1_agent_provisioning_reserve_extension_post",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "authorized-provisioning-client"
+    },
+    {
+      "routeId": "middleware-issue-webrtc-ticket-platform-v1-agent-provisioning-webrtc-tickets-post",
+      "serviceId": "middleware-integration-api",
+      "environment": "production",
+      "bindings": [
+        {
+          "source": "config/kong-canonical-middleware-routes.json",
+          "route": "middleware-issue-webrtc-ticket-platform-v1-agent-provisioning-webrtc-tickets-post",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-routes.production.yml",
+          "route": "middleware-issue-webrtc-ticket-platform-v1-agent-provisioning-webrtc-tickets-post",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-authority.v2.json",
+          "route": "middleware-issue-webrtc-ticket-platform-v1-agent-provisioning-webrtc-tickets-post",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "COMMAND_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
+      "requestSizeProfile": "STANDARD_API_2MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "identity.request"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "issue_webrtc_ticket_platform_v1_agent_provisioning_webrtc_tickets_post",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "authorized-provisioning-client"
+    },
+    {
+      "routeId": "middleware-issue-webrtc-ticket-platform-v1-agent-provisioning-webrtc-tickets-post@staging",
+      "serviceId": "middleware-integration-api@staging",
+      "environment": "staging",
+      "bindings": [
+        {
+          "source": "config/staging/kong-middleware-routes.staging.yml",
+          "route": "middleware-issue-webrtc-ticket-platform-v1-agent-provisioning-webrtc-tickets-post",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "COMMAND_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
+      "requestSizeProfile": "STANDARD_API_2MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "identity.request"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "issue_webrtc_ticket_platform_v1_agent_provisioning_webrtc_tickets_post",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "authorized-provisioning-client"
+    },
+    {
+      "routeId": "middleware-disable-agent-platform-v1-agent-provisioning--request-id--disable-post",
+      "serviceId": "middleware-integration-api",
+      "environment": "production",
+      "bindings": [
+        {
+          "source": "config/kong-canonical-middleware-routes.json",
+          "route": "middleware-disable-agent-platform-v1-agent-provisioning--request-id--disable-post",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-routes.production.yml",
+          "route": "middleware-disable-agent-platform-v1-agent-provisioning--request-id--disable-post",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-authority.v2.json",
+          "route": "middleware-disable-agent-platform-v1-agent-provisioning--request-id--disable-post",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "COMMAND_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
+      "requestSizeProfile": "STANDARD_API_2MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "identity.request"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "disable_agent_platform_v1_agent_provisioning__request_id__disable_post",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "authorized-provisioning-client"
+    },
+    {
+      "routeId": "middleware-disable-agent-platform-v1-agent-provisioning--request-id--disable-post@staging",
+      "serviceId": "middleware-integration-api@staging",
+      "environment": "staging",
+      "bindings": [
+        {
+          "source": "config/staging/kong-middleware-routes.staging.yml",
+          "route": "middleware-disable-agent-platform-v1-agent-provisioning--request-id--disable-post",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "COMMAND_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
+      "requestSizeProfile": "STANDARD_API_2MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "identity.request"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "disable_agent_platform_v1_agent_provisioning__request_id__disable_post",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "authorized-provisioning-client"
+    },
+    {
+      "routeId": "middleware-provisioning-readback-platform-v1-agent-provisioning--request-id--readback-get",
+      "serviceId": "middleware-integration-api",
+      "environment": "production",
+      "bindings": [
+        {
+          "source": "config/kong-canonical-middleware-routes.json",
+          "route": "middleware-provisioning-readback-platform-v1-agent-provisioning--request-id--readback-get",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-routes.production.yml",
+          "route": "middleware-provisioning-readback-platform-v1-agent-provisioning--request-id--readback-get",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-authority.v2.json",
+          "route": "middleware-provisioning-readback-platform-v1-agent-provisioning--request-id--readback-get",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "READ_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
+      "requestSizeProfile": "STANDARD_API_2MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "identity.request"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "provisioning_readback_platform_v1_agent_provisioning__request_id__readback_get",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "authorized-provisioning-client"
+    },
+    {
+      "routeId": "middleware-provisioning-readback-platform-v1-agent-provisioning--request-id--readback-get@staging",
+      "serviceId": "middleware-integration-api@staging",
+      "environment": "staging",
+      "bindings": [
+        {
+          "source": "config/staging/kong-middleware-routes.staging.yml",
+          "route": "middleware-provisioning-readback-platform-v1-agent-provisioning--request-id--readback-get",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "READ_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
+      "requestSizeProfile": "STANDARD_API_2MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "identity.request"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "provisioning_readback_platform_v1_agent_provisioning__request_id__readback_get",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "authorized-provisioning-client"
+    },
+    {
+      "routeId": "middleware-release-agent-extension-platform-v1-agent-provisioning--request-id--release-extension-post",
+      "serviceId": "middleware-integration-api",
+      "environment": "production",
+      "bindings": [
+        {
+          "source": "config/kong-canonical-middleware-routes.json",
+          "route": "middleware-release-agent-extension-platform-v1-agent-provisioning--request-id--release-extension-post",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-routes.production.yml",
+          "route": "middleware-release-agent-extension-platform-v1-agent-provisioning--request-id--release-extension-post",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-authority.v2.json",
+          "route": "middleware-release-agent-extension-platform-v1-agent-provisioning--request-id--release-extension-post",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "COMMAND_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
+      "requestSizeProfile": "STANDARD_API_2MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "identity.request"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "release_agent_extension_platform_v1_agent_provisioning__request_id__release_extension_post",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "authorized-provisioning-client"
+    },
+    {
+      "routeId": "middleware-release-agent-extension-platform-v1-agent-provisioning--request-id--release-extension-post@staging",
+      "serviceId": "middleware-integration-api@staging",
+      "environment": "staging",
+      "bindings": [
+        {
+          "source": "config/staging/kong-middleware-routes.staging.yml",
+          "route": "middleware-release-agent-extension-platform-v1-agent-provisioning--request-id--release-extension-post",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "COMMAND_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
+      "requestSizeProfile": "STANDARD_API_2MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "identity.request"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "release_agent_extension_platform_v1_agent_provisioning__request_id__release_extension_post",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "authorized-provisioning-client"
+    },
+    {
+      "routeId": "middleware-create-repair-intent-platform-v1-agent-provisioning--request-id--repair-intents-post",
+      "serviceId": "middleware-integration-api",
+      "environment": "production",
+      "bindings": [
+        {
+          "source": "config/kong-canonical-middleware-routes.json",
+          "route": "middleware-create-repair-intent-platform-v1-agent-provisioning--request-id--repair-intents-post",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-routes.production.yml",
+          "route": "middleware-create-repair-intent-platform-v1-agent-provisioning--request-id--repair-intents-post",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-authority.v2.json",
+          "route": "middleware-create-repair-intent-platform-v1-agent-provisioning--request-id--repair-intents-post",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "COMMAND_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
+      "requestSizeProfile": "STANDARD_API_2MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "identity.request"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "create_repair_intent_platform_v1_agent_provisioning__request_id__repair_intents_post",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "authorized-provisioning-client"
+    },
+    {
+      "routeId": "middleware-create-repair-intent-platform-v1-agent-provisioning--request-id--repair-intents-post@staging",
+      "serviceId": "middleware-integration-api@staging",
+      "environment": "staging",
+      "bindings": [
+        {
+          "source": "config/staging/kong-middleware-routes.staging.yml",
+          "route": "middleware-create-repair-intent-platform-v1-agent-provisioning--request-id--repair-intents-post",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "COMMAND_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
+      "requestSizeProfile": "STANDARD_API_2MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "identity.request"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "create_repair_intent_platform_v1_agent_provisioning__request_id__repair_intents_post",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "authorized-provisioning-client"
+    },
+    {
+      "routeId": "middleware-sync-agent-platform-v1-agent-provisioning--request-id--sync-post",
+      "serviceId": "middleware-integration-api",
+      "environment": "production",
+      "bindings": [
+        {
+          "source": "config/kong-canonical-middleware-routes.json",
+          "route": "middleware-sync-agent-platform-v1-agent-provisioning--request-id--sync-post",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-routes.production.yml",
+          "route": "middleware-sync-agent-platform-v1-agent-provisioning--request-id--sync-post",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-authority.v2.json",
+          "route": "middleware-sync-agent-platform-v1-agent-provisioning--request-id--sync-post",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "COMMAND_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
+      "requestSizeProfile": "STANDARD_API_2MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "identity.request"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "sync_agent_platform_v1_agent_provisioning__request_id__sync_post",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "authorized-provisioning-client"
+    },
+    {
+      "routeId": "middleware-sync-agent-platform-v1-agent-provisioning--request-id--sync-post@staging",
+      "serviceId": "middleware-integration-api@staging",
+      "environment": "staging",
+      "bindings": [
+        {
+          "source": "config/staging/kong-middleware-routes.staging.yml",
+          "route": "middleware-sync-agent-platform-v1-agent-provisioning--request-id--sync-post",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "COMMAND_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
+      "requestSizeProfile": "STANDARD_API_2MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "identity.request"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "sync_agent_platform_v1_agent_provisioning__request_id__sync_post",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "authorized-provisioning-client"
+    },
+    {
+      "routeId": "middleware-revoke-webrtc-session-platform-v1-agent-provisioning--request-id--webrtc-revoke-post",
+      "serviceId": "middleware-integration-api",
+      "environment": "production",
+      "bindings": [
+        {
+          "source": "config/kong-canonical-middleware-routes.json",
+          "route": "middleware-revoke-webrtc-session-platform-v1-agent-provisioning--request-id--webrtc-revoke-post",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-routes.production.yml",
+          "route": "middleware-revoke-webrtc-session-platform-v1-agent-provisioning--request-id--webrtc-revoke-post",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-authority.v2.json",
+          "route": "middleware-revoke-webrtc-session-platform-v1-agent-provisioning--request-id--webrtc-revoke-post",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "COMMAND_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
+      "requestSizeProfile": "STANDARD_API_2MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "identity.request"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "revoke_webrtc_session_platform_v1_agent_provisioning__request_id__webrtc_revoke_post",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "authorized-provisioning-client"
+    },
+    {
+      "routeId": "middleware-revoke-webrtc-session-platform-v1-agent-provisioning--request-id--webrtc-revoke-post@staging",
+      "serviceId": "middleware-integration-api@staging",
+      "environment": "staging",
+      "bindings": [
+        {
+          "source": "config/staging/kong-middleware-routes.staging.yml",
+          "route": "middleware-revoke-webrtc-session-platform-v1-agent-provisioning--request-id--webrtc-revoke-post",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "COMMAND_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
+      "requestSizeProfile": "STANDARD_API_2MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "identity.request"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "revoke_webrtc_session_platform_v1_agent_provisioning__request_id__webrtc_revoke_post",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "authorized-provisioning-client"
+    },
+    {
+      "routeId": "middleware-get-operation-platform-v1-commands--operation-id--get",
+      "serviceId": "middleware-integration-api",
+      "environment": "production",
+      "bindings": [
+        {
+          "source": "config/kong-canonical-middleware-routes.json",
+          "route": "middleware-get-operation-platform-v1-commands--operation-id--get",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-routes.production.yml",
+          "route": "middleware-get-operation-platform-v1-commands--operation-id--get",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-authority.v2.json",
+          "route": "middleware-get-operation-platform-v1-commands--operation-id--get",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "READ_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
+      "requestSizeProfile": "STANDARD_API_2MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "identity.request"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "get_operation_platform_v1_commands__operation_id__get",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "authorized-provisioning-client"
+    },
+    {
+      "routeId": "middleware-get-operation-platform-v1-commands--operation-id--get@staging",
+      "serviceId": "middleware-integration-api@staging",
+      "environment": "staging",
+      "bindings": [
+        {
+          "source": "config/staging/kong-middleware-routes.staging.yml",
+          "route": "middleware-get-operation-platform-v1-commands--operation-id--get",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "READ_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
+      "requestSizeProfile": "STANDARD_API_2MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "identity.request"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "get_operation_platform_v1_commands__operation_id__get",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "authorized-provisioning-client"
+    },
+    {
+      "routeId": "middleware-cancel-operation-platform-v1-commands--operation-id--cancel-post",
+      "serviceId": "middleware-integration-api",
+      "environment": "production",
+      "bindings": [
+        {
+          "source": "config/kong-canonical-middleware-routes.json",
+          "route": "middleware-cancel-operation-platform-v1-commands--operation-id--cancel-post",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-routes.production.yml",
+          "route": "middleware-cancel-operation-platform-v1-commands--operation-id--cancel-post",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-authority.v2.json",
+          "route": "middleware-cancel-operation-platform-v1-commands--operation-id--cancel-post",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "COMMAND_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
+      "requestSizeProfile": "STANDARD_API_2MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "identity.request"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "cancel_operation_platform_v1_commands__operation_id__cancel_post",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "authorized-provisioning-client"
+    },
+    {
+      "routeId": "middleware-cancel-operation-platform-v1-commands--operation-id--cancel-post@staging",
+      "serviceId": "middleware-integration-api@staging",
+      "environment": "staging",
+      "bindings": [
+        {
+          "source": "config/staging/kong-middleware-routes.staging.yml",
+          "route": "middleware-cancel-operation-platform-v1-commands--operation-id--cancel-post",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "COMMAND_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
+      "requestSizeProfile": "STANDARD_API_2MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "identity.request"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "cancel_operation_platform_v1_commands__operation_id__cancel_post",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "authorized-provisioning-client"
+    },
+    {
+      "routeId": "middleware-get-timeline-platform-v1-commands--operation-id--history-get",
+      "serviceId": "middleware-integration-api",
+      "environment": "production",
+      "bindings": [
+        {
+          "source": "config/kong-canonical-middleware-routes.json",
+          "route": "middleware-get-timeline-platform-v1-commands--operation-id--history-get",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-routes.production.yml",
+          "route": "middleware-get-timeline-platform-v1-commands--operation-id--history-get",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-authority.v2.json",
+          "route": "middleware-get-timeline-platform-v1-commands--operation-id--history-get",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "READ_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
+      "requestSizeProfile": "STANDARD_API_2MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "identity.request"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "get_timeline_platform_v1_commands__operation_id__history_get",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "authorized-provisioning-client"
+    },
+    {
+      "routeId": "middleware-get-timeline-platform-v1-commands--operation-id--history-get@staging",
+      "serviceId": "middleware-integration-api@staging",
+      "environment": "staging",
+      "bindings": [
+        {
+          "source": "config/staging/kong-middleware-routes.staging.yml",
+          "route": "middleware-get-timeline-platform-v1-commands--operation-id--history-get",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "READ_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
+      "requestSizeProfile": "STANDARD_API_2MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "identity.request"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "get_timeline_platform_v1_commands__operation_id__history_get",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "authorized-provisioning-client"
+    },
+    {
+      "routeId": "middleware-replay-operation-platform-v1-commands--operation-id--replay-post",
+      "serviceId": "middleware-integration-api",
+      "environment": "production",
+      "bindings": [
+        {
+          "source": "config/kong-canonical-middleware-routes.json",
+          "route": "middleware-replay-operation-platform-v1-commands--operation-id--replay-post",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-routes.production.yml",
+          "route": "middleware-replay-operation-platform-v1-commands--operation-id--replay-post",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-authority.v2.json",
+          "route": "middleware-replay-operation-platform-v1-commands--operation-id--replay-post",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "COMMAND_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
+      "requestSizeProfile": "STANDARD_API_2MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "identity.request"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "replay_operation_platform_v1_commands__operation_id__replay_post",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "authorized-provisioning-client"
+    },
+    {
+      "routeId": "middleware-replay-operation-platform-v1-commands--operation-id--replay-post@staging",
+      "serviceId": "middleware-integration-api@staging",
+      "environment": "staging",
+      "bindings": [
+        {
+          "source": "config/staging/kong-middleware-routes.staging.yml",
+          "route": "middleware-replay-operation-platform-v1-commands--operation-id--replay-post",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "COMMAND_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
+      "requestSizeProfile": "STANDARD_API_2MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "identity.request"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "replay_operation_platform_v1_commands__operation_id__replay_post",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "authorized-provisioning-client"
+    },
+    {
+      "routeId": "middleware-get-command-result-platform-v1-commands--operation-id--result-get",
+      "serviceId": "middleware-integration-api",
+      "environment": "production",
+      "bindings": [
+        {
+          "source": "config/kong-canonical-middleware-routes.json",
+          "route": "middleware-get-command-result-platform-v1-commands--operation-id--result-get",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-routes.production.yml",
+          "route": "middleware-get-command-result-platform-v1-commands--operation-id--result-get",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-authority.v2.json",
+          "route": "middleware-get-command-result-platform-v1-commands--operation-id--result-get",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "READ_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
+      "requestSizeProfile": "STANDARD_API_2MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "identity.request"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "get_command_result_platform_v1_commands__operation_id__result_get",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "authorized-provisioning-client"
+    },
+    {
+      "routeId": "middleware-get-command-result-platform-v1-commands--operation-id--result-get@staging",
+      "serviceId": "middleware-integration-api@staging",
+      "environment": "staging",
+      "bindings": [
+        {
+          "source": "config/staging/kong-middleware-routes.staging.yml",
+          "route": "middleware-get-command-result-platform-v1-commands--operation-id--result-get",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "READ_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
+      "requestSizeProfile": "STANDARD_API_2MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "identity.request"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "get_command_result_platform_v1_commands__operation_id__result_get",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "authorized-provisioning-client"
+    },
+    {
+      "routeId": "middleware-retry-command-platform-v1-commands--operation-id--retry-post",
+      "serviceId": "middleware-integration-api",
+      "environment": "production",
+      "bindings": [
+        {
+          "source": "config/kong-canonical-middleware-routes.json",
+          "route": "middleware-retry-command-platform-v1-commands--operation-id--retry-post",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-routes.production.yml",
+          "route": "middleware-retry-command-platform-v1-commands--operation-id--retry-post",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-authority.v2.json",
+          "route": "middleware-retry-command-platform-v1-commands--operation-id--retry-post",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "COMMAND_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
+      "requestSizeProfile": "STANDARD_API_2MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "identity.request"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "retry_command_platform_v1_commands__operation_id__retry_post",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "authorized-provisioning-client"
+    },
+    {
+      "routeId": "middleware-retry-command-platform-v1-commands--operation-id--retry-post@staging",
+      "serviceId": "middleware-integration-api@staging",
+      "environment": "staging",
+      "bindings": [
+        {
+          "source": "config/staging/kong-middleware-routes.staging.yml",
+          "route": "middleware-retry-command-platform-v1-commands--operation-id--retry-post",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "COMMAND_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
+      "requestSizeProfile": "STANDARD_API_2MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "identity.request"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "retry_command_platform_v1_commands__operation_id__retry_post",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "authorized-provisioning-client"
+    },
+    {
+      "routeId": "middleware-connectors-catalog-platform-v1-connectors-get",
+      "serviceId": "middleware-integration-api",
+      "environment": "production",
+      "bindings": [
+        {
+          "source": "config/kong-canonical-middleware-routes.json",
+          "route": "middleware-connectors-catalog-platform-v1-connectors-get",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-routes.production.yml",
+          "route": "middleware-connectors-catalog-platform-v1-connectors-get",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-authority.v2.json",
+          "route": "middleware-connectors-catalog-platform-v1-connectors-get",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "READ_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
+      "requestSizeProfile": "STANDARD_API_2MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "identity.request"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "connectors_catalog_platform_v1_connectors_get",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "authorized-provisioning-client"
+    },
+    {
+      "routeId": "middleware-connectors-catalog-platform-v1-connectors-get@staging",
+      "serviceId": "middleware-integration-api@staging",
+      "environment": "staging",
+      "bindings": [
+        {
+          "source": "config/staging/kong-middleware-routes.staging.yml",
+          "route": "middleware-connectors-catalog-platform-v1-connectors-get",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "READ_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
+      "requestSizeProfile": "STANDARD_API_2MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "identity.request"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "connectors_catalog_platform_v1_connectors_get",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "authorized-provisioning-client"
+    },
+    {
+      "routeId": "middleware-connector-catalog-item-platform-v1-connectors--connector-id--get",
+      "serviceId": "middleware-integration-api",
+      "environment": "production",
+      "bindings": [
+        {
+          "source": "config/kong-canonical-middleware-routes.json",
+          "route": "middleware-connector-catalog-item-platform-v1-connectors--connector-id--get",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-routes.production.yml",
+          "route": "middleware-connector-catalog-item-platform-v1-connectors--connector-id--get",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-authority.v2.json",
+          "route": "middleware-connector-catalog-item-platform-v1-connectors--connector-id--get",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "READ_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
+      "requestSizeProfile": "STANDARD_API_2MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "identity.request"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "connector_catalog_item_platform_v1_connectors__connector_id__get",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "authorized-provisioning-client"
+    },
+    {
+      "routeId": "middleware-connector-catalog-item-platform-v1-connectors--connector-id--get@staging",
+      "serviceId": "middleware-integration-api@staging",
+      "environment": "staging",
+      "bindings": [
+        {
+          "source": "config/staging/kong-middleware-routes.staging.yml",
+          "route": "middleware-connector-catalog-item-platform-v1-connectors--connector-id--get",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "READ_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
+      "requestSizeProfile": "STANDARD_API_2MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "identity.request"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "connector_catalog_item_platform_v1_connectors__connector_id__get",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "authorized-provisioning-client"
+    },
+    {
+      "routeId": "middleware-connector-capabilities-platform-v1-connectors--connector-id--capabilities-get",
+      "serviceId": "middleware-integration-api",
+      "environment": "production",
+      "bindings": [
+        {
+          "source": "config/kong-canonical-middleware-routes.json",
+          "route": "middleware-connector-capabilities-platform-v1-connectors--connector-id--capabilities-get",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-routes.production.yml",
+          "route": "middleware-connector-capabilities-platform-v1-connectors--connector-id--capabilities-get",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-authority.v2.json",
+          "route": "middleware-connector-capabilities-platform-v1-connectors--connector-id--capabilities-get",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "READ_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
+      "requestSizeProfile": "STANDARD_API_2MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "identity.request"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "connector_capabilities_platform_v1_connectors__connector_id__capabilities_get",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "authorized-provisioning-client"
+    },
+    {
+      "routeId": "middleware-connector-capabilities-platform-v1-connectors--connector-id--capabilities-get@staging",
+      "serviceId": "middleware-integration-api@staging",
+      "environment": "staging",
+      "bindings": [
+        {
+          "source": "config/staging/kong-middleware-routes.staging.yml",
+          "route": "middleware-connector-capabilities-platform-v1-connectors--connector-id--capabilities-get",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "READ_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
+      "requestSizeProfile": "STANDARD_API_2MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "identity.request"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "connector_capabilities_platform_v1_connectors__connector_id__capabilities_get",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "authorized-provisioning-client"
+    },
+    {
+      "routeId": "middleware-connector-health-platform-v1-connectors--connector-id--health-get",
+      "serviceId": "middleware-integration-api",
+      "environment": "production",
+      "bindings": [
+        {
+          "source": "config/kong-canonical-middleware-routes.json",
+          "route": "middleware-connector-health-platform-v1-connectors--connector-id--health-get",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-routes.production.yml",
+          "route": "middleware-connector-health-platform-v1-connectors--connector-id--health-get",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-authority.v2.json",
+          "route": "middleware-connector-health-platform-v1-connectors--connector-id--health-get",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "READ_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
+      "requestSizeProfile": "STANDARD_API_2MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "identity.request"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "connector_health_platform_v1_connectors__connector_id__health_get",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "authorized-provisioning-client"
+    },
+    {
+      "routeId": "middleware-connector-health-platform-v1-connectors--connector-id--health-get@staging",
+      "serviceId": "middleware-integration-api@staging",
+      "environment": "staging",
+      "bindings": [
+        {
+          "source": "config/staging/kong-middleware-routes.staging.yml",
+          "route": "middleware-connector-health-platform-v1-connectors--connector-id--health-get",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "READ_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
+      "requestSizeProfile": "STANDARD_API_2MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "identity.request"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "connector_health_platform_v1_connectors__connector_id__health_get",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "authorized-provisioning-client"
+    },
+    {
+      "routeId": "middleware-connector-operator-readback-platform-v1-connectors--connector-id--readback-post",
+      "serviceId": "middleware-integration-api",
+      "environment": "production",
+      "bindings": [
+        {
+          "source": "config/kong-canonical-middleware-routes.json",
+          "route": "middleware-connector-operator-readback-platform-v1-connectors--connector-id--readback-post",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-routes.production.yml",
+          "route": "middleware-connector-operator-readback-platform-v1-connectors--connector-id--readback-post",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-authority.v2.json",
+          "route": "middleware-connector-operator-readback-platform-v1-connectors--connector-id--readback-post",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "COMMAND_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
+      "requestSizeProfile": "STANDARD_API_2MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "identity.request"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "connector_operator_readback_platform_v1_connectors__connector_id__readback_post",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "authorized-provisioning-client"
+    },
+    {
+      "routeId": "middleware-connector-operator-readback-platform-v1-connectors--connector-id--readback-post@staging",
+      "serviceId": "middleware-integration-api@staging",
+      "environment": "staging",
+      "bindings": [
+        {
+          "source": "config/staging/kong-middleware-routes.staging.yml",
+          "route": "middleware-connector-operator-readback-platform-v1-connectors--connector-id--readback-post",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "COMMAND_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
+      "requestSizeProfile": "STANDARD_API_2MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "identity.request"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "connector_operator_readback_platform_v1_connectors__connector_id__readback_post",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "authorized-provisioning-client"
+    },
+    {
+      "routeId": "middleware-connector-operator-reconcile-platform-v1-connectors--connector-id--reconcile-post",
+      "serviceId": "middleware-integration-api",
+      "environment": "production",
+      "bindings": [
+        {
+          "source": "config/kong-canonical-middleware-routes.json",
+          "route": "middleware-connector-operator-reconcile-platform-v1-connectors--connector-id--reconcile-post",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-routes.production.yml",
+          "route": "middleware-connector-operator-reconcile-platform-v1-connectors--connector-id--reconcile-post",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-authority.v2.json",
+          "route": "middleware-connector-operator-reconcile-platform-v1-connectors--connector-id--reconcile-post",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "COMMAND_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
+      "requestSizeProfile": "STANDARD_API_2MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "identity.request"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "connector_operator_reconcile_platform_v1_connectors__connector_id__reconcile_post",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "authorized-provisioning-client"
+    },
+    {
+      "routeId": "middleware-connector-operator-reconcile-platform-v1-connectors--connector-id--reconcile-post@staging",
+      "serviceId": "middleware-integration-api@staging",
+      "environment": "staging",
+      "bindings": [
+        {
+          "source": "config/staging/kong-middleware-routes.staging.yml",
+          "route": "middleware-connector-operator-reconcile-platform-v1-connectors--connector-id--reconcile-post",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "COMMAND_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
+      "requestSizeProfile": "STANDARD_API_2MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "identity.request"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "connector_operator_reconcile_platform_v1_connectors__connector_id__reconcile_post",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "authorized-provisioning-client"
+    },
+    {
+      "routeId": "middleware-list-dead-letters-platform-v1-dead-letters-get",
+      "serviceId": "middleware-integration-api",
+      "environment": "production",
+      "bindings": [
+        {
+          "source": "config/kong-canonical-middleware-routes.json",
+          "route": "middleware-list-dead-letters-platform-v1-dead-letters-get",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-routes.production.yml",
+          "route": "middleware-list-dead-letters-platform-v1-dead-letters-get",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-authority.v2.json",
+          "route": "middleware-list-dead-letters-platform-v1-dead-letters-get",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "READ_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
+      "requestSizeProfile": "STANDARD_API_2MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "identity.request"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "list_dead_letters_platform_v1_dead_letters_get",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "authorized-provisioning-client"
+    },
+    {
+      "routeId": "middleware-list-dead-letters-platform-v1-dead-letters-get@staging",
+      "serviceId": "middleware-integration-api@staging",
+      "environment": "staging",
+      "bindings": [
+        {
+          "source": "config/staging/kong-middleware-routes.staging.yml",
+          "route": "middleware-list-dead-letters-platform-v1-dead-letters-get",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "READ_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
+      "requestSizeProfile": "STANDARD_API_2MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "identity.request"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "list_dead_letters_platform_v1_dead_letters_get",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "authorized-provisioning-client"
+    },
+    {
+      "routeId": "middleware-get-dead-letter-platform-v1-dead-letters--operation-id--get",
+      "serviceId": "middleware-integration-api",
+      "environment": "production",
+      "bindings": [
+        {
+          "source": "config/kong-canonical-middleware-routes.json",
+          "route": "middleware-get-dead-letter-platform-v1-dead-letters--operation-id--get",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-routes.production.yml",
+          "route": "middleware-get-dead-letter-platform-v1-dead-letters--operation-id--get",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-authority.v2.json",
+          "route": "middleware-get-dead-letter-platform-v1-dead-letters--operation-id--get",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "READ_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
+      "requestSizeProfile": "STANDARD_API_2MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "identity.request"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "get_dead_letter_platform_v1_dead_letters__operation_id__get",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "authorized-provisioning-client"
+    },
+    {
+      "routeId": "middleware-get-dead-letter-platform-v1-dead-letters--operation-id--get@staging",
+      "serviceId": "middleware-integration-api@staging",
+      "environment": "staging",
+      "bindings": [
+        {
+          "source": "config/staging/kong-middleware-routes.staging.yml",
+          "route": "middleware-get-dead-letter-platform-v1-dead-letters--operation-id--get",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "READ_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
+      "requestSizeProfile": "STANDARD_API_2MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "identity.request"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "get_dead_letter_platform_v1_dead_letters__operation_id__get",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "authorized-provisioning-client"
+    },
+    {
+      "routeId": "middleware-recovery-history-platform-v1-operations--operation-id--recovery-history-get",
+      "serviceId": "middleware-integration-api",
+      "environment": "production",
+      "bindings": [
+        {
+          "source": "config/kong-canonical-middleware-routes.json",
+          "route": "middleware-recovery-history-platform-v1-operations--operation-id--recovery-history-get",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-routes.production.yml",
+          "route": "middleware-recovery-history-platform-v1-operations--operation-id--recovery-history-get",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-authority.v2.json",
+          "route": "middleware-recovery-history-platform-v1-operations--operation-id--recovery-history-get",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "READ_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
+      "requestSizeProfile": "STANDARD_API_2MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "identity.request"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "recovery_history_platform_v1_operations__operation_id__recovery_history_get",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "authorized-provisioning-client"
+    },
+    {
+      "routeId": "middleware-recovery-history-platform-v1-operations--operation-id--recovery-history-get@staging",
+      "serviceId": "middleware-integration-api@staging",
+      "environment": "staging",
+      "bindings": [
+        {
+          "source": "config/staging/kong-middleware-routes.staging.yml",
+          "route": "middleware-recovery-history-platform-v1-operations--operation-id--recovery-history-get",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "READ_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
+      "requestSizeProfile": "STANDARD_API_2MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "identity.request"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "recovery_history_platform_v1_operations__operation_id__recovery_history_get",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "authorized-provisioning-client"
+    },
+    {
+      "routeId": "middleware-run-no-effect-rehearsal-platform-v1-rehearsals-no-effect-post",
+      "serviceId": "middleware-integration-api",
+      "environment": "production",
+      "bindings": [
+        {
+          "source": "config/kong-canonical-middleware-routes.json",
+          "route": "middleware-run-no-effect-rehearsal-platform-v1-rehearsals-no-effect-post",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-routes.production.yml",
+          "route": "middleware-run-no-effect-rehearsal-platform-v1-rehearsals-no-effect-post",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-authority.v2.json",
+          "route": "middleware-run-no-effect-rehearsal-platform-v1-rehearsals-no-effect-post",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "COMMAND_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
+      "requestSizeProfile": "STANDARD_API_2MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "platform.command.replay"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "run_no_effect_rehearsal_platform_v1_rehearsals_no_effect_post",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "platform-command-client"
+    },
+    {
+      "routeId": "middleware-run-no-effect-rehearsal-platform-v1-rehearsals-no-effect-post@staging",
+      "serviceId": "middleware-integration-api@staging",
+      "environment": "staging",
+      "bindings": [
+        {
+          "source": "config/staging/kong-middleware-routes.staging.yml",
+          "route": "middleware-run-no-effect-rehearsal-platform-v1-rehearsals-no-effect-post",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "COMMAND_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
+      "requestSizeProfile": "STANDARD_API_2MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "platform.command.replay"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "run_no_effect_rehearsal_platform_v1_rehearsals_no_effect_post",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "platform-command-client"
+    },
+    {
+      "routeId": "middleware-get-no-effect-rehearsal-platform-v1-rehearsals--rehearsal-id--get",
+      "serviceId": "middleware-integration-api",
+      "environment": "production",
+      "bindings": [
+        {
+          "source": "config/kong-canonical-middleware-routes.json",
+          "route": "middleware-get-no-effect-rehearsal-platform-v1-rehearsals--rehearsal-id--get",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-routes.production.yml",
+          "route": "middleware-get-no-effect-rehearsal-platform-v1-rehearsals--rehearsal-id--get",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-authority.v2.json",
+          "route": "middleware-get-no-effect-rehearsal-platform-v1-rehearsals--rehearsal-id--get",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "READ_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
+      "requestSizeProfile": "STANDARD_API_2MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "platform.command.read"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "get_no_effect_rehearsal_platform_v1_rehearsals__rehearsal_id__get",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "platform-command-client"
+    },
+    {
+      "routeId": "middleware-get-no-effect-rehearsal-platform-v1-rehearsals--rehearsal-id--get@staging",
+      "serviceId": "middleware-integration-api@staging",
+      "environment": "staging",
+      "bindings": [
+        {
+          "source": "config/staging/kong-middleware-routes.staging.yml",
+          "route": "middleware-get-no-effect-rehearsal-platform-v1-rehearsals--rehearsal-id--get",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "READ_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
+      "requestSizeProfile": "STANDARD_API_2MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "platform.command.read"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "get_no_effect_rehearsal_platform_v1_rehearsals__rehearsal_id__get",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "platform-command-client"
+    },
+    {
+      "routeId": "middleware-cancel-replay-platform-v1-replays--replay-id--cancel-post",
+      "serviceId": "middleware-integration-api",
+      "environment": "production",
+      "bindings": [
+        {
+          "source": "config/kong-canonical-middleware-routes.json",
+          "route": "middleware-cancel-replay-platform-v1-replays--replay-id--cancel-post",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-routes.production.yml",
+          "route": "middleware-cancel-replay-platform-v1-replays--replay-id--cancel-post",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-authority.v2.json",
+          "route": "middleware-cancel-replay-platform-v1-replays--replay-id--cancel-post",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "COMMAND_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
+      "requestSizeProfile": "STANDARD_API_2MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "identity.request"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "cancel_replay_platform_v1_replays__replay_id__cancel_post",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "authorized-provisioning-client"
+    },
+    {
+      "routeId": "middleware-cancel-replay-platform-v1-replays--replay-id--cancel-post@staging",
+      "serviceId": "middleware-integration-api@staging",
+      "environment": "staging",
+      "bindings": [
+        {
+          "source": "config/staging/kong-middleware-routes.staging.yml",
+          "route": "middleware-cancel-replay-platform-v1-replays--replay-id--cancel-post",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "COMMAND_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
+      "requestSizeProfile": "STANDARD_API_2MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "identity.request"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "cancel_replay_platform_v1_replays__replay_id__cancel_post",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "authorized-provisioning-client"
     }
   ],
   "plugins": [

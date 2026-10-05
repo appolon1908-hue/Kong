@@ -23,7 +23,8 @@ CASES_PATH = ROOT / "postman" / "kong-v3-parity-route-cases.v1.json"
 COLLECTION_PATH = ROOT / "postman" / "Kong-V3-Integration-Parity.postman_collection.json"
 ENVIRONMENT_PATH = ROOT / "postman" / "Kong-V3-Integration-Parity.postman_environment.json"
 MCR_CONTRACT_PATH = ROOT / "config" / "kong-mcr-routes.v1.json"
-FINAL_DIGEST = "9c32daecd4a15104c6f9ff60ce19c8f7e78707fb31d9fd9fcb55b1b8dfa3512b"
+CONTRACT_PIN = json.loads((ROOT / "config" / "middleware-public-api-route-contract.pin.json").read_text(encoding="utf-8"))
+FINAL_DIGEST = CONTRACT_PIN["contractSha256"]
 
 
 class PostmanError(ValueError):
@@ -52,13 +53,13 @@ def canonical_digest(value: Any) -> str:
 def family(path: str) -> str | None:
     if path.startswith("/v2/automation/"):
         return "Automation V2"
-    if "/contacts" in path:
+    if path.startswith("/platform/v1/contacts"):
         return "CRM Contacts"
     if path.startswith("/platform/v1/tasks"):
         return "CRM Tasks"
-    if "/tickets" in path:
+    if path.startswith("/platform/v1/tickets"):
         return "CRM Tickets"
-    if "/opportunities" in path:
+    if path.startswith("/platform/v1/opportunities"):
         return "CRM Opportunities"
     if path in {
         "/api/v1/odoo/events",
@@ -122,8 +123,8 @@ def derive_cases(contract_path: Path) -> dict[str, Any]:
     return {
         "schema_version": 1,
         "kind": "codestra.kong.postman-route-cases.v1",
-        "source_repository": "ingtrader21-spec/Middleware-",
-        "source_sha": "bd406a6508c8095a3f23b35149a2eebcb94c94c6",
+        "source_repository": CONTRACT_PIN["repository"],
+        "source_sha": CONTRACT_PIN["commit"],
         "source_contract_path": "deploy/public-api-route-contract.json",
         "source_contract_sha256": digest,
         "generated_test_data_only": True,

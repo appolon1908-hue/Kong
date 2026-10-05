@@ -1,5 +1,10 @@
 # Kong V3 integration parity — PAS-149 / Lane C
 
+> **Current authority:** the Middleware contract Kong enforces is pinned in
+> `config/middleware-public-api-route-contract.pin.json` (repository, commit, digest and
+> classification counts); generators and validators read it. The values below are the
+> historical lane snapshot and are kept for provenance only.
+
 ## Scope
 
 Lane C owns cross-repository parity, webhook/event-ingress ownership, Caddy handoff checks, CRM/automation contract probes, and deterministic Postman artifacts.
@@ -23,7 +28,7 @@ The user's existing local repositories were used; no duplicate repository clone 
 
 The primary local Middleware and Caddy checkouts are on other in-progress branches; Lane C does not overwrite or reset them.
 
-## Exact contract pins
+## Exact contract pins (historical lane snapshot)
 
 Middleware final public-edge authority:
 

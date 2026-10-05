@@ -24,9 +24,13 @@ STAGING_PATH = ROOT / "config/staging/kong-middleware-routes.staging.yml"
 UPSTREAM_HOST = "middleware-integration-api"
 UPSTREAM_PORT = 8095
 EXPECTED_CONTRACT_SCHEMA = "codestra.middleware.public-api-route-contract.v2"
-EXPECTED_CONTRACT_DIGEST = "9c32daecd4a15104c6f9ff60ce19c8f7e78707fb31d9fd9fcb55b1b8dfa3512b"
-EXPECTED_CLASSIFICATION_COUNTS = {"shared_edge": 105, "denied": 10, "private_only": 2}
-EXPECTED_ROUTE_COUNT = 117
+# The Middleware contract identity (repository, commit, digest, counts) has one
+# authority: the pin file. Generators and validators read it instead of
+# carrying their own copies of the expected digest and route counts.
+CONTRACT_PIN = json.loads((ROOT / "config/middleware-public-api-route-contract.pin.json").read_text(encoding="utf-8"))
+EXPECTED_CONTRACT_DIGEST = CONTRACT_PIN["contractSha256"]
+EXPECTED_CLASSIFICATION_COUNTS = dict(CONTRACT_PIN["classificationCounts"])
+EXPECTED_ROUTE_COUNT = CONTRACT_PIN["routeCount"]
 REQUIRED_PLUGINS = [
     "codestra-private-surface",
     "codestra-resource-guard",
@@ -459,7 +463,7 @@ def main() -> None:
     canonical["globalPlugins"] = ["codestra-private-surface"]
     canonical["providerEffectsEnabled"] = False
     canonical["middlewareEdgeContract"] = {
-        "source": "ingtrader21-spec/Middleware-:deploy/public-api-route-contract.json",
+        "source": f"{CONTRACT_PIN['repository']}:{CONTRACT_PIN['path']}",
         "vendoredCopy": "config/middleware-public-api-route-contract.v1.json",
         "schema": contract["schema"],
         "sha256": digest,

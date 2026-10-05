@@ -20,13 +20,15 @@ ROOT = Path(__file__).resolve().parents[1]
 PROFILES_PATH = ROOT / "config" / "kong-authentication-profiles.v1.json"
 POLICY_PATH = ROOT / "config" / "kong-access-policy.v1.json"
 
-EXPECTED_MIDDLEWARE_DIGEST = "9c32daecd4a15104c6f9ff60ce19c8f7e78707fb31d9fd9fcb55b1b8dfa3512b"
-EXPECTED_MIDDLEWARE_COMMIT = "bd406a6508c8095a3f23b35149a2eebcb94c94c6"
+CONTRACT_PIN = json.loads((Path(__file__).resolve().parents[1] / "config/middleware-public-api-route-contract.pin.json").read_text(encoding="utf-8"))
+EXPECTED_MIDDLEWARE_DIGEST = CONTRACT_PIN["contractSha256"]
+EXPECTED_MIDDLEWARE_COMMIT = CONTRACT_PIN["commit"]
+EXPECTED_ROUTE_COUNT = CONTRACT_PIN["routeCount"]
 EXPECTED_IDENTITY_SOURCE_COMMIT = "45a487d71a516ae3039b00c250752897469ffe7a"
 EXPECTED_PRODUCTION_ISSUER = "https://auth.codestra.co/realms/codestra"
 EXPECTED_STAGING_ISSUER = "https://auth-staging.codestra.co/realms/codestra"
 EXPECTED_MIDDLEWARE_AUDIENCE = "middleware-api"
-EXPECTED_COUNTS = {"shared_edge": 105, "denied": 10, "private_only": 2}
+EXPECTED_COUNTS = dict(CONTRACT_PIN["classificationCounts"])
 EXPECTED_CALLERS = {
     "none",
     "all_declared_clients",
@@ -142,7 +144,7 @@ def validate_profiles(profiles: dict[str, Any]) -> dict[str, Any]:
     middleware = authority.get("middleware", {})
     require(middleware.get("commit") == EXPECTED_MIDDLEWARE_COMMIT, "Middleware commit pin drift")
     require(middleware.get("routeContractSha256") == EXPECTED_MIDDLEWARE_DIGEST, "Middleware route digest drift")
-    require(middleware.get("routeCount") == 117, "Middleware route count drift")
+    require(middleware.get("routeCount") == EXPECTED_ROUTE_COUNT, "Middleware route count drift")
 
     keycloak = authority.get("keycloak", {})
     require(keycloak.get("commit") == EXPECTED_IDENTITY_SOURCE_COMMIT, "Keycloak identity commit pin drift")
@@ -266,7 +268,7 @@ def validate_policy(policy: dict[str, Any], profiles: dict[str, Any]) -> dict[st
     source = authority.get("source", {})
     require(source.get("middlewareCommit") == EXPECTED_MIDDLEWARE_COMMIT, "V3 policy Middleware commit drift")
     require(source.get("routeContractSha256") == EXPECTED_MIDDLEWARE_DIGEST, "V3 policy route digest drift")
-    require(source.get("routeCount") == 117, "V3 policy route count drift")
+    require(source.get("routeCount") == EXPECTED_ROUTE_COUNT, "V3 policy route count drift")
     require(source.get("classificationCounts") == EXPECTED_COUNTS, "V3 policy classification counts drift")
     require(source.get("identitySourceCommit") == EXPECTED_IDENTITY_SOURCE_COMMIT, "V3 policy Keycloak commit drift")
 
@@ -286,9 +288,9 @@ def validate_policy(policy: dict[str, Any], profiles: dict[str, Any]) -> dict[st
     require(mixed.get("wildcardScopeAllowed") is False, "service-or-user wildcard scope forbidden")
 
     rows = authority.get("routeSecurity", [])
-    require(len(rows) == 117, "routeSecurity must represent all 117 Middleware routes")
-    require(len({row.get("operationId") for row in rows}) == 117, "duplicate/missing operationId in routeSecurity")
-    require(len({(row.get("method"), row.get("path")) for row in rows}) == 117, "duplicate/missing method+path in routeSecurity")
+    require(len(rows) == EXPECTED_ROUTE_COUNT, f"routeSecurity must represent all {EXPECTED_ROUTE_COUNT} Middleware routes")
+    require(len({row.get("operationId") for row in rows}) == EXPECTED_ROUTE_COUNT, "duplicate/missing operationId in routeSecurity")
+    require(len({(row.get("method"), row.get("path")) for row in rows}) == EXPECTED_ROUTE_COUNT, "duplicate/missing method+path in routeSecurity")
     counts = {name: sum(row.get("classification") == name for row in rows) for name in EXPECTED_COUNTS}
     require(counts == EXPECTED_COUNTS, "routeSecurity classification counts drift")
     selectors = {row.get("callerSelector") for row in rows}
@@ -339,7 +341,10 @@ def validate_policy(policy: dict[str, Any], profiles: dict[str, Any]) -> dict[st
                 if row.get("requiredScope") in EXPECTED_PRIVILEGED_SCOPES:
                     require(row.get("humanMfaRequired") is True, f"{op}: privileged human path lacks MFA")
 
-    require(service_or_user_count == 84, f"SERVICE_OR_USER_ROUTES drift: {service_or_user_count}")
+    contract_rows = json.loads((ROOT / "config" / "middleware-public-api-route-contract.v1.json").read_text(encoding="utf-8"))["routes"]
+    expected_service_or_user = sum(row.get("auth") == "service-or-user-jwt" for row in contract_rows)
+    require(service_or_user_count == expected_service_or_user,
+            f"SERVICE_OR_USER_ROUTES drift: {service_or_user_count} != contract {expected_service_or_user}")
 
     replay = next((row for row in rows if row.get("operationId") == REPLAY_OPERATION), None)
     require(replay is not None, "replay route missing")
@@ -387,7 +392,7 @@ def validate_external_sources(
     if middleware_contract is not None:
         middleware = load_json(middleware_contract)
         require(canonical_digest(middleware) == EXPECTED_MIDDLEWARE_DIGEST, "external Middleware digest mismatch")
-        require(len(middleware.get("routes", [])) == 117, "external Middleware route count mismatch")
+        require(len(middleware.get("routes", [])) == EXPECTED_ROUTE_COUNT, "external Middleware route count mismatch")
         for source in middleware["routes"]:
             op = source["operation_id"]
             require(op in rows, f"external Middleware operation absent from security projection: {op}")

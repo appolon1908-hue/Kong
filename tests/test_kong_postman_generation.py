@@ -184,3 +184,10 @@ def test_positive_probes_reject_gateway_auth_and_routing_failures() -> None:
         assert "pm.expect([401, 403]).to.not.include(pm.response.code);" in test
         assert "private_surface_not_found" in test
         assert "no Route matched" in test
+
+
+def test_crm_families_are_anchored_to_their_namespaces() -> None:
+    assert postman.family("/platform/v1/tickets/{ticket_id}") == "CRM Tickets"
+    assert postman.family("/platform/v1/contacts/{contact_id}/notes") == "CRM Contacts"
+    assert postman.family("/platform/v1/opportunities") == "CRM Opportunities"
+    assert postman.family("/platform/v1/agent-provisioning/webrtc/tickets") is None

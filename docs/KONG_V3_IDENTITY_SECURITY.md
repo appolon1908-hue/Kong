@@ -1,12 +1,17 @@
 # Kong V3 Identity & API Security — PAS-148
 
+> **Current authority:** the Middleware contract Kong enforces is pinned in
+> `config/middleware-public-api-route-contract.pin.json` (repository, commit, digest and
+> classification counts); generators and validators read it. The values below are the
+> historical lane snapshot and are kept for provenance only.
+
 ## Purpose
 
 PAS-148 defines Kong's final authentication/authorization policy for the frozen Middleware V3 contract without becoming a second route authority.
 
 The route/upstream authority remains Lane A. Lane B owns the security projection only.
 
-## Frozen authorities
+## Frozen authorities (historical lane snapshot)
 
 - Middleware: `ingtrader21-spec/Middleware-@bd406a6508c8095a3f23b35149a2eebcb94c94c6`
 - Middleware route digest: `9c32daecd4a15104c6f9ff60ce19c8f7e78707fb31d9fd9fcb55b1b8dfa3512b`

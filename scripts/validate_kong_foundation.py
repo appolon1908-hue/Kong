@@ -67,9 +67,10 @@ ACCESS_POLICY = "config/kong-access-policy.v1.json"
 ACCESS_POLICY_SCHEMA = "codestra.kong.access-policy.v1"
 AUTH_PROFILES = "config/kong-authentication-profiles.v1.json"
 AUTH_PROFILES_SCHEMA = "codestra.kong.authentication-profiles.v1"
-FINAL_MIDDLEWARE_SOURCE_SHA = "bd406a6508c8095a3f23b35149a2eebcb94c94c6"
-FINAL_MIDDLEWARE_CONTRACT_SHA256 = "9c32daecd4a15104c6f9ff60ce19c8f7e78707fb31d9fd9fcb55b1b8dfa3512b"
-FINAL_MIDDLEWARE_ROUTE_COUNTS = {"shared_edge": 105, "denied": 10, "private_only": 2}
+_CONTRACT_PIN = json.loads((Path(__file__).resolve().parents[1] / "config/middleware-public-api-route-contract.pin.json").read_text(encoding="utf-8"))
+FINAL_MIDDLEWARE_SOURCE_SHA = _CONTRACT_PIN["commit"]
+FINAL_MIDDLEWARE_CONTRACT_SHA256 = _CONTRACT_PIN["contractSha256"]
+FINAL_MIDDLEWARE_ROUTE_COUNTS = dict(_CONTRACT_PIN["classificationCounts"])
 CANONICAL_MIDDLEWARE_HOST = "middleware-integration-api"
 CANONICAL_MIDDLEWARE_PORT = 8095
 PROVIDER_HOST_MARKERS = ("odoo", "n8n", "telnexa", "klyrow", "vicidial", "postly", "kyqra")
@@ -797,8 +798,24 @@ def literal_prefix(path: str) -> str:
     body = path[1:]
     if body.startswith("^"):
         body = body[1:]
-    match = re.match(r"[A-Za-z0-9/._-]*", body)
-    return match.group(0) if match else ""
+    # An escaped punctuation character (``\-``, ``\.``) is a literal, as the
+    # route generators emit for hyphenated segments. A literal followed by a
+    # quantifier is optional, so the guaranteed prefix ends before it.
+    literal: list[str] = []
+    index = 0
+    while index < len(body):
+        char = body[index]
+        if char == "\\" and index + 1 < len(body) and not body[index + 1].isalnum():
+            char, width = body[index + 1], 2
+        elif re.fullmatch(r"[A-Za-z0-9/._-]", char):
+            width = 1
+        else:
+            break
+        if index + width < len(body) and body[index + width] in "?*{":
+            break
+        literal.append(char)
+        index += width
+    return "".join(literal)
 
 
 def route_priority(route: SourceRoute) -> tuple[int, int, int, int, int]:
