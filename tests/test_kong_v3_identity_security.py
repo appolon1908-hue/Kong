@@ -324,3 +324,23 @@ def test_relying_party_downgrades_fail_closed(mutate, match):
     mutate(plugins)
     violations = validator.relying_party_violations(plugins, validator.EXPECTED_PRODUCTION_ISSUER, audience)
     assert any(match in violation for violation in violations), violations
+
+
+def test_shared_routes_preserve_command_identity_headers():
+    for relative in ("config/kong-middleware-routes.production.yml", "config/staging/kong-middleware-routes.staging.yml"):
+        for route in yaml.safe_load((ROOT / relative).read_text(encoding="utf-8"))["services"][0]["routes"]:
+            assert validator.header_preservation_violations(route) == [], route["name"]
+
+
+@pytest.mark.parametrize("plugin,match", [
+    ({"name": "pre-function", "config": {"access": ['kong.service.request.clear_header("Idempotency-Key")']}}, "pre-function touches"),
+    ({"name": "post-function", "config": {"access": ["kong.service.request.set_header('traceparent', 'x')"]}}, "post-function touches"),
+    ({"name": "request-transformer", "config": {"remove": {"headers": ["Authorization"]}}}, "request-transformer removes"),
+    ({"name": "request-transformer", "config": {"replace": {"headers": ["Idempotency-Key:fixed"]}}}, "request-transformer replaces"),
+    ({"name": "proxy-cache", "config": {}}, "must not be response-cached"),
+])
+def test_header_preservation_downgrades_fail_closed(plugin, match):
+    manifest = yaml.safe_load((ROOT / "config/kong-middleware-routes.production.yml").read_text(encoding="utf-8"))
+    route = next(r for r in manifest["services"][0]["routes"] if "POST" in r["methods"])
+    route["plugins"].append(plugin)
+    assert any(match in violation for violation in validator.header_preservation_violations(route))

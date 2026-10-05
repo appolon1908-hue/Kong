@@ -508,6 +508,34 @@ def relying_party_violations(plugins: list[dict[str, Any]], issuer: str, audienc
     return violations
 
 
+PRESERVED_COMMAND_HEADERS = ("Authorization", "Idempotency-Key", "X-Correlation-ID", "traceparent", "tracestate")
+EFFECTFUL_METHODS = {"POST", "PUT", "PATCH", "DELETE"}
+
+
+def header_preservation_violations(route: dict[str, Any]) -> list[str]:
+    """Kong never regenerates, drops or caches command identity: no plugin on a
+    shared route may remove the preserved headers, and effectful routes carry no
+    response cache."""
+    violations: list[str] = []
+    preserved = {name.lower() for name in PRESERVED_COMMAND_HEADERS}
+    for plugin in route.get("plugins", []):
+        name, config = plugin.get("name"), plugin.get("config") or {}
+        if name in ("pre-function", "post-function"):
+            code = "\n".join(str(chunk) for phase in config.values() if isinstance(phase, list) for chunk in phase).lower()
+            touched = sorted(header for header in preserved if f'"{header}"' in code or f"'{header}'" in code)
+            if touched:
+                violations.append(f"{name} touches preserved headers {touched}")
+        if name == "request-transformer":
+            for action in ("remove", "rename", "replace"):
+                headers = (config.get(action) or {}).get("headers") or []
+                hit = sorted({str(h).split(":")[0].lower() for h in headers} & preserved)
+                if hit:
+                    violations.append(f"request-transformer {action}s preserved headers {hit}")
+        if name == "proxy-cache" and EFFECTFUL_METHODS & set(route.get("methods") or []):
+            violations.append("effectful route must not be response-cached")
+    return violations
+
+
 def validate_generated_manifests(root: Path = ROOT) -> None:
     """Bind deployable identity gates to the pinned Middleware route contract."""
     spec = importlib.util.spec_from_file_location(
@@ -540,6 +568,8 @@ def validate_generated_manifests(root: Path = ROOT) -> None:
             require(isinstance(plugins, list), f"{relative}: {name} missing identity plugins")
             violations = relying_party_violations(plugins, issuer, row["audience"])
             require(not violations, f"{relative}: {name} relying-party drift: {'; '.join(violations)}")
+            preservation = header_preservation_violations(actual[name])
+            require(not preservation, f"{relative}: {name} header preservation drift: {'; '.join(preservation)}")
             identity_names = {"pre-function", "openid-connect", "codestra-authz"}
             for expected in route_plugins(row, issuer):
                 if expected["name"] not in identity_names:

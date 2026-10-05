@@ -30,6 +30,7 @@ def gateway():
         request = {
           get_method = function() return state.method or "POST" end,
           get_header = function(name) return state.headers[name] end,
+          get_headers = function() return state.headers end,
           get_raw_body = function(limit)
             if #state.body > limit then return nil, "too large" end
             return state.body
@@ -368,3 +369,59 @@ def test_contract_mode_schema_requires_its_fields_conditionally(gateway):
         required.setdefault(cond.if_match.eq, set()).add(cond.then_field.removeprefix("config."))
     assert required["contract"] == {"operation_id", "expected_azp", "required_scope", "allowed_azps"}
     assert required["token"] == {"issuer", "audience", "authorized_parties", "scopes", "roles", "tenant_claim"}
+
+
+TRACE = "00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01"
+PRESERVED = ("Authorization", "Idempotency-Key", "X-Correlation-ID", "traceparent", "tracestate")
+
+
+def run_context(lua, headers, upstream=None):
+    state = lua.globals().state
+    for name, value in headers.items():
+        state.headers[name] = value
+    for name, value in (upstream or headers).items():
+        state.upstream[name] = value
+    plugin = handler(lua, "codestra-request-context")
+    plugin.access(plugin, lua.table_from({"require_correlation_id": False}))
+    return state
+
+
+def test_context_strips_the_whole_codestra_namespace(gateway):
+    spoofed = {"X-Codestra-Future-Authority": "admin", "x-codestra-tenant-override": "t2", "X-Codestra-Scopes": "*"}
+    state = run_context(gateway, spoofed)
+    assert state.status is None
+    for name in spoofed:
+        assert state.upstream[name] is None, name
+
+
+def test_context_preserves_command_identity_and_trace_headers(gateway):
+    headers = {"Authorization": "Bearer a.b.c", "Idempotency-Key": "cmd-0001", "X-Correlation-ID": "corr-1",
+               "traceparent": TRACE, "tracestate": "congo=t61rcWkgMzE,rojo=00f067aa0ba902b7"}
+    state = run_context(gateway, headers)
+    assert state.status is None
+    for name in PRESERVED:
+        assert state.upstream[name] == headers[name], name
+
+
+@pytest.mark.parametrize("tracestate", ["=novalue", "Upper=1", "a=" + "x" * 300, ",".join(f"k{i}=v" for i in range(33)),
+                                        "k=bad,value", "k=a=b"])
+def test_context_drops_invalid_tracestate_but_keeps_the_trace(gateway, tracestate):
+    state = run_context(gateway, {"traceparent": TRACE, "tracestate": tracestate})
+    assert state.status is None
+    assert state.upstream["tracestate"] is None
+    assert state.upstream["traceparent"] == TRACE
+
+
+def test_context_never_attaches_client_tracestate_to_a_fresh_trace(gateway):
+    state = run_context(gateway, {"tracestate": "congo=t61rcWkgMzE"})
+    assert state.status is None
+    assert state.upstream["tracestate"] is None
+    assert state.upstream["traceparent"].startswith("00-")
+
+
+@pytest.mark.parametrize("name", ["X-Tenant-ID", "X-Codestra-Scopes", "X-Admin", "X-Internal-Service", "X-Codestra-Gateway-Secret"])
+def test_spoofed_privilege_headers_never_reach_middleware(gateway, name):
+    value = "tenant-1" if name == "X-Tenant-ID" else "escalate"
+    state = run_context(gateway, {name: value})
+    assert state.status is None
+    assert state.upstream[name] is None
