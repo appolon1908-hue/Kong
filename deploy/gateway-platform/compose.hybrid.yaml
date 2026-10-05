@@ -58,6 +58,9 @@ services:
       KONG_STATUS_ACCESS_LOG: 'off'
       KONG_VAULTS: env
       CODESTRA_RUNTIME_APPLY_AUTHORIZED: 'false'
+      KONG_UNTRUSTED_LUA: sandbox
+      KONG_UNTRUSTED_LUA_SANDBOX_REQUIRES: cjson.safe
+      KONG_HEADERS: 'off'
     networks:
       kong_admin: null
       kong_database: null
@@ -182,6 +185,9 @@ services:
       KONG_REAL_IP_HEADER: X-Forwarded-For
       KONG_REAL_IP_RECURSIVE: 'on'
       CODESTRA_RUNTIME_APPLY_AUTHORIZED: 'false'
+      KONG_UNTRUSTED_LUA: sandbox
+      KONG_UNTRUSTED_LUA_SANDBOX_REQUIRES: cjson.safe
+      KONG_HEADERS: 'off'
     networks:
     - kong_proxy
     - kong_cluster
@@ -297,6 +303,9 @@ services:
       KONG_REAL_IP_HEADER: X-Forwarded-For
       KONG_REAL_IP_RECURSIVE: 'on'
       CODESTRA_RUNTIME_APPLY_AUTHORIZED: 'false'
+      KONG_UNTRUSTED_LUA: sandbox
+      KONG_UNTRUSTED_LUA_SANDBOX_REQUIRES: cjson.safe
+      KONG_HEADERS: 'off'
     networks:
     - kong_proxy
     - kong_cluster

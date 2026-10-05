@@ -62,6 +62,9 @@ services:
       CODESTRA_RUNTIME_APPLY_AUTHORIZED: 'false'
       CODESTRA_TRADITIONAL_APPROVAL: ${CODESTRA_TRADITIONAL_APPROVAL:?explicit KONG
         fallback approval required}
+      KONG_UNTRUSTED_LUA: sandbox
+      KONG_UNTRUSTED_LUA_SANDBOX_REQUIRES: cjson.safe
+      KONG_HEADERS: 'off'
     networks:
     - kong_proxy
     - kong_database
@@ -187,6 +190,9 @@ services:
       CODESTRA_RUNTIME_APPLY_AUTHORIZED: 'false'
       CODESTRA_TRADITIONAL_APPROVAL: ${CODESTRA_TRADITIONAL_APPROVAL:?explicit KONG
         fallback approval required}
+      KONG_UNTRUSTED_LUA: sandbox
+      KONG_UNTRUSTED_LUA_SANDBOX_REQUIRES: cjson.safe
+      KONG_HEADERS: 'off'
     networks:
     - kong_proxy
     - kong_database
@@ -294,6 +300,9 @@ services:
       CODESTRA_RUNTIME_APPLY_AUTHORIZED: 'false'
       CODESTRA_TRADITIONAL_APPROVAL: ${CODESTRA_TRADITIONAL_APPROVAL:?explicit KONG
         fallback approval required}
+      KONG_UNTRUSTED_LUA: sandbox
+      KONG_UNTRUSTED_LUA_SANDBOX_REQUIRES: cjson.safe
+      KONG_HEADERS: 'off'
     networks:
     - kong_admin
     - kong_database

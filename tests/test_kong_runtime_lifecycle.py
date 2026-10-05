@@ -239,3 +239,29 @@ def test_readiness_cannot_be_forged_by_an_inherited_http_proxy():
         proxy.shutdown()
         proxy.server_close()
         thread.join()
+
+
+@pytest.mark.parametrize("mode,legacy", [("hybrid", False), ("traditional", False), ("hybrid", True)])
+def test_every_node_keeps_the_sandbox_headers_and_resource_bounds(mode, legacy):
+    validate(profile(mode, legacy), mode, legacy)
+
+
+@pytest.mark.parametrize("mode,legacy", [("hybrid", False), ("traditional", False), ("hybrid", True)])
+@pytest.mark.parametrize("mutate,message", [
+    (lambda s: s["environment"].update(KONG_UNTRUSTED_LUA="on"), "sandboxed"),
+    (lambda s: s["environment"].pop("KONG_UNTRUSTED_LUA"), "sandboxed"),
+    (lambda s: s["environment"].update(KONG_UNTRUSTED_LUA_SANDBOX_REQUIRES="cjson.safe,os"), "cjson.safe"),
+    (lambda s: s["environment"].update(KONG_HEADERS="server_tokens"), "server headers"),
+    (lambda s: s.pop("pids_limit"), "PIDs"),
+    (lambda s: s.pop("mem_limit"), "memory"),
+    (lambda s: s.pop("cpus"), "CPU"),
+    (lambda s: s.update(cap_drop=["NET_RAW"]), "capabilities"),
+    (lambda s: s.update(security_opt=[]), "no-new-privileges"),
+])
+def test_runtime_node_hardening_fails_closed(mode, legacy, mutate, message):
+    document = profile(mode, legacy)
+    for service in document["services"].values():
+        mutate(service)
+        break
+    with pytest.raises(Exception, match=message):
+        validate(document, mode, legacy)

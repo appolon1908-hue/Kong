@@ -155,6 +155,19 @@ def validate_profile(document, mode, approval=None, legacy=False):
         require(not any(k.startswith("KONG_DECLARATIVE_CONFIG") for k in env),
                 "declarative configuration cannot become runtime apply authority")
         require(env.get("KONG_ADMIN_GUI_LISTEN") == "off", "Admin GUI must be off")
+        # Route guards and the scope policy decode verified tokens with
+        # cjson.safe inside the serverless sandbox; `on` would unsandbox every
+        # function on the node.
+        require(env.get("KONG_UNTRUSTED_LUA") == "sandbox", "serverless Lua must stay sandboxed")
+        require(env.get("KONG_UNTRUSTED_LUA_SANDBOX_REQUIRES") == "cjson.safe",
+                "sandbox must allow exactly cjson.safe")
+        require(env.get("KONG_HEADERS") == "off", "Kong server headers must be off")
+        require(isinstance(service.get("pids_limit"), int) and 0 < service["pids_limit"] <= 4096,
+                "runtime PIDs must be bounded")
+        require(bool(service.get("mem_limit")), "runtime memory must be bounded")
+        require(bool(service.get("cpus")), "runtime CPU must be bounded")
+        require(service.get("cap_drop") == ["ALL"], "all Linux capabilities must be dropped")
+        require("no-new-privileges:true" in (service.get("security_opt") or []), "no-new-privileges required")
         proxy = env.get("KONG_PROXY_LISTEN")
         management = role == "control_plane" or name == "kong-management"
         require(env.get("KONG_ADMIN_LISTEN") == ("127.0.0.1:8001" if management else "off"),
