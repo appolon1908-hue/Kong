@@ -103,26 +103,7 @@ jobs:
       - name: Enforce two-phase migration-manifest rule
         run: |
           set -Eeuo pipefail
-          if grep -q '^V3_PHASE=INTEGRATED            python tools/generate_migration_manifests.py --check
-            python tools/verify_migration_manifest.py
-            echo "FULL_PYTEST=PASS"
-            echo "FINAL_MANIFEST_REGEN=PASS"
-          else
-            echo "867904618fcdf98ef603e27a5ff9fa8dda0ee1b78c9a030b317ea1391dfafb4a  MIGRATION_MANIFEST.json" | sha256sum --check --strict
-            echo "47d746e8575f3c2b481082ecb6dc90a5b7be809e675f09bb113b0699acd5cb49  MIGRATION_MANIFEST.yaml" | sha256sum --check --strict
-            grep -q '^V3_PHASE=PARALLEL$' /tmp/kong-v3-foundation.txt
-            echo "FULL_PYTEST=DEFERRED_A_B_C_NOT_INTEGRATED"
-            echo "FINAL_MANIFEST_REGEN=DEFERRED_A_B_C_NOT_INTEGRATED"
-          fi
-
-      - name: Require clean source after certification
-        run: |
-          set -Eeuo pipefail
-          git diff --check
-          git diff --exit-code
-          test -z "$(git status --porcelain --untracked-files=all)"
-          echo "LANE_D_STATIC_CERTIFICATION=PASS"
- /tmp/kong-v3-foundation.txt; then
+          if grep -q '^V3_PHASE=INTEGRATED$' /tmp/kong-v3-foundation.txt; then
             PYTEST_BASETEMP="${RUNNER_TEMP}/kong-v3-pytest"
             rm -rf "$PYTEST_BASETEMP"
             pytest -q -p no:cacheprovider --basetemp "$PYTEST_BASETEMP"
