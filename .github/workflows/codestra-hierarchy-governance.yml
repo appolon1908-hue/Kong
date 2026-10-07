@@ -1,0 +1,36 @@
+name: Codestra Hierarchy Governance
+on:
+  pull_request:
+    branches: [main, development, testing, staging, production]
+permissions:
+  contents: read
+  pull-requests: read
+jobs:
+  promotion-guard:
+    name: promotion-guard
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Enforce promotion path
+        env:
+          GITHUB_HEAD_REF: ${{ github.head_ref }}
+          GITHUB_BASE_REF: ${{ github.base_ref }}
+        run: python3 governance/promotion_guard.py
+
+  control-plane-certification:
+    name: control-plane-certification
+    runs-on: [self-hosted, linux, x64, codestra-control-plane]
+    timeout-minutes: 5
+    steps:
+      - name: Verify exact SHA in Codestra development control plane
+        run: |
+          /srv/codestra/dev-platform/control-plane/bin/codestra-github-check \
+            --product 'kong' \
+            --repo-path '/srv/codestra/apps/Kong' \
+            --head-ref '${{ github.head_ref }}' \
+            --base-ref '${{ github.base_ref }}' \
+            --head-sha '${{ github.event.pull_request.head.sha }}'
