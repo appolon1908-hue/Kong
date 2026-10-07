@@ -23,10 +23,6 @@
       "base": "production"
     }
   ],
-  "bootstrap_exception": {
-    "head": "governance/development-control-plane-v1",
-    "base": "main"
-  },
   "protected": [
     "main",
     "development",
@@ -36,11 +32,17 @@
   ],
   "required_status_contexts": [
     "promotion-guard",
-    "promotion-gate"
+    "control-plane-certification"
   ],
   "production_defaults": {
     "PRODUCTION_GO": "NO",
     "LIVE_CAPABILITIES_ENABLED": "NO",
     "EXTERNAL_EFFECTS": "false"
+  },
+  "bootstrap": {
+    "pr_number": 133,
+    "head": "governance/development-control-plane-v1",
+    "base": "main",
+    "single_use": true
   }
 }
