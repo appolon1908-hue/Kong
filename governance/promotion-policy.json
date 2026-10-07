@@ -7,15 +7,8 @@
     {"head":"testing","base":"staging"},
     {"head":"staging","base":"production"}
   ],
-  "bootstrap_exception": {
-    "head": "governance/development-control-plane-v1",
-    "base": "main"
-  },
+  "bootstrap_exception": {"head":"governance/development-control-plane-v1","base":"main"},
   "protected": ["main","development","testing","staging","production"],
   "required_status_contexts": ["promotion-guard","control-plane-certification"],
-  "production_defaults": {
-    "PRODUCTION_GO":"NO",
-    "LIVE_CAPABILITIES_ENABLED":"NO",
-    "EXTERNAL_EFFECTS":"false"
-  }
+  "production_defaults": {"PRODUCTION_GO":"NO","LIVE_CAPABILITIES_ENABLED":"NO","EXTERNAL_EFFECTS":"false"}
 }
