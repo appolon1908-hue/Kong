@@ -7,10 +7,6 @@ a=p.parse_args()
 head=a.head or os.environ.get("GITHUB_HEAD_REF","")
 base=a.base or os.environ.get("GITHUB_BASE_REF","")
 policy=json.loads(pathlib.Path("governance/promotion-policy.json").read_text())
-b=policy["bootstrap_exception"]
-if head==b["head"] and base==b["base"]:
-    print("PROMOTION_GUARD=PASS bootstrap")
-    raise SystemExit(0)
 ok=False
 for rule in policy["accepted_promotions"]:
     if fnmatch.fnmatch(head,rule["head"]) and fnmatch.fnmatch(base,rule["base"]):
