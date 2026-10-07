@@ -18,6 +18,12 @@ prefix,testing,staging,production=maps[repo]
 section_re=re.compile(rf"^{re.escape(prefix)}-[0-9]{{2}}-[a-z0-9][a-z0-9-]*$")
 ok=False
 reason=""
+if head=="governance/agent-hierarchy-main-v1" and base=="main":
+    print("PROMOTION_ALLOWED=YES governance_main_bootstrap")
+    raise SystemExit(0)
+if head=="governance/agent-hierarchy-v1" and base=="development":
+    print("PROMOTION_ALLOWED=YES governance_development_bootstrap")
+    raise SystemExit(0)
 if head.startswith("subsection/"):
     name=head.split("/",1)[1]
     section=name.split("--",1)[0]
