@@ -1,20 +1,14 @@
-<!-- CODESTRA_AGENT_PROTOCOL_V1 -->
-## Codestra continuation contract
+# Codestra Agent Rules
 
-Canonical protocol:
-https://github.com/ingtrader21-spec/codestra/blob/main/docs/AGENT-CONTINUATION-PROTOCOL.md
-
-Quick start:
-https://github.com/ingtrader21-spec/codestra/blob/main/docs/AGENT-QUICKSTART.md
-
-Before changing code:
-1. Read `.codestra-mission/*` when present.
-2. Read the active Linear issue and linked Notion architecture.
-3. Inspect exact Git branch/HEAD/dirty/worktree/upstream/PR/CI state.
-4. Preserve all existing local work.
-5. If acting as Builder, verify exclusive issue ownership and use a dedicated worktree.
-6. Do not invent or self-assign the next task.
-7. Update GitHub + Linear + Notion + the mission checkpoint before handoff.
-8. Do not cross the live-production approval boundary.
-
-The canonical protocol's no-loss, one-writer, protected-merge, checkpoint, and production-boundary rules are mandatory.
+1. Work only in the assigned subsection branch/worktree.
+2. Follow: subsection -> section -> development -> testing -> staging -> production.
+3. Fetch first; require a clean tree; record base SHA; check ahead/behind.
+4. Never overwrite unknown local work or bypass conflicts.
+5. Every atomic task needs code, tests, docs/contracts/migrations when applicable.
+6. Run applicable lint, type, unit, integration, contract, migration, security, secret-scan, and diff checks before push.
+7. Push every validated checkpoint and verify remote SHA.
+8. No direct work on main/development/testing/staging/production and no force push to protected branches.
+9. Keep PRODUCTION_GO=NO, LIVE_CAPABILITIES_ENABLED=NO, EXTERNAL_EFFECTS=false unless an approved activation mission explicitly changes them.
+10. COMPLETE requires clean tree, pushed branch, tests, docs, zero unresolved blockers, and local/remote SHA match.
+11. CERTIFIED additionally requires exact-SHA CI, independent review, regression/security gates, and stored evidence.
+12. If safety or correctness cannot be proven, mark BLOCKED and stop.
