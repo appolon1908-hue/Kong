@@ -1,36 +1,21 @@
 {
   "version": 1,
-  "control_plane_status_context": "promotion-gate",
-  "github_guard_context": "promotion-guard",
-  "promotion_chain": [
-    {
-      "head": "subsection/<section>--<subsection>",
-      "base": "section/<section>"
-    },
-    {
-      "head": "section/*",
-      "base": "development"
-    },
-    {
-      "head": "development",
-      "base": "testing"
-    },
-    {
-      "head": "testing",
-      "base": "staging"
-    },
-    {
-      "head": "staging",
-      "base": "production"
-    }
+  "accepted_promotions": [
+    {"head":"subsection/*","base":"section/*","relation":"matching-section-required"},
+    {"head":"section/*","base":"development"},
+    {"head":"development","base":"testing"},
+    {"head":"testing","base":"staging"},
+    {"head":"staging","base":"production"}
   ],
   "bootstrap_exception": {
     "head": "governance/development-control-plane-v1",
     "base": "main"
   },
+  "protected": ["main","development","testing","staging","production"],
+  "required_status_contexts": ["promotion-guard","control-plane-certification"],
   "production_defaults": {
-    "PRODUCTION_GO": "NO",
-    "LIVE_CAPABILITIES_ENABLED": "NO",
-    "EXTERNAL_EFFECTS": "false"
+    "PRODUCTION_GO":"NO",
+    "LIVE_CAPABILITIES_ENABLED":"NO",
+    "EXTERNAL_EFFECTS":"false"
   }
 }
