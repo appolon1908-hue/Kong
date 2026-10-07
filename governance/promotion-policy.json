@@ -1,0 +1,42 @@
+{
+  "version": 1,
+  "accepted_promotions": [
+    {
+      "head": "subsection/*",
+      "base": "section/*",
+      "relation": "matching-section-required"
+    },
+    {
+      "head": "section/*",
+      "base": "development"
+    },
+    {
+      "head": "development",
+      "base": "testing"
+    },
+    {
+      "head": "testing",
+      "base": "staging"
+    },
+    {
+      "head": "staging",
+      "base": "production"
+    }
+  ],
+  "bootstrap_exception": {
+    "head": "governance/development-control-plane-v1",
+    "base": "main"
+  },
+  "protected": [
+    "main",
+    "development",
+    "testing",
+    "staging",
+    "production"
+  ],
+  "production_defaults": {
+    "PRODUCTION_GO": "NO",
+    "LIVE_CAPABILITIES_ENABLED": "NO",
+    "EXTERNAL_EFFECTS": "false"
+  }
+}
