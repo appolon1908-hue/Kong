@@ -1,10 +1,11 @@
 {
   "version": 1,
-  "accepted_promotions": [
+  "control_plane_status_context": "promotion-gate",
+  "github_guard_context": "promotion-guard",
+  "promotion_chain": [
     {
-      "head": "subsection/*",
-      "base": "section/*",
-      "relation": "matching-section-required"
+      "head": "subsection/<section>--<subsection>",
+      "base": "section/<section>"
     },
     {
       "head": "section/*",
@@ -27,13 +28,6 @@
     "head": "governance/development-control-plane-v1",
     "base": "main"
   },
-  "protected": [
-    "main",
-    "development",
-    "testing",
-    "staging",
-    "production"
-  ],
   "production_defaults": {
     "PRODUCTION_GO": "NO",
     "LIVE_CAPABILITIES_ENABLED": "NO",
