@@ -39,8 +39,8 @@ files:
   sha256: 9bb366d5b10186ab749adc24a5d868867467a6099b18485ebcc9a302dc6b2543
   size: 3248
 - path: .github/workflows/validate.yml
-  sha256: 492cc0a4f26fe925b5ef8f614f692c0c6c22ecf32bf8b51479fe145849c56425
-  size: 8996
+  sha256: afaaa2470a54ddc185db5076a8883571a97e02c67f3aa1677c30444015ed05ec
+  size: 9128
 - path: .gitignore
   sha256: 8c06027889bb245680b8a248468504a51ff8654fc6c800ea9ebd9f54213ddf9d
   size: 214
@@ -819,7 +819,7 @@ files:
   sha256: 9346d7586c76f1386231236259325f17d7f36a1a1486a7ada454314a11d380f7
   size: 6249
 generated_at: '2026-08-26T21:10:25.642865+00:00'
-manifest_generation_id: 9beb6b848184ee807e33119efb262e4582e47195fe4a8bd883808a6fdaabcd35
+manifest_generation_id: 62b42d6f82d36e0d4f7321f8fd97161dfef7cda91a7d8905985dc857624a1cde
 production_state_changed: false
 schema: codestra.kong.repository-migration.v1
 source_files:
