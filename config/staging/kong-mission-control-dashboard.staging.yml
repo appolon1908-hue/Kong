@@ -1,0 +1,62 @@
+_format_version: '3.0'
+_transform: true
+# This isolated staging candidate does not update the running Kong DB-less
+# bundle. Activate only via the authorized environment-promotion workflow.
+services:
+  - name: mission-control-dashboard-readonly
+    host: mission-control-readonly
+    port: 8790
+    protocol: http
+    connect_timeout: 3000
+    read_timeout: 7000
+    write_timeout: 7000
+    retries: 0
+    tags:
+      - codestra.environment.staging
+      - codestra.production-go.no
+      - codestra.runtime-apply-authorized.false
+      - codestra.external-effects.false
+      - codestra.backend.owned-by-Codestra-Mission-Control
+    routes:
+      - name: mission-control-dashboard-readonly-v1
+        hosts:
+          - api.codestra.co
+        paths:
+          - ~^/platform/v1/dashboard/(?:contract|repositories|repository|agents|sources|tasks|task|local-work|notifications)$
+        regex_priority: 180
+        methods: [GET]
+        protocols: [http]
+        strip_path: false
+        preserve_host: true
+        path_handling: v0
+        tags:
+          - codestra.read-only
+          - codestra.auth.required
+          - codestra.external-effects.false
+        plugins:
+          - name: openid-connect
+            config:
+              issuer: https://auth-staging.codestra.co/realms/codestra/.well-known/openid-configuration
+              auth_methods: [bearer]
+              audience: [mission-control-backend]
+              scopes_required: [mission.dashboard.read]
+              consumer_claim: [azp]
+              cache_tokens_salt: '{vault://env/kong-oidc-cache-tokens-salt}'
+          - name: request-transformer
+            config:
+              remove:
+                headers:
+                  - X-User-ID
+                  - X-Username
+                  - X-Roles
+                  - X-Scopes
+                  - X-Authenticated-User
+                  - X-Authenticated-Client
+                  - X-Authenticated-Tenant
+                  - X-Codestra-Tenant
+                  - X-Codestra-Gateway-Secret
+          - name: rate-limiting
+            config:
+              minute: 120
+              policy: local
+              fault_tolerant: false

@@ -2,9 +2,18 @@ files:
 - path: .codestra/calling-contract.lock.json
   sha256: 430371c7f1c504a4d585e5710f9772938786d654c4f35fd716cbbfaf48185b9a
   size: 233
+- path: .codestra/repository-profile.yaml
+  sha256: 6d7c26c67faf8834352da92515653101c64401487da1d0394de6fdf46c25793c
+  size: 824
+- path: .codestra/workstation-integrations.yaml
+  sha256: 718cb57a104ffa27998cfebfb71782b922c07f280c14ae985c4e7836047b9a6c
+  size: 1869
 - path: .github/workflows/calling-contract-pin.yml
   sha256: eb004bbc12919944c1a8312275a99475dfa4d2abefab2f309181173d16492ff0
   size: 3263
+- path: .github/workflows/environment-promotion.yml
+  sha256: be4c0cef688086e7f1e829e4e2f759e013afa8900a7b4ae83e2a06672568156d
+  size: 2390
 - path: .github/workflows/kong-config.yml
   sha256: 68201716307f7baaf6a36b58e55206c6b15b05d961fd47c57d0aa0aa0130d01e
   size: 2139
@@ -179,6 +188,9 @@ files:
 - path: config/staging/kong-middleware-routes.staging.yml
   sha256: 961fdf0950604ce66dadf2f14d33fe1b54300a62aa4e1c934a2051171507b233
   size: 290243
+- path: config/staging/kong-mission-control-dashboard.staging.yml
+  sha256: 5bb97922d216f16e7abcbb7b696c8b341b51134276a0c2d593fd3ff3e56660a0
+  size: 2165
 - path: config/staging/kong-n8n-control-plane-routes.json
   sha256: 8f4bd06199b8b9215846f8ffc99cca27bd6e7b683a1289e746fea6d4772f1e74
   size: 2407
@@ -740,6 +752,9 @@ files:
 - path: tests/test_kong_webhook_registry.py
   sha256: 3013d7b9433a298633d879120a0f566545b2d44b9a7209dd6f48743616bf6c54
   size: 2667
+- path: tests/test_mission_control_dashboard_staging_route.py
+  sha256: 37e60771fe12332a1ef55ec31991057861803ae95a43f290c6136563020fa8fd
+  size: 2273
 - path: tests/test_moneybee_identity_edge.py
   sha256: 9dde2d49604618281379c44f0e0f7f66b73ea0f42c4b72b466ad85c563717fa5
   size: 3581
@@ -813,7 +828,7 @@ files:
   sha256: 8ce9988ecece68671509320205a44ea4db92fbad7db15fa32fe7425b5f447a1f
   size: 5410
 generated_at: '2026-08-26T21:10:25.642865+00:00'
-manifest_generation_id: 42042cee3c17c705e5a2b35428cb65bc9aeb245f7a3c41e53537323695ebd94d
+manifest_generation_id: d290c4712e611bbff98fa55c41b0f2d88e4b48654aa9cbe1017b569fb4b4de03
 production_state_changed: false
 schema: codestra.kong.repository-migration.v1
 source_files:
