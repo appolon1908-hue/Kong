@@ -1,0 +1,80 @@
+# PREPARED STAGING ONLY. Do not apply to a live Kong instance.
+# This is a standalone, complete db-less fragment; import by reviewed
+# staging promotion only. Public Caddy -> Kong -> internal Mission Control.
+_format_version: "3.0"
+_transform: true
+services:
+  - name: mission-control-dashboard-readonly-staging
+    host: mission-control-readonly
+    port: 8792
+    protocol: http
+    connect_timeout: 3000
+    read_timeout: 7000
+    write_timeout: 7000
+    retries: 0
+    tags:
+      - codestra.environment.staging
+      - codestra.runtime-apply-authorized.false
+      - codestra.provider-effects-enabled.false
+      - codestra.mission-control.readonly
+    routes:
+      - name: mission-control-dashboard-get-staging
+        hosts:
+          - dashboard.staging.internal.codestra.agency
+        paths:
+          - ~^/platform/v1/dashboard/(contract|repositories|repository|agents|tasks|task|local-work|sources|notifications)$
+        methods:
+          - GET
+        protocols:
+          - http
+        strip_path: false
+        preserve_host: false
+        regex_priority: 100
+        plugins:
+          - name: openid-connect
+            config:
+              issuer: https://auth-staging.codestra.co/realms/codestra/.well-known/openid-configuration
+              auth_methods:
+                - bearer
+              audience:
+                - mission-control-backend
+              scopes_required:
+                - dashboard.read
+              consumer_claim:
+                - azp
+              cache_tokens_salt: '{vault://env/kong-oidc-cache-tokens-salt}'
+          - name: request-transformer
+            config:
+              remove:
+                headers:
+                  - X-User-ID
+                  - X-Username
+                  - X-Email
+                  - X-Roles
+                  - X-Scopes
+                  - X-Authenticated-User
+                  - X-Authenticated-Subject
+                  - X-Authenticated-Tenant
+                  - X-Codestra-Tenant
+                  - X-Codestra-Scopes
+                  - X-Codestra-Gateway-Secret
+                  - X-Internal-Service
+                  - X-Admin
+                  - X-Consumer-ID
+                  - X-Consumer-Username
+                  - X-Codestra-Contract-Operation
+                  - X-Codestra-Required-Scope
+          - name: correlation-id
+            config:
+              header_name: X-Correlation-ID
+              generator: uuid
+              echo_downstream: true
+          - name: rate-limiting
+            config:
+              minute: 60
+              policy: local
+              fault_tolerant: false
+              hide_client_headers: false
+          - name: request-size-limiting
+            config:
+              allowed_payload_size: 1
