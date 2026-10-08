@@ -6,8 +6,8 @@ files:
   sha256: eb004bbc12919944c1a8312275a99475dfa4d2abefab2f309181173d16492ff0
   size: 3263
 - path: .github/workflows/codestra-hierarchy-governance.yml
-  sha256: bee4867dee4632d500618414120f703b365c957013a6abc259565c5290510d02
-  size: 1260
+  sha256: 66a1c267bf45950af67b8455b335989b57dc1fa45cadf3c5203a233df3300876
+  size: 2129
 - path: .github/workflows/kong-config.yml
   sha256: e351a750364dd0a8d0875f628e1f46bb13aac0580291c32630379dee96f44bd4
   size: 2428
@@ -819,7 +819,7 @@ files:
   sha256: 9346d7586c76f1386231236259325f17d7f36a1a1486a7ada454314a11d380f7
   size: 6249
 generated_at: '2026-08-26T21:10:25.642865+00:00'
-manifest_generation_id: 245ab81dfdc6581c8d4e2a2ee245a367ddd94390797fe4669f056636b53501f0
+manifest_generation_id: 9beb6b848184ee807e33119efb262e4582e47195fe4a8bd883808a6fdaabcd35
 production_state_changed: false
 schema: codestra.kong.repository-migration.v1
 source_files:
