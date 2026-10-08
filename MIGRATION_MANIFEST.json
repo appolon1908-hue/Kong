@@ -6,9 +6,24 @@
       "size": 233
     },
     {
+      "path": ".codestra/repository-profile.yaml",
+      "sha256": "6d7c26c67faf8834352da92515653101c64401487da1d0394de6fdf46c25793c",
+      "size": 824
+    },
+    {
+      "path": ".codestra/workstation-integrations.yaml",
+      "sha256": "718cb57a104ffa27998cfebfb71782b922c07f280c14ae985c4e7836047b9a6c",
+      "size": 1869
+    },
+    {
       "path": ".github/workflows/calling-contract-pin.yml",
       "sha256": "eb004bbc12919944c1a8312275a99475dfa4d2abefab2f309181173d16492ff0",
       "size": 3263
+    },
+    {
+      "path": ".github/workflows/environment-promotion.yml",
+      "sha256": "be4c0cef688086e7f1e829e4e2f759e013afa8900a7b4ae83e2a06672568156d",
+      "size": 2390
     },
     {
       "path": ".github/workflows/kong-config.yml",
@@ -479,6 +494,11 @@
       "path": "deploy/kong/scope-policy.lua",
       "sha256": "45620478af72076e36997f5e641e82b720864556e948cd125db6ba2a6a1f3513",
       "size": 5998
+    },
+    {
+      "path": "deploy/staging/mission-control-dashboard.kong.yml",
+      "sha256": "c499eb4a43b7f24710f7e0222709647a542833694682f33636b8cf477a6f33b1",
+      "size": 2746
     },
     {
       "path": "docs/CADDY_EDGE_AUTHORITY.md",
@@ -1236,6 +1256,11 @@
       "size": 2667
     },
     {
+      "path": "tests/test_mission_control_staging_gateway_contract.py",
+      "sha256": "f8df3a50662bfffec38b90fb8f843bd0e522faa40cdf793aecc99013e99497fa",
+      "size": 1630
+    },
+    {
       "path": "tests/test_moneybee_identity_edge.py",
       "sha256": "9dde2d49604618281379c44f0e0f7f66b73ea0f42c4b72b466ad85c563717fa5",
       "size": 3581
@@ -1357,7 +1382,7 @@
     }
   ],
   "generated_at": "2026-08-26T21:10:25.642865+00:00",
-  "manifest_generation_id": "42042cee3c17c705e5a2b35428cb65bc9aeb245f7a3c41e53537323695ebd94d",
+  "manifest_generation_id": "c9ef92f9a410eaa04e9407d0d3519fb660a83f1c4e34ce19bb4a705729be8951",
   "production_state_changed": false,
   "schema": "codestra.kong.repository-migration.v1",
   "source_files": [
