@@ -22,7 +22,7 @@ CANONICAL = ROOT / "config/kong-canonical-middleware-routes.json"
 PRODUCTION = ROOT / "config/kong-campaign-automation-routes.json"
 STAGING = ROOT / "config/staging/kong-campaign-automation-routes.json"
 VENDORED = ROOT / "config/middleware-public-api-route-contract.v1.json"
-EDGE_CONTRACT_SHA256 = "9c32daecd4a15104c6f9ff60ce19c8f7e78707fb31d9fd9fcb55b1b8dfa3512b"
+EDGE_CONTRACT_SHA256 = json.loads((Path(__file__).resolve().parents[1] / "config/middleware-public-api-route-contract.pin.json").read_text(encoding="utf-8"))["contractSha256"]
 
 CANONICAL_ROUTES = {
     ("POST", "/api/v1/integrations/n8n/results"): ("codestra-campaign-result-submit", "n8n.results.submit"),
@@ -104,7 +104,8 @@ def test_every_scoped_contract_route_is_declared_with_the_same_method_and_scope(
         assert route["serviceHost"] == "middleware-integration-api"
         assert route["servicePort"] == 8095
         assert route["stripPath"] is False
-        assert {"openid-connect", "post-function", "correlation-id", "rate-limiting", "request-size-limiting"} == set(
+        assert {"pre-function", "openid-connect", "codestra-authz", "correlation-id", "rate-limiting", "request-size-limiting",
+                "codestra-private-surface", "codestra-resource-guard", "codestra-request-context"} == set(
             route["requiredPlugins"]
         )
         row = authority[(method, template)]

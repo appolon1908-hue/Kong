@@ -9,21 +9,26 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import importlib.util
 import json
 from pathlib import Path
 from typing import Any
+
+import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
 PROFILES_PATH = ROOT / "config" / "kong-authentication-profiles.v1.json"
 POLICY_PATH = ROOT / "config" / "kong-access-policy.v1.json"
 
-EXPECTED_MIDDLEWARE_DIGEST = "9c32daecd4a15104c6f9ff60ce19c8f7e78707fb31d9fd9fcb55b1b8dfa3512b"
-EXPECTED_MIDDLEWARE_COMMIT = "2862af0aa97367b18cb360af69212abe4243a1ac"
+CONTRACT_PIN = json.loads((Path(__file__).resolve().parents[1] / "config/middleware-public-api-route-contract.pin.json").read_text(encoding="utf-8"))
+EXPECTED_MIDDLEWARE_DIGEST = CONTRACT_PIN["contractSha256"]
+EXPECTED_MIDDLEWARE_COMMIT = CONTRACT_PIN["commit"]
+EXPECTED_ROUTE_COUNT = CONTRACT_PIN["routeCount"]
 EXPECTED_IDENTITY_SOURCE_COMMIT = "45a487d71a516ae3039b00c250752897469ffe7a"
 EXPECTED_PRODUCTION_ISSUER = "https://auth.codestra.co/realms/codestra"
 EXPECTED_STAGING_ISSUER = "https://auth-staging.codestra.co/realms/codestra"
 EXPECTED_MIDDLEWARE_AUDIENCE = "middleware-api"
-EXPECTED_COUNTS = {"shared_edge": 105, "denied": 10, "private_only": 2}
+EXPECTED_COUNTS = dict(CONTRACT_PIN["classificationCounts"])
 EXPECTED_CALLERS = {
     "none",
     "all_declared_clients",
@@ -139,7 +144,7 @@ def validate_profiles(profiles: dict[str, Any]) -> dict[str, Any]:
     middleware = authority.get("middleware", {})
     require(middleware.get("commit") == EXPECTED_MIDDLEWARE_COMMIT, "Middleware commit pin drift")
     require(middleware.get("routeContractSha256") == EXPECTED_MIDDLEWARE_DIGEST, "Middleware route digest drift")
-    require(middleware.get("routeCount") == 117, "Middleware route count drift")
+    require(middleware.get("routeCount") == EXPECTED_ROUTE_COUNT, "Middleware route count drift")
 
     keycloak = authority.get("keycloak", {})
     require(keycloak.get("commit") == EXPECTED_IDENTITY_SOURCE_COMMIT, "Keycloak identity commit pin drift")
@@ -263,7 +268,7 @@ def validate_policy(policy: dict[str, Any], profiles: dict[str, Any]) -> dict[st
     source = authority.get("source", {})
     require(source.get("middlewareCommit") == EXPECTED_MIDDLEWARE_COMMIT, "V3 policy Middleware commit drift")
     require(source.get("routeContractSha256") == EXPECTED_MIDDLEWARE_DIGEST, "V3 policy route digest drift")
-    require(source.get("routeCount") == 117, "V3 policy route count drift")
+    require(source.get("routeCount") == EXPECTED_ROUTE_COUNT, "V3 policy route count drift")
     require(source.get("classificationCounts") == EXPECTED_COUNTS, "V3 policy classification counts drift")
     require(source.get("identitySourceCommit") == EXPECTED_IDENTITY_SOURCE_COMMIT, "V3 policy Keycloak commit drift")
 
@@ -283,9 +288,9 @@ def validate_policy(policy: dict[str, Any], profiles: dict[str, Any]) -> dict[st
     require(mixed.get("wildcardScopeAllowed") is False, "service-or-user wildcard scope forbidden")
 
     rows = authority.get("routeSecurity", [])
-    require(len(rows) == 117, "routeSecurity must represent all 117 Middleware routes")
-    require(len({row.get("operationId") for row in rows}) == 117, "duplicate/missing operationId in routeSecurity")
-    require(len({(row.get("method"), row.get("path")) for row in rows}) == 117, "duplicate/missing method+path in routeSecurity")
+    require(len(rows) == EXPECTED_ROUTE_COUNT, f"routeSecurity must represent all {EXPECTED_ROUTE_COUNT} Middleware routes")
+    require(len({row.get("operationId") for row in rows}) == EXPECTED_ROUTE_COUNT, "duplicate/missing operationId in routeSecurity")
+    require(len({(row.get("method"), row.get("path")) for row in rows}) == EXPECTED_ROUTE_COUNT, "duplicate/missing method+path in routeSecurity")
     counts = {name: sum(row.get("classification") == name for row in rows) for name in EXPECTED_COUNTS}
     require(counts == EXPECTED_COUNTS, "routeSecurity classification counts drift")
     selectors = {row.get("callerSelector") for row in rows}
@@ -336,7 +341,10 @@ def validate_policy(policy: dict[str, Any], profiles: dict[str, Any]) -> dict[st
                 if row.get("requiredScope") in EXPECTED_PRIVILEGED_SCOPES:
                     require(row.get("humanMfaRequired") is True, f"{op}: privileged human path lacks MFA")
 
-    require(service_or_user_count == 84, f"SERVICE_OR_USER_ROUTES drift: {service_or_user_count}")
+    contract_rows = json.loads((ROOT / "config" / "middleware-public-api-route-contract.v1.json").read_text(encoding="utf-8"))["routes"]
+    expected_service_or_user = sum(row.get("auth") == "service-or-user-jwt" for row in contract_rows)
+    require(service_or_user_count == expected_service_or_user,
+            f"SERVICE_OR_USER_ROUTES drift: {service_or_user_count} != contract {expected_service_or_user}")
 
     replay = next((row for row in rows if row.get("operationId") == REPLAY_OPERATION), None)
     require(replay is not None, "replay route missing")
@@ -384,7 +392,7 @@ def validate_external_sources(
     if middleware_contract is not None:
         middleware = load_json(middleware_contract)
         require(canonical_digest(middleware) == EXPECTED_MIDDLEWARE_DIGEST, "external Middleware digest mismatch")
-        require(len(middleware.get("routes", [])) == 117, "external Middleware route count mismatch")
+        require(len(middleware.get("routes", [])) == EXPECTED_ROUTE_COUNT, "external Middleware route count mismatch")
         for source in middleware["routes"]:
             op = source["operation_id"]
             require(op in rows, f"external Middleware operation absent from security projection: {op}")
@@ -442,6 +450,139 @@ def validate(
     }
 
 
+STRICT_RELYING_PARTY = {
+    "auth_methods": ["bearer"],
+    "bearer_token_param_type": ["header"],
+    "verify_signature": True,
+    "verify_claims": True,
+    "ssl_verify": True,
+    "enable_hs_signatures": False,
+    "ignore_signature": [],
+    "introspect_jwt_tokens": False,
+    "display_errors": False,
+    "consumer_optional": False,
+    "leeway": 0,
+}
+FORBIDDEN_AUTHENTICATION_PLUGINS = {"jwt", "key-auth", "basic-auth", "hmac-auth", "oauth2", "ldap-auth"}
+
+
+def relying_party_violations(plugins: list[dict[str, Any]], issuer: str, audience: str) -> list[str]:
+    """Generator-independent invariants for a shared_edge route: openid-connect is
+    the only authentication, verifies a strict RS-signed bearer token from the one
+    issuer, never falls back to anonymous, and authorization runs only after it
+    (codestra-authz priority 900 is below openid-connect 1050)."""
+    violations: list[str] = []
+    names = [plugin.get("name") for plugin in plugins]
+    oidc = [plugin for plugin in plugins if plugin.get("name") == "openid-connect"]
+    if len(oidc) != 1:
+        return ["exactly one openid-connect plugin is required"]
+    config = oidc[0].get("config") or {}
+    for key, expected in STRICT_RELYING_PARTY.items():
+        if config.get(key) != expected:
+            violations.append(f"openid-connect {key} must be {expected!r}")
+    if config.get("anonymous") not in (None, ""):
+        violations.append("openid-connect must not fall back to an anonymous consumer")
+    if not audience or "*" in audience or config.get("audience_required") != [audience] or config.get("audience") != [audience]:
+        violations.append("openid-connect must require exactly the contract audience")
+    if config.get("issuers_allowed") != [issuer]:
+        violations.append("openid-connect issuers_allowed must be the single environment issuer")
+    scopes = config.get("scopes_required")
+    if not scopes or any(not isinstance(scope, str) or not scope or "*" in scope for scope in scopes):
+        violations.append("openid-connect scopes_required must name concrete scopes")
+    if FORBIDDEN_AUTHENTICATION_PLUGINS & set(names):
+        violations.append("a second authentication plugin is forbidden next to openid-connect")
+    authz = [plugin for plugin in plugins if plugin.get("name") == "codestra-authz"]
+    if len(authz) != 1 or (authz[0].get("config") or {}).get("mode") != "contract":
+        violations.append("exactly one codestra-authz contract authorization step is required")
+    if "post-function" in names:
+        violations.append("generated post-function code is forbidden; authorization belongs to codestra-authz")
+    if any("ordering" in plugin for plugin in plugins):
+        violations.append("dynamic plugin ordering could run policy before authentication")
+    for plugin in plugins:
+        if plugin.get("name") != "pre-function":
+            continue
+        code = "\n".join(str(chunk) for phase in (plugin.get("config") or {}).values()
+                         if isinstance(phase, list) for chunk in phase)
+        if "kong.response.exit" in code or "set_header" in code or "get_consumer" in code:
+            violations.append("pre-function may only clear client identity, never authorize or mint")
+    return violations
+
+
+PRESERVED_COMMAND_HEADERS = ("Authorization", "Idempotency-Key", "X-Correlation-ID", "traceparent", "tracestate")
+EFFECTFUL_METHODS = {"POST", "PUT", "PATCH", "DELETE"}
+
+
+def header_preservation_violations(route: dict[str, Any]) -> list[str]:
+    """Kong never regenerates, drops or caches command identity: no plugin on a
+    shared route may remove the preserved headers, and effectful routes carry no
+    response cache."""
+    violations: list[str] = []
+    preserved = {name.lower() for name in PRESERVED_COMMAND_HEADERS}
+    for plugin in route.get("plugins", []):
+        name, config = plugin.get("name"), plugin.get("config") or {}
+        if name in ("pre-function", "post-function"):
+            code = "\n".join(str(chunk) for phase in config.values() if isinstance(phase, list) for chunk in phase).lower()
+            touched = sorted(header for header in preserved if f'"{header}"' in code or f"'{header}'" in code)
+            if touched:
+                violations.append(f"{name} touches preserved headers {touched}")
+        if name == "request-transformer":
+            for action in ("remove", "rename", "replace"):
+                headers = (config.get(action) or {}).get("headers") or []
+                hit = sorted({str(h).split(":")[0].lower() for h in headers} & preserved)
+                if hit:
+                    violations.append(f"request-transformer {action}s preserved headers {hit}")
+        if name == "proxy-cache" and EFFECTFUL_METHODS & set(route.get("methods") or []):
+            violations.append("effectful route must not be response-cached")
+    return violations
+
+
+def validate_generated_manifests(root: Path = ROOT) -> None:
+    """Bind deployable identity gates to the pinned Middleware route contract."""
+    spec = importlib.util.spec_from_file_location(
+        "kong_middleware_route_generator", ROOT / "scripts/generate_middleware_routes.py"
+    )
+    require(spec is not None and spec.loader is not None, "route generator unavailable")
+    generator = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(generator)
+    route_plugins, safe_name = generator.route_plugins, generator.safe_name
+
+    contract = load_json(root / "config/middleware-public-api-route-contract.v1.json")
+    require(canonical_digest(contract) == EXPECTED_MIDDLEWARE_DIGEST, "Middleware route contract digest drift")
+    shared = [row for row in contract["routes"] if row["classification"] == "shared_edge"]
+    private_paths = sorted({row["path"] for row in contract["routes"] if row["classification"] == "private_only"})
+    for relative, issuer in (
+        ("config/kong-middleware-routes.production.yml", EXPECTED_PRODUCTION_ISSUER),
+        ("config/staging/kong-middleware-routes.staging.yml", EXPECTED_STAGING_ISSUER),
+    ):
+        try:
+            manifest = yaml.safe_load((root / relative).read_text())
+            routes = manifest["services"][0]["routes"]
+        except (OSError, KeyError, IndexError, TypeError, yaml.YAMLError) as exc:
+            raise IdentitySecurityError(f"{relative}: invalid generated manifest") from exc
+        surface = [plugin for plugin in manifest.get("plugins") or [] if plugin.get("name") == "codestra-private-surface"]
+        require(len(surface) == 1 and surface[0].get("config", {}).get("allow_private") is False
+                and surface[0]["config"].get("private_paths") == private_paths,
+                f"{relative}: global private surface must deny exactly the contract private_only operations")
+        actual = {route.get("name"): route for route in routes}
+        require(len(actual) == len(routes) == len(shared), f"{relative}: shared route set drift")
+        require(set(actual) == {safe_name(row["operation_id"]) for row in shared},
+                f"{relative}: shared route set drift")
+        for row in shared:
+            name = safe_name(row["operation_id"])
+            plugins = actual[name].get("plugins", [])
+            require(isinstance(plugins, list), f"{relative}: {name} missing identity plugins")
+            violations = relying_party_violations(plugins, issuer, row["audience"])
+            require(not violations, f"{relative}: {name} relying-party drift: {'; '.join(violations)}")
+            preservation = header_preservation_violations(actual[name])
+            require(not preservation, f"{relative}: {name} header preservation drift: {'; '.join(preservation)}")
+            identity_names = {"pre-function", "openid-connect", "codestra-authz"}
+            for expected in route_plugins(row, issuer):
+                if expected["name"] not in identity_names:
+                    continue
+                matching = [plugin for plugin in plugins if plugin.get("name") == expected["name"]]
+                require(matching == [expected], f"{relative}: {name} {expected['name']} identity gate drift")
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("--middleware-contract", type=Path)
@@ -457,6 +598,7 @@ def main() -> int:
         keycloak_callers=args.keycloak_callers,
         keycloak_access=args.keycloak_access,
     )
+    validate_generated_manifests()
     authority = result["securityAuthority"]
     rows = authority["routeSecurity"]
     print("KONG_V3_IDENTITY_SECURITY=PASS")

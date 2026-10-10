@@ -1,6 +1,6 @@
 {
   "schema": "codestra.kong.calling-routes.v1",
-  "authority": "appolon1908-hue/codestra-production-platform#257",
+  "authority": "appolon1908/codestra-production-platform#257",
   "contractVersion": "1.0.0",
   "contractDigest": "b39cdffe56a8185c91174228f0423df68b1137f34875f6ee52f9914f904bf724",
   "status": "SOURCE_CANDIDATE_NO_RUNTIME_APPLY",
@@ -74,7 +74,7 @@
     },
     {
       "name": "codestra-calling-operation-read",
-      "path": "~^/v1/telephony/operations/[0-9a-fA-F-]{36}$",
+      "path": "~/v1/telephony/operations/[0-9a-fA-F-]{36}$",
       "methods": ["GET"],
       "requiredScope": "telephony:status",
       "idempotencyRequired": false,
@@ -82,7 +82,7 @@
     },
     {
       "name": "codestra-calling-operation-cancel",
-      "path": "~^/v1/telephony/operations/[0-9a-fA-F-]{36}/cancel$",
+      "path": "~/v1/telephony/operations/[0-9a-fA-F-]{36}/cancel$",
       "methods": ["POST"],
       "requiredScope": "telephony:command",
       "idempotencyRequired": true,
@@ -90,7 +90,7 @@
     },
     {
       "name": "codestra-calling-operation-reconcile",
-      "path": "~^/v1/telephony/operations/[0-9a-fA-F-]{36}/reconcile$",
+      "path": "~/v1/telephony/operations/[0-9a-fA-F-]{36}/reconcile$",
       "methods": ["POST"],
       "requiredScope": "telephony:status",
       "idempotencyRequired": true,

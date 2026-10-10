@@ -4,7 +4,7 @@
   "provider_effects_enabled": false,
   "contract": {
     "path": "config/middleware-public-api-route-contract.v1.json",
-    "sha256": "9c32daecd4a15104c6f9ff60ce19c8f7e78707fb31d9fd9fcb55b1b8dfa3512b"
+    "sha256": "c48c20d8bc71918699abb03cefe1e3c5075536a9d91d8aea8df4fc031891db21"
   },
   "upstream": {
     "host": "middleware-integration-api",
@@ -45,11 +45,11 @@
         "body.correlation_id"
       ],
       "rate_limit": {
-        "minute": 120,
+        "minute": 240,
         "policy": "redis",
         "fault_tolerant": false
       },
-      "request_size_limit_mb": 2
+      "request_size_limit_mb": 1
     },
     {
       "operation_id": "create_callback",
@@ -85,11 +85,11 @@
         "body.correlation_id"
       ],
       "rate_limit": {
-        "minute": 120,
+        "minute": 300,
         "policy": "redis",
         "fault_tolerant": false
       },
-      "request_size_limit_mb": 2
+      "request_size_limit_mb": 1
     },
     {
       "operation_id": "read_n8n_result",
@@ -105,11 +105,11 @@
         "body.correlation_id"
       ],
       "rate_limit": {
-        "minute": 120,
+        "minute": 240,
         "policy": "redis",
         "fault_tolerant": false
       },
-      "request_size_limit_mb": 2
+      "request_size_limit_mb": 1
     },
     {
       "operation_id": "read_odoo_campaign",
@@ -125,11 +125,11 @@
         "body.correlation_id"
       ],
       "rate_limit": {
-        "minute": 120,
+        "minute": 240,
         "policy": "redis",
         "fault_tolerant": false
       },
-      "request_size_limit_mb": 2
+      "request_size_limit_mb": 1
     },
     {
       "operation_id": "read_odoo_campaign_desired_state",
@@ -145,11 +145,11 @@
         "body.correlation_id"
       ],
       "rate_limit": {
-        "minute": 120,
+        "minute": 240,
         "policy": "redis",
         "fault_tolerant": false
       },
-      "request_size_limit_mb": 2
+      "request_size_limit_mb": 1
     },
     {
       "operation_id": "ingress_odoo_event",
@@ -165,11 +165,11 @@
         "body.correlation_id"
       ],
       "rate_limit": {
-        "minute": 120,
+        "minute": 300,
         "policy": "redis",
         "fault_tolerant": false
       },
-      "request_size_limit_mb": 2
+      "request_size_limit_mb": 1
     },
     {
       "operation_id": "list_activity_platform_v1_activity_get",
@@ -185,16 +185,36 @@
         "body.correlation_id"
       ],
       "rate_limit": {
-        "minute": 120,
+        "minute": 240,
         "policy": "redis",
         "fault_tolerant": false
       },
-      "request_size_limit_mb": 2
+      "request_size_limit_mb": 1
     },
     {
       "operation_id": "get_activity_platform_v1_activity__activity_id__get",
       "method": "GET",
       "path": "/platform/v1/activity/{activity_id}",
+      "issuer": "https://auth.codestra.co/realms/codestra",
+      "audience": "middleware-api",
+      "scope": "identity.request",
+      "azp": "authorized-provisioning-client",
+      "authentication": "service-or-user-jwt",
+      "correlation_fields": [
+        "X-Correlation-ID",
+        "body.correlation_id"
+      ],
+      "rate_limit": {
+        "minute": 240,
+        "policy": "redis",
+        "fault_tolerant": false
+      },
+      "request_size_limit_mb": 1
+    },
+    {
+      "operation_id": "adopt_agent_extension_platform_v1_agent_provisioning_adopt_extension_post",
+      "method": "POST",
+      "path": "/platform/v1/agent-provisioning/adopt-extension",
       "issuer": "https://auth.codestra.co/realms/codestra",
       "audience": "middleware-api",
       "scope": "identity.request",
@@ -245,11 +265,31 @@
         "body.correlation_id"
       ],
       "rate_limit": {
-        "minute": 120,
+        "minute": 240,
         "policy": "redis",
         "fault_tolerant": false
       },
-      "request_size_limit_mb": 2
+      "request_size_limit_mb": 1
+    },
+    {
+      "operation_id": "provisioning_history_platform_v1_agent_provisioning_requests__request_id__history_get",
+      "method": "GET",
+      "path": "/platform/v1/agent-provisioning/requests/{request_id}/history",
+      "issuer": "https://auth.codestra.co/realms/codestra",
+      "audience": "middleware-api",
+      "scope": "identity.request",
+      "azp": "authorized-provisioning-client",
+      "authentication": "service-or-user-jwt",
+      "correlation_fields": [
+        "X-Correlation-ID",
+        "body.correlation_id"
+      ],
+      "rate_limit": {
+        "minute": 240,
+        "policy": "redis",
+        "fault_tolerant": false
+      },
+      "request_size_limit_mb": 1
     },
     {
       "operation_id": "reactivate_provisioning_request_platform_v1_agent_provisioning_requests__request_id__reactivate_post",
@@ -332,9 +372,9 @@
       "request_size_limit_mb": 2
     },
     {
-      "operation_id": "list_agents_presence_platform_v1_agents_presence_get",
-      "method": "GET",
-      "path": "/platform/v1/agents/presence",
+      "operation_id": "reserve_agent_extension_platform_v1_agent_provisioning_reserve_extension_post",
+      "method": "POST",
+      "path": "/platform/v1/agent-provisioning/reserve-extension",
       "issuer": "https://auth.codestra.co/realms/codestra",
       "audience": "middleware-api",
       "scope": "identity.request",
@@ -350,6 +390,166 @@
         "fault_tolerant": false
       },
       "request_size_limit_mb": 2
+    },
+    {
+      "operation_id": "issue_webrtc_ticket_platform_v1_agent_provisioning_webrtc_tickets_post",
+      "method": "POST",
+      "path": "/platform/v1/agent-provisioning/webrtc/tickets",
+      "issuer": "https://auth.codestra.co/realms/codestra",
+      "audience": "middleware-api",
+      "scope": "identity.request",
+      "azp": "authorized-provisioning-client",
+      "authentication": "service-or-user-jwt",
+      "correlation_fields": [
+        "X-Correlation-ID",
+        "body.correlation_id"
+      ],
+      "rate_limit": {
+        "minute": 120,
+        "policy": "redis",
+        "fault_tolerant": false
+      },
+      "request_size_limit_mb": 2
+    },
+    {
+      "operation_id": "disable_agent_platform_v1_agent_provisioning__request_id__disable_post",
+      "method": "POST",
+      "path": "/platform/v1/agent-provisioning/{request_id}/disable",
+      "issuer": "https://auth.codestra.co/realms/codestra",
+      "audience": "middleware-api",
+      "scope": "identity.request",
+      "azp": "authorized-provisioning-client",
+      "authentication": "service-or-user-jwt",
+      "correlation_fields": [
+        "X-Correlation-ID",
+        "body.correlation_id"
+      ],
+      "rate_limit": {
+        "minute": 120,
+        "policy": "redis",
+        "fault_tolerant": false
+      },
+      "request_size_limit_mb": 2
+    },
+    {
+      "operation_id": "provisioning_readback_platform_v1_agent_provisioning__request_id__readback_get",
+      "method": "GET",
+      "path": "/platform/v1/agent-provisioning/{request_id}/readback",
+      "issuer": "https://auth.codestra.co/realms/codestra",
+      "audience": "middleware-api",
+      "scope": "identity.request",
+      "azp": "authorized-provisioning-client",
+      "authentication": "service-or-user-jwt",
+      "correlation_fields": [
+        "X-Correlation-ID",
+        "body.correlation_id"
+      ],
+      "rate_limit": {
+        "minute": 240,
+        "policy": "redis",
+        "fault_tolerant": false
+      },
+      "request_size_limit_mb": 1
+    },
+    {
+      "operation_id": "release_agent_extension_platform_v1_agent_provisioning__request_id__release_extension_post",
+      "method": "POST",
+      "path": "/platform/v1/agent-provisioning/{request_id}/release-extension",
+      "issuer": "https://auth.codestra.co/realms/codestra",
+      "audience": "middleware-api",
+      "scope": "identity.request",
+      "azp": "authorized-provisioning-client",
+      "authentication": "service-or-user-jwt",
+      "correlation_fields": [
+        "X-Correlation-ID",
+        "body.correlation_id"
+      ],
+      "rate_limit": {
+        "minute": 120,
+        "policy": "redis",
+        "fault_tolerant": false
+      },
+      "request_size_limit_mb": 2
+    },
+    {
+      "operation_id": "create_repair_intent_platform_v1_agent_provisioning__request_id__repair_intents_post",
+      "method": "POST",
+      "path": "/platform/v1/agent-provisioning/{request_id}/repair-intents",
+      "issuer": "https://auth.codestra.co/realms/codestra",
+      "audience": "middleware-api",
+      "scope": "identity.request",
+      "azp": "authorized-provisioning-client",
+      "authentication": "service-or-user-jwt",
+      "correlation_fields": [
+        "X-Correlation-ID",
+        "body.correlation_id"
+      ],
+      "rate_limit": {
+        "minute": 120,
+        "policy": "redis",
+        "fault_tolerant": false
+      },
+      "request_size_limit_mb": 2
+    },
+    {
+      "operation_id": "sync_agent_platform_v1_agent_provisioning__request_id__sync_post",
+      "method": "POST",
+      "path": "/platform/v1/agent-provisioning/{request_id}/sync",
+      "issuer": "https://auth.codestra.co/realms/codestra",
+      "audience": "middleware-api",
+      "scope": "identity.request",
+      "azp": "authorized-provisioning-client",
+      "authentication": "service-or-user-jwt",
+      "correlation_fields": [
+        "X-Correlation-ID",
+        "body.correlation_id"
+      ],
+      "rate_limit": {
+        "minute": 120,
+        "policy": "redis",
+        "fault_tolerant": false
+      },
+      "request_size_limit_mb": 2
+    },
+    {
+      "operation_id": "revoke_webrtc_session_platform_v1_agent_provisioning__request_id__webrtc_revoke_post",
+      "method": "POST",
+      "path": "/platform/v1/agent-provisioning/{request_id}/webrtc/revoke",
+      "issuer": "https://auth.codestra.co/realms/codestra",
+      "audience": "middleware-api",
+      "scope": "identity.request",
+      "azp": "authorized-provisioning-client",
+      "authentication": "service-or-user-jwt",
+      "correlation_fields": [
+        "X-Correlation-ID",
+        "body.correlation_id"
+      ],
+      "rate_limit": {
+        "minute": 120,
+        "policy": "redis",
+        "fault_tolerant": false
+      },
+      "request_size_limit_mb": 2
+    },
+    {
+      "operation_id": "list_agents_presence_platform_v1_agents_presence_get",
+      "method": "GET",
+      "path": "/platform/v1/agents/presence",
+      "issuer": "https://auth.codestra.co/realms/codestra",
+      "audience": "middleware-api",
+      "scope": "identity.request",
+      "azp": "authorized-provisioning-client",
+      "authentication": "service-or-user-jwt",
+      "correlation_fields": [
+        "X-Correlation-ID",
+        "body.correlation_id"
+      ],
+      "rate_limit": {
+        "minute": 240,
+        "policy": "redis",
+        "fault_tolerant": false
+      },
+      "request_size_limit_mb": 1
     },
     {
       "operation_id": "get_agent_presence_platform_v1_agents__user_id__presence_get",
@@ -365,11 +565,11 @@
         "body.correlation_id"
       ],
       "rate_limit": {
-        "minute": 120,
+        "minute": 240,
         "policy": "redis",
         "fault_tolerant": false
       },
-      "request_size_limit_mb": 2
+      "request_size_limit_mb": 1
     },
     {
       "operation_id": "list_calls_platform_v1_calls_get",
@@ -385,11 +585,11 @@
         "body.correlation_id"
       ],
       "rate_limit": {
-        "minute": 120,
+        "minute": 240,
         "policy": "redis",
         "fault_tolerant": false
       },
-      "request_size_limit_mb": 2
+      "request_size_limit_mb": 1
     },
     {
       "operation_id": "get_call_platform_v1_calls__call_id__get",
@@ -405,11 +605,11 @@
         "body.correlation_id"
       ],
       "rate_limit": {
-        "minute": 120,
+        "minute": 240,
         "policy": "redis",
         "fault_tolerant": false
       },
-      "request_size_limit_mb": 2
+      "request_size_limit_mb": 1
     },
     {
       "operation_id": "list_campaigns_platform_v1_campaigns_get",
@@ -425,11 +625,11 @@
         "body.correlation_id"
       ],
       "rate_limit": {
-        "minute": 120,
+        "minute": 240,
         "policy": "redis",
         "fault_tolerant": false
       },
-      "request_size_limit_mb": 2
+      "request_size_limit_mb": 1
     },
     {
       "operation_id": "get_campaign_platform_v1_campaigns__campaign_id__get",
@@ -445,11 +645,11 @@
         "body.correlation_id"
       ],
       "rate_limit": {
-        "minute": 120,
+        "minute": 240,
         "policy": "redis",
         "fault_tolerant": false
       },
-      "request_size_limit_mb": 2
+      "request_size_limit_mb": 1
     },
     {
       "operation_id": "get_campaign_channels_platform_v1_campaigns__campaign_id__channels_get",
@@ -465,11 +665,11 @@
         "body.correlation_id"
       ],
       "rate_limit": {
-        "minute": 120,
+        "minute": 240,
         "policy": "redis",
         "fault_tolerant": false
       },
-      "request_size_limit_mb": 2
+      "request_size_limit_mb": 1
     },
     {
       "operation_id": "get_campaign_health_platform_v1_campaigns__campaign_id__health_get",
@@ -485,16 +685,76 @@
         "body.correlation_id"
       ],
       "rate_limit": {
-        "minute": 120,
+        "minute": 240,
+        "policy": "redis",
+        "fault_tolerant": false
+      },
+      "request_size_limit_mb": 1
+    },
+    {
+      "operation_id": "list_campaign_members_platform_v1_campaigns__campaign_id__members_get",
+      "method": "GET",
+      "path": "/platform/v1/campaigns/{campaign_id}/members",
+      "issuer": "https://auth.codestra.co/realms/codestra",
+      "audience": "middleware-api",
+      "scope": "identity.request",
+      "azp": "authorized-provisioning-client",
+      "authentication": "service-or-user-jwt",
+      "correlation_fields": [
+        "X-Correlation-ID",
+        "body.correlation_id"
+      ],
+      "rate_limit": {
+        "minute": 240,
+        "policy": "redis",
+        "fault_tolerant": false
+      },
+      "request_size_limit_mb": 1
+    },
+    {
+      "operation_id": "submit_command_platform_v1_commands_post",
+      "method": "POST",
+      "path": "/platform/v1/commands",
+      "issuer": "https://auth.codestra.co/realms/codestra",
+      "audience": "middleware-api",
+      "scope": "platform.command",
+      "azp": "platform-command-client",
+      "authentication": "service-or-user-jwt",
+      "correlation_fields": [
+        "X-Correlation-ID",
+        "body.correlation_id"
+      ],
+      "rate_limit": {
+        "minute": 60,
         "policy": "redis",
         "fault_tolerant": false
       },
       "request_size_limit_mb": 2
     },
     {
-      "operation_id": "list_campaign_members_platform_v1_campaigns__campaign_id__members_get",
+      "operation_id": "get_operation_platform_v1_commands__operation_id__get",
       "method": "GET",
-      "path": "/platform/v1/campaigns/{campaign_id}/members",
+      "path": "/platform/v1/commands/{operation_id}",
+      "issuer": "https://auth.codestra.co/realms/codestra",
+      "audience": "middleware-api",
+      "scope": "identity.request",
+      "azp": "authorized-provisioning-client",
+      "authentication": "service-or-user-jwt",
+      "correlation_fields": [
+        "X-Correlation-ID",
+        "body.correlation_id"
+      ],
+      "rate_limit": {
+        "minute": 240,
+        "policy": "redis",
+        "fault_tolerant": false
+      },
+      "request_size_limit_mb": 1
+    },
+    {
+      "operation_id": "cancel_operation_platform_v1_commands__operation_id__cancel_post",
+      "method": "POST",
+      "path": "/platform/v1/commands/{operation_id}/cancel",
       "issuer": "https://auth.codestra.co/realms/codestra",
       "audience": "middleware-api",
       "scope": "identity.request",
@@ -512,13 +772,193 @@
       "request_size_limit_mb": 2
     },
     {
-      "operation_id": "submit_command_platform_v1_commands_post",
-      "method": "POST",
-      "path": "/platform/v1/commands",
+      "operation_id": "get_timeline_platform_v1_commands__operation_id__history_get",
+      "method": "GET",
+      "path": "/platform/v1/commands/{operation_id}/history",
       "issuer": "https://auth.codestra.co/realms/codestra",
       "audience": "middleware-api",
-      "scope": "platform.command",
-      "azp": "platform-command-client",
+      "scope": "identity.request",
+      "azp": "authorized-provisioning-client",
+      "authentication": "service-or-user-jwt",
+      "correlation_fields": [
+        "X-Correlation-ID",
+        "body.correlation_id"
+      ],
+      "rate_limit": {
+        "minute": 240,
+        "policy": "redis",
+        "fault_tolerant": false
+      },
+      "request_size_limit_mb": 1
+    },
+    {
+      "operation_id": "replay_operation_platform_v1_commands__operation_id__replay_post",
+      "method": "POST",
+      "path": "/platform/v1/commands/{operation_id}/replay",
+      "issuer": "https://auth.codestra.co/realms/codestra",
+      "audience": "middleware-api",
+      "scope": "identity.request",
+      "azp": "authorized-provisioning-client",
+      "authentication": "service-or-user-jwt",
+      "correlation_fields": [
+        "X-Correlation-ID",
+        "body.correlation_id"
+      ],
+      "rate_limit": {
+        "minute": 120,
+        "policy": "redis",
+        "fault_tolerant": false
+      },
+      "request_size_limit_mb": 2
+    },
+    {
+      "operation_id": "get_command_result_platform_v1_commands__operation_id__result_get",
+      "method": "GET",
+      "path": "/platform/v1/commands/{operation_id}/result",
+      "issuer": "https://auth.codestra.co/realms/codestra",
+      "audience": "middleware-api",
+      "scope": "identity.request",
+      "azp": "authorized-provisioning-client",
+      "authentication": "service-or-user-jwt",
+      "correlation_fields": [
+        "X-Correlation-ID",
+        "body.correlation_id"
+      ],
+      "rate_limit": {
+        "minute": 240,
+        "policy": "redis",
+        "fault_tolerant": false
+      },
+      "request_size_limit_mb": 1
+    },
+    {
+      "operation_id": "retry_command_platform_v1_commands__operation_id__retry_post",
+      "method": "POST",
+      "path": "/platform/v1/commands/{operation_id}/retry",
+      "issuer": "https://auth.codestra.co/realms/codestra",
+      "audience": "middleware-api",
+      "scope": "identity.request",
+      "azp": "authorized-provisioning-client",
+      "authentication": "service-or-user-jwt",
+      "correlation_fields": [
+        "X-Correlation-ID",
+        "body.correlation_id"
+      ],
+      "rate_limit": {
+        "minute": 120,
+        "policy": "redis",
+        "fault_tolerant": false
+      },
+      "request_size_limit_mb": 2
+    },
+    {
+      "operation_id": "connectors_catalog_platform_v1_connectors_get",
+      "method": "GET",
+      "path": "/platform/v1/connectors",
+      "issuer": "https://auth.codestra.co/realms/codestra",
+      "audience": "middleware-api",
+      "scope": "identity.request",
+      "azp": "authorized-provisioning-client",
+      "authentication": "service-or-user-jwt",
+      "correlation_fields": [
+        "X-Correlation-ID",
+        "body.correlation_id"
+      ],
+      "rate_limit": {
+        "minute": 240,
+        "policy": "redis",
+        "fault_tolerant": false
+      },
+      "request_size_limit_mb": 1
+    },
+    {
+      "operation_id": "connector_catalog_item_platform_v1_connectors__connector_id__get",
+      "method": "GET",
+      "path": "/platform/v1/connectors/{connector_id}",
+      "issuer": "https://auth.codestra.co/realms/codestra",
+      "audience": "middleware-api",
+      "scope": "identity.request",
+      "azp": "authorized-provisioning-client",
+      "authentication": "service-or-user-jwt",
+      "correlation_fields": [
+        "X-Correlation-ID",
+        "body.correlation_id"
+      ],
+      "rate_limit": {
+        "minute": 240,
+        "policy": "redis",
+        "fault_tolerant": false
+      },
+      "request_size_limit_mb": 1
+    },
+    {
+      "operation_id": "connector_capabilities_platform_v1_connectors__connector_id__capabilities_get",
+      "method": "GET",
+      "path": "/platform/v1/connectors/{connector_id}/capabilities",
+      "issuer": "https://auth.codestra.co/realms/codestra",
+      "audience": "middleware-api",
+      "scope": "identity.request",
+      "azp": "authorized-provisioning-client",
+      "authentication": "service-or-user-jwt",
+      "correlation_fields": [
+        "X-Correlation-ID",
+        "body.correlation_id"
+      ],
+      "rate_limit": {
+        "minute": 240,
+        "policy": "redis",
+        "fault_tolerant": false
+      },
+      "request_size_limit_mb": 1
+    },
+    {
+      "operation_id": "connector_health_platform_v1_connectors__connector_id__health_get",
+      "method": "GET",
+      "path": "/platform/v1/connectors/{connector_id}/health",
+      "issuer": "https://auth.codestra.co/realms/codestra",
+      "audience": "middleware-api",
+      "scope": "identity.request",
+      "azp": "authorized-provisioning-client",
+      "authentication": "service-or-user-jwt",
+      "correlation_fields": [
+        "X-Correlation-ID",
+        "body.correlation_id"
+      ],
+      "rate_limit": {
+        "minute": 240,
+        "policy": "redis",
+        "fault_tolerant": false
+      },
+      "request_size_limit_mb": 1
+    },
+    {
+      "operation_id": "connector_operator_readback_platform_v1_connectors__connector_id__readback_post",
+      "method": "POST",
+      "path": "/platform/v1/connectors/{connector_id}/readback",
+      "issuer": "https://auth.codestra.co/realms/codestra",
+      "audience": "middleware-api",
+      "scope": "identity.request",
+      "azp": "authorized-provisioning-client",
+      "authentication": "service-or-user-jwt",
+      "correlation_fields": [
+        "X-Correlation-ID",
+        "body.correlation_id"
+      ],
+      "rate_limit": {
+        "minute": 120,
+        "policy": "redis",
+        "fault_tolerant": false
+      },
+      "request_size_limit_mb": 2
+    },
+    {
+      "operation_id": "connector_operator_reconcile_platform_v1_connectors__connector_id__reconcile_post",
+      "method": "POST",
+      "path": "/platform/v1/connectors/{connector_id}/reconcile",
+      "issuer": "https://auth.codestra.co/realms/codestra",
+      "audience": "middleware-api",
+      "scope": "identity.request",
+      "azp": "authorized-provisioning-client",
       "authentication": "service-or-user-jwt",
       "correlation_fields": [
         "X-Correlation-ID",
@@ -545,11 +985,11 @@
         "body.correlation_id"
       ],
       "rate_limit": {
-        "minute": 120,
+        "minute": 240,
         "policy": "redis",
         "fault_tolerant": false
       },
-      "request_size_limit_mb": 2
+      "request_size_limit_mb": 1
     },
     {
       "operation_id": "create_contact_platform_v1_contacts_post",
@@ -585,11 +1025,11 @@
         "body.correlation_id"
       ],
       "rate_limit": {
-        "minute": 120,
+        "minute": 240,
         "policy": "redis",
         "fault_tolerant": false
       },
-      "request_size_limit_mb": 2
+      "request_size_limit_mb": 1
     },
     {
       "operation_id": "update_contact_platform_v1_contacts__contact_id__patch",
@@ -625,11 +1065,11 @@
         "body.correlation_id"
       ],
       "rate_limit": {
-        "minute": 120,
+        "minute": 240,
         "policy": "redis",
         "fault_tolerant": false
       },
-      "request_size_limit_mb": 2
+      "request_size_limit_mb": 1
     },
     {
       "operation_id": "create_note_platform_v1_contacts__contact_id__notes_post",
@@ -685,11 +1125,11 @@
         "body.correlation_id"
       ],
       "rate_limit": {
-        "minute": 120,
+        "minute": 240,
         "policy": "redis",
         "fault_tolerant": false
       },
-      "request_size_limit_mb": 2
+      "request_size_limit_mb": 1
     },
     {
       "operation_id": "create_task_platform_v1_contacts__contact_id__tasks_post",
@@ -712,6 +1152,46 @@
       "request_size_limit_mb": 2
     },
     {
+      "operation_id": "list_dead_letters_platform_v1_dead_letters_get",
+      "method": "GET",
+      "path": "/platform/v1/dead-letters",
+      "issuer": "https://auth.codestra.co/realms/codestra",
+      "audience": "middleware-api",
+      "scope": "identity.request",
+      "azp": "authorized-provisioning-client",
+      "authentication": "service-or-user-jwt",
+      "correlation_fields": [
+        "X-Correlation-ID",
+        "body.correlation_id"
+      ],
+      "rate_limit": {
+        "minute": 240,
+        "policy": "redis",
+        "fault_tolerant": false
+      },
+      "request_size_limit_mb": 1
+    },
+    {
+      "operation_id": "get_dead_letter_platform_v1_dead_letters__operation_id__get",
+      "method": "GET",
+      "path": "/platform/v1/dead-letters/{operation_id}",
+      "issuer": "https://auth.codestra.co/realms/codestra",
+      "audience": "middleware-api",
+      "scope": "identity.request",
+      "azp": "authorized-provisioning-client",
+      "authentication": "service-or-user-jwt",
+      "correlation_fields": [
+        "X-Correlation-ID",
+        "body.correlation_id"
+      ],
+      "rate_limit": {
+        "minute": 240,
+        "policy": "redis",
+        "fault_tolerant": false
+      },
+      "request_size_limit_mb": 1
+    },
+    {
       "operation_id": "list_email_identities_platform_v1_email_identities_get",
       "method": "GET",
       "path": "/platform/v1/email/identities",
@@ -725,11 +1205,11 @@
         "body.correlation_id"
       ],
       "rate_limit": {
-        "minute": 120,
+        "minute": 240,
         "policy": "redis",
         "fault_tolerant": false
       },
-      "request_size_limit_mb": 2
+      "request_size_limit_mb": 1
     },
     {
       "operation_id": "activate_platform_v1_email_production_activate_post",
@@ -765,11 +1245,11 @@
         "body.correlation_id"
       ],
       "rate_limit": {
-        "minute": 120,
+        "minute": 240,
         "policy": "redis",
         "fault_tolerant": false
       },
-      "request_size_limit_mb": 2
+      "request_size_limit_mb": 1
     },
     {
       "operation_id": "authorize_platform_v1_email_production_authorize_post",
@@ -825,11 +1305,11 @@
         "body.correlation_id"
       ],
       "rate_limit": {
-        "minute": 120,
+        "minute": 240,
         "policy": "redis",
         "fault_tolerant": false
       },
-      "request_size_limit_mb": 2
+      "request_size_limit_mb": 1
     },
     {
       "operation_id": "readiness_platform_v1_email_production_readiness_get",
@@ -845,11 +1325,11 @@
         "body.correlation_id"
       ],
       "rate_limit": {
-        "minute": 120,
+        "minute": 240,
         "policy": "redis",
         "fault_tolerant": false
       },
-      "request_size_limit_mb": 2
+      "request_size_limit_mb": 1
     },
     {
       "operation_id": "revoke_platform_v1_email_production_revoke_post",
@@ -885,11 +1365,11 @@
         "body.correlation_id"
       ],
       "rate_limit": {
-        "minute": 120,
+        "minute": 240,
         "policy": "redis",
         "fault_tolerant": false
       },
-      "request_size_limit_mb": 2
+      "request_size_limit_mb": 1
     },
     {
       "operation_id": "hosts_platform_v1_hosts_get",
@@ -905,11 +1385,11 @@
         "body.correlation_id"
       ],
       "rate_limit": {
-        "minute": 120,
+        "minute": 240,
         "policy": "redis",
         "fault_tolerant": false
       },
-      "request_size_limit_mb": 2
+      "request_size_limit_mb": 1
     },
     {
       "operation_id": "host_platform_v1_hosts__host_id__get",
@@ -925,11 +1405,11 @@
         "body.correlation_id"
       ],
       "rate_limit": {
-        "minute": 120,
+        "minute": 240,
         "policy": "redis",
         "fault_tolerant": false
       },
-      "request_size_limit_mb": 2
+      "request_size_limit_mb": 1
     },
     {
       "operation_id": "github_event_platform_v1_integrations_github_events_post",
@@ -945,11 +1425,11 @@
         "body.correlation_id"
       ],
       "rate_limit": {
-        "minute": 120,
+        "minute": 300,
         "policy": "redis",
         "fault_tolerant": false
       },
-      "request_size_limit_mb": 2
+      "request_size_limit_mb": 1
     },
     {
       "operation_id": "describe_kernel_platform_v1_kernel_describe_get",
@@ -965,11 +1445,11 @@
         "body.correlation_id"
       ],
       "rate_limit": {
-        "minute": 120,
+        "minute": 60,
         "policy": "redis",
         "fault_tolerant": false
       },
-      "request_size_limit_mb": 2
+      "request_size_limit_mb": 1
     },
     {
       "operation_id": "get_my_presence_platform_v1_me_presence_get",
@@ -985,11 +1465,11 @@
         "body.correlation_id"
       ],
       "rate_limit": {
-        "minute": 120,
+        "minute": 240,
         "policy": "redis",
         "fault_tolerant": false
       },
-      "request_size_limit_mb": 2
+      "request_size_limit_mb": 1
     },
     {
       "operation_id": "get_operation_platform_v1_operations__operation_id__get",
@@ -1005,11 +1485,11 @@
         "body.correlation_id"
       ],
       "rate_limit": {
-        "minute": 120,
+        "minute": 60,
         "policy": "redis",
         "fault_tolerant": false
       },
-      "request_size_limit_mb": 2
+      "request_size_limit_mb": 1
     },
     {
       "operation_id": "cancel_operation_platform_v1_operations__operation_id__cancel_post",
@@ -1025,11 +1505,31 @@
         "body.correlation_id"
       ],
       "rate_limit": {
-        "minute": 120,
+        "minute": 60,
         "policy": "redis",
         "fault_tolerant": false
       },
       "request_size_limit_mb": 2
+    },
+    {
+      "operation_id": "recovery_history_platform_v1_operations__operation_id__recovery_history_get",
+      "method": "GET",
+      "path": "/platform/v1/operations/{operation_id}/recovery-history",
+      "issuer": "https://auth.codestra.co/realms/codestra",
+      "audience": "middleware-api",
+      "scope": "identity.request",
+      "azp": "authorized-provisioning-client",
+      "authentication": "service-or-user-jwt",
+      "correlation_fields": [
+        "X-Correlation-ID",
+        "body.correlation_id"
+      ],
+      "rate_limit": {
+        "minute": 240,
+        "policy": "redis",
+        "fault_tolerant": false
+      },
+      "request_size_limit_mb": 1
     },
     {
       "operation_id": "replay_operation_platform_v1_operations__operation_id__replay_post",
@@ -1045,7 +1545,7 @@
         "body.correlation_id"
       ],
       "rate_limit": {
-        "minute": 120,
+        "minute": 60,
         "policy": "redis",
         "fault_tolerant": false
       },
@@ -1065,11 +1565,11 @@
         "body.correlation_id"
       ],
       "rate_limit": {
-        "minute": 120,
+        "minute": 60,
         "policy": "redis",
         "fault_tolerant": false
       },
-      "request_size_limit_mb": 2
+      "request_size_limit_mb": 1
     },
     {
       "operation_id": "list_opportunities_platform_v1_opportunities_get",
@@ -1085,11 +1585,11 @@
         "body.correlation_id"
       ],
       "rate_limit": {
-        "minute": 120,
+        "minute": 240,
         "policy": "redis",
         "fault_tolerant": false
       },
-      "request_size_limit_mb": 2
+      "request_size_limit_mb": 1
     },
     {
       "operation_id": "create_opportunity_platform_v1_opportunities_post",
@@ -1125,11 +1625,11 @@
         "body.correlation_id"
       ],
       "rate_limit": {
-        "minute": 120,
+        "minute": 240,
         "policy": "redis",
         "fault_tolerant": false
       },
-      "request_size_limit_mb": 2
+      "request_size_limit_mb": 1
     },
     {
       "operation_id": "update_opportunity_platform_v1_opportunities__opportunity_id__patch",
@@ -1165,11 +1665,11 @@
         "body.correlation_id"
       ],
       "rate_limit": {
-        "minute": 120,
+        "minute": 240,
         "policy": "redis",
         "fault_tolerant": false
       },
-      "request_size_limit_mb": 2
+      "request_size_limit_mb": 1
     },
     {
       "operation_id": "get_queue_platform_v1_queues__queue_id__get",
@@ -1185,11 +1685,11 @@
         "body.correlation_id"
       ],
       "rate_limit": {
-        "minute": 120,
+        "minute": 240,
         "policy": "redis",
         "fault_tolerant": false
       },
-      "request_size_limit_mb": 2
+      "request_size_limit_mb": 1
     },
     {
       "operation_id": "list_queue_calls_platform_v1_queues__queue_id__calls_get",
@@ -1205,11 +1705,11 @@
         "body.correlation_id"
       ],
       "rate_limit": {
-        "minute": 120,
+        "minute": 240,
         "policy": "redis",
         "fault_tolerant": false
       },
-      "request_size_limit_mb": 2
+      "request_size_limit_mb": 1
     },
     {
       "operation_id": "list_queue_members_platform_v1_queues__queue_id__members_get",
@@ -1225,16 +1725,76 @@
         "body.correlation_id"
       ],
       "rate_limit": {
-        "minute": 120,
+        "minute": 240,
+        "policy": "redis",
+        "fault_tolerant": false
+      },
+      "request_size_limit_mb": 1
+    },
+    {
+      "operation_id": "get_queue_metrics_platform_v1_queues__queue_id__metrics_get",
+      "method": "GET",
+      "path": "/platform/v1/queues/{queue_id}/metrics",
+      "issuer": "https://auth.codestra.co/realms/codestra",
+      "audience": "middleware-api",
+      "scope": "identity.request",
+      "azp": "authorized-provisioning-client",
+      "authentication": "service-or-user-jwt",
+      "correlation_fields": [
+        "X-Correlation-ID",
+        "body.correlation_id"
+      ],
+      "rate_limit": {
+        "minute": 240,
+        "policy": "redis",
+        "fault_tolerant": false
+      },
+      "request_size_limit_mb": 1
+    },
+    {
+      "operation_id": "run_no_effect_rehearsal_platform_v1_rehearsals_no_effect_post",
+      "method": "POST",
+      "path": "/platform/v1/rehearsals/no-effect",
+      "issuer": "https://auth.codestra.co/realms/codestra",
+      "audience": "middleware-api",
+      "scope": "platform.command.replay",
+      "azp": "platform-command-client",
+      "authentication": "service-or-user-jwt",
+      "correlation_fields": [
+        "X-Correlation-ID",
+        "body.correlation_id"
+      ],
+      "rate_limit": {
+        "minute": 60,
         "policy": "redis",
         "fault_tolerant": false
       },
       "request_size_limit_mb": 2
     },
     {
-      "operation_id": "get_queue_metrics_platform_v1_queues__queue_id__metrics_get",
+      "operation_id": "get_no_effect_rehearsal_platform_v1_rehearsals__rehearsal_id__get",
       "method": "GET",
-      "path": "/platform/v1/queues/{queue_id}/metrics",
+      "path": "/platform/v1/rehearsals/{rehearsal_id}",
+      "issuer": "https://auth.codestra.co/realms/codestra",
+      "audience": "middleware-api",
+      "scope": "platform.command.read",
+      "azp": "platform-command-client",
+      "authentication": "service-or-user-jwt",
+      "correlation_fields": [
+        "X-Correlation-ID",
+        "body.correlation_id"
+      ],
+      "rate_limit": {
+        "minute": 60,
+        "policy": "redis",
+        "fault_tolerant": false
+      },
+      "request_size_limit_mb": 1
+    },
+    {
+      "operation_id": "cancel_replay_platform_v1_replays__replay_id__cancel_post",
+      "method": "POST",
+      "path": "/platform/v1/replays/{replay_id}/cancel",
       "issuer": "https://auth.codestra.co/realms/codestra",
       "audience": "middleware-api",
       "scope": "identity.request",
@@ -1265,11 +1825,11 @@
         "body.correlation_id"
       ],
       "rate_limit": {
-        "minute": 120,
+        "minute": 240,
         "policy": "redis",
         "fault_tolerant": false
       },
-      "request_size_limit_mb": 2
+      "request_size_limit_mb": 1
     },
     {
       "operation_id": "observe_platform_v1_runtime_observations_post",
@@ -1325,11 +1885,11 @@
         "body.correlation_id"
       ],
       "rate_limit": {
-        "minute": 120,
+        "minute": 240,
         "policy": "redis",
         "fault_tolerant": false
       },
-      "request_size_limit_mb": 2
+      "request_size_limit_mb": 1
     },
     {
       "operation_id": "dependencies_platform_v1_services__service_id__dependencies_get",
@@ -1345,11 +1905,11 @@
         "body.correlation_id"
       ],
       "rate_limit": {
-        "minute": 120,
+        "minute": 240,
         "policy": "redis",
         "fault_tolerant": false
       },
-      "request_size_limit_mb": 2
+      "request_size_limit_mb": 1
     },
     {
       "operation_id": "deployments_platform_v1_services__service_id__deployments_get",
@@ -1365,11 +1925,11 @@
         "body.correlation_id"
       ],
       "rate_limit": {
-        "minute": 120,
+        "minute": 240,
         "policy": "redis",
         "fault_tolerant": false
       },
-      "request_size_limit_mb": 2
+      "request_size_limit_mb": 1
     },
     {
       "operation_id": "endpoints_platform_v1_services__service_id__endpoints_get",
@@ -1385,11 +1945,11 @@
         "body.correlation_id"
       ],
       "rate_limit": {
-        "minute": 120,
+        "minute": 240,
         "policy": "redis",
         "fault_tolerant": false
       },
-      "request_size_limit_mb": 2
+      "request_size_limit_mb": 1
     },
     {
       "operation_id": "profile_platform_v1_services__service_id__telemetry_profile_post",
@@ -1425,11 +1985,11 @@
         "body.correlation_id"
       ],
       "rate_limit": {
-        "minute": 120,
+        "minute": 240,
         "policy": "redis",
         "fault_tolerant": false
       },
-      "request_size_limit_mb": 2
+      "request_size_limit_mb": 1
     },
     {
       "operation_id": "select_session_context_platform_v1_session_context_select_post",
@@ -1465,11 +2025,11 @@
         "body.correlation_id"
       ],
       "rate_limit": {
-        "minute": 120,
+        "minute": 240,
         "policy": "redis",
         "fault_tolerant": false
       },
-      "request_size_limit_mb": 2
+      "request_size_limit_mb": 1
     },
     {
       "operation_id": "reconcile_platform_v1_sync_reconciliations_post",
@@ -1505,11 +2065,11 @@
         "body.correlation_id"
       ],
       "rate_limit": {
-        "minute": 120,
+        "minute": 240,
         "policy": "redis",
         "fault_tolerant": false
       },
-      "request_size_limit_mb": 2
+      "request_size_limit_mb": 1
     },
     {
       "operation_id": "sync_status_platform_v1_sync_status_get",
@@ -1525,11 +2085,11 @@
         "body.correlation_id"
       ],
       "rate_limit": {
-        "minute": 120,
+        "minute": 240,
         "policy": "redis",
         "fault_tolerant": false
       },
-      "request_size_limit_mb": 2
+      "request_size_limit_mb": 1
     },
     {
       "operation_id": "update_task_platform_v1_tasks__task_id__patch",
@@ -1605,11 +2165,11 @@
         "body.correlation_id"
       ],
       "rate_limit": {
-        "minute": 120,
+        "minute": 240,
         "policy": "redis",
         "fault_tolerant": false
       },
-      "request_size_limit_mb": 2
+      "request_size_limit_mb": 1
     },
     {
       "operation_id": "list_tenants_platform_v1_tenants_get",
@@ -1625,11 +2185,11 @@
         "body.correlation_id"
       ],
       "rate_limit": {
-        "minute": 120,
+        "minute": 240,
         "policy": "redis",
         "fault_tolerant": false
       },
-      "request_size_limit_mb": 2
+      "request_size_limit_mb": 1
     },
     {
       "operation_id": "list_authorized_tenants_platform_v1_tenants_authorized_get",
@@ -1645,11 +2205,11 @@
         "body.correlation_id"
       ],
       "rate_limit": {
-        "minute": 120,
+        "minute": 240,
         "policy": "redis",
         "fault_tolerant": false
       },
-      "request_size_limit_mb": 2
+      "request_size_limit_mb": 1
     },
     {
       "operation_id": "get_tenant_platform_v1_tenants__tenant_id__get",
@@ -1665,11 +2225,11 @@
         "body.correlation_id"
       ],
       "rate_limit": {
-        "minute": 120,
+        "minute": 240,
         "policy": "redis",
         "fault_tolerant": false
       },
-      "request_size_limit_mb": 2
+      "request_size_limit_mb": 1
     },
     {
       "operation_id": "list_tenant_campaigns_platform_v1_tenants__tenant_id__campaigns_get",
@@ -1685,11 +2245,11 @@
         "body.correlation_id"
       ],
       "rate_limit": {
-        "minute": 120,
+        "minute": 240,
         "policy": "redis",
         "fault_tolerant": false
       },
-      "request_size_limit_mb": 2
+      "request_size_limit_mb": 1
     },
     {
       "operation_id": "get_tenant_health_platform_v1_tenants__tenant_id__health_get",
@@ -1705,11 +2265,11 @@
         "body.correlation_id"
       ],
       "rate_limit": {
-        "minute": 120,
+        "minute": 240,
         "policy": "redis",
         "fault_tolerant": false
       },
-      "request_size_limit_mb": 2
+      "request_size_limit_mb": 1
     },
     {
       "operation_id": "list_tickets_platform_v1_tickets_get",
@@ -1725,11 +2285,11 @@
         "body.correlation_id"
       ],
       "rate_limit": {
-        "minute": 120,
+        "minute": 240,
         "policy": "redis",
         "fault_tolerant": false
       },
-      "request_size_limit_mb": 2
+      "request_size_limit_mb": 1
     },
     {
       "operation_id": "create_ticket_platform_v1_tickets_post",
@@ -1765,11 +2325,11 @@
         "body.correlation_id"
       ],
       "rate_limit": {
-        "minute": 120,
+        "minute": 240,
         "policy": "redis",
         "fault_tolerant": false
       },
-      "request_size_limit_mb": 2
+      "request_size_limit_mb": 1
     },
     {
       "operation_id": "update_ticket_platform_v1_tickets__ticket_id__patch",
@@ -1805,11 +2365,11 @@
         "body.correlation_id"
       ],
       "rate_limit": {
-        "minute": 120,
+        "minute": 240,
         "policy": "redis",
         "fault_tolerant": false
       },
-      "request_size_limit_mb": 2
+      "request_size_limit_mb": 1
     },
     {
       "operation_id": "get_user_campaigns_platform_v1_users__employee_id__campaigns_get",
@@ -1825,11 +2385,11 @@
         "body.correlation_id"
       ],
       "rate_limit": {
-        "minute": 120,
+        "minute": 240,
         "policy": "redis",
         "fault_tolerant": false
       },
-      "request_size_limit_mb": 2
+      "request_size_limit_mb": 1
     },
     {
       "operation_id": "get_user_entitlements_platform_v1_users__employee_id__entitlements_get",
@@ -1845,11 +2405,11 @@
         "body.correlation_id"
       ],
       "rate_limit": {
-        "minute": 120,
+        "minute": 240,
         "policy": "redis",
         "fault_tolerant": false
       },
-      "request_size_limit_mb": 2
+      "request_size_limit_mb": 1
     },
     {
       "operation_id": "request_automation_approval_v2_automation_approvals_post",
@@ -1885,11 +2445,11 @@
         "body.correlation_id"
       ],
       "rate_limit": {
-        "minute": 120,
+        "minute": 240,
         "policy": "redis",
         "fault_tolerant": false
       },
-      "request_size_limit_mb": 2
+      "request_size_limit_mb": 1
     },
     {
       "operation_id": "read_automation_capability_v2_automation_capabilities__capability__get",
@@ -1905,11 +2465,11 @@
         "body.correlation_id"
       ],
       "rate_limit": {
-        "minute": 120,
+        "minute": 240,
         "policy": "redis",
         "fault_tolerant": false
       },
-      "request_size_limit_mb": 2
+      "request_size_limit_mb": 1
     },
     {
       "operation_id": "submit_automation_command_v2_automation_commands_post",
@@ -1945,11 +2505,11 @@
         "body.correlation_id"
       ],
       "rate_limit": {
-        "minute": 120,
+        "minute": 240,
         "policy": "redis",
         "fault_tolerant": false
       },
-      "request_size_limit_mb": 2
+      "request_size_limit_mb": 1
     },
     {
       "operation_id": "replay_automation_dead_letter_v2_automation_dead_letters__dead_letter_id__replay_post",
@@ -2029,11 +2589,11 @@
         "body.correlation_id"
       ],
       "rate_limit": {
-        "minute": 120,
+        "minute": 240,
         "policy": "redis",
         "fault_tolerant": false
       },
-      "request_size_limit_mb": 2
+      "request_size_limit_mb": 1
     },
     {
       "operation_id": "complete_automation_job_v2_automation_jobs__job_id__complete_post",

@@ -20,8 +20,10 @@ STAGING = ROOT / "config/staging/kong-middleware-routes.staging.yml"
 PROVISIONAL = ROOT / "config/kong-middleware-v3-command-routes.v1.json"
 GENERATOR = ROOT / "scripts/generate_middleware_routes.py"
 
-EXPECTED_DIGEST = "9c32daecd4a15104c6f9ff60ce19c8f7e78707fb31d9fd9fcb55b1b8dfa3512b"
-EXPECTED_COUNTS = {"shared_edge": 105, "denied": 10, "private_only": 2}
+CONTRACT_PIN = json.loads((ROOT / "config/middleware-public-api-route-contract.pin.json").read_text(encoding="utf-8"))
+EXPECTED_DIGEST = CONTRACT_PIN["contractSha256"]
+EXPECTED_COUNTS = dict(CONTRACT_PIN["classificationCounts"])
+SHARED = EXPECTED_COUNTS["shared_edge"]
 EXPECTED_UPSTREAM = "middleware-integration-api:8095"
 KERNEL_ROUTES = {
     ("POST", "/platform/v1/commands"): "platform.command",
@@ -47,12 +49,12 @@ def route_key(row: dict) -> tuple[str, str]:
     return row["method"], row["path"]
 
 
-def test_final_middleware_contract_is_exact_117_route_authority() -> None:
+def test_final_middleware_contract_is_the_pinned_route_authority() -> None:
     contract = load_json(CONTRACT)
     assert contract["schema"] == "codestra.middleware.public-api-route-contract.v2"
     assert canonical_digest(contract) == EXPECTED_DIGEST
     assert PIN.read_text(encoding="utf-8").strip() == EXPECTED_DIGEST
-    assert len(contract["routes"]) == 117
+    assert len(contract["routes"]) == CONTRACT_PIN["routeCount"]
     assert Counter(row["classification"] for row in contract["routes"]) == Counter(
         EXPECTED_COUNTS
     )
@@ -78,7 +80,7 @@ def test_provisional_v3_authority_is_removed_and_folded_into_main_authority() ->
     assert authority["provider_effects_enabled"] is False
     assert authority["contract"]["sha256"] == EXPECTED_DIGEST
     assert authority["upstream"] == {"host": "middleware-integration-api", "port": 8095}
-    assert len(authority["routes"]) == 105
+    assert len(authority["routes"]) == SHARED
 
     contract = load_json(CONTRACT)
     expected_shared = {
@@ -102,11 +104,11 @@ def test_provisional_v3_authority_is_removed_and_folded_into_main_authority() ->
 def test_canonical_and_generated_manifests_are_8095_and_complete() -> None:
     canonical = load_json(CANONICAL)
     edge = canonical["middlewareEdgeContract"]
-    assert edge["source"] == "ingtrader21-spec/Middleware-:deploy/public-api-route-contract.json"
+    assert edge["source"] == f"{CONTRACT_PIN['repository']}:{CONTRACT_PIN['path']}"
     assert edge["sha256"] == EXPECTED_DIGEST
     assert canonical["runtimeApplyAuthorized"] is False
     assert canonical["providerEffectsEnabled"] is False
-    assert len(canonical["contractRoutes"]) == 105
+    assert len(canonical["contractRoutes"]) == SHARED
     assert len(canonical["deniedRoutes"]) == 10
 
     contract = load_json(CONTRACT)
@@ -142,16 +144,21 @@ def test_canonical_and_generated_manifests_are_8095_and_complete() -> None:
         assert service["host"] == "middleware-integration-api"
         assert service["port"] == 8095
         assert service["retries"] == 0
-        assert len(service["routes"]) == 105
+        assert len(service["routes"]) == SHARED
         assert len(manifest["routes"]) == 10
 
         for route in service["routes"]:
             oidc = next(plugin for plugin in route["plugins"] if plugin["name"] == "openid-connect")
             assert oidc["config"]["issuer"] == issuer + "/.well-known/openid-configuration"
 
+        for route in [*service["routes"], *manifest["routes"]]:
+            assert all(value.startswith("~/") for value in route["paths"])
+            assert all(not value.startswith("~^/") for value in route["paths"])
+
         rendered = path.read_text(encoding="utf-8")
         assert "appolon-middleware-integration-api" not in rendered
         assert "port: 8080" not in rendered
+        assert "~^/" not in rendered
 
 
 def test_generator_is_deterministic_at_final_contract() -> None:
@@ -165,6 +172,6 @@ def test_generator_is_deterministic_at_final_contract() -> None:
         text=True,
     )
     assert completed.returncode == 0, completed.stdout + completed.stderr
-    assert "generated 105 shared routes and 10 denied routes" in completed.stdout
+    assert f"generated {SHARED} shared routes and {EXPECTED_COUNTS['denied']} denied routes" in completed.stdout
     after = {path: path.read_bytes() for path in outputs}
     assert after == before

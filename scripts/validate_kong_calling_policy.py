@@ -17,7 +17,7 @@ LUA_PATH = ROOT / "deploy/kong/calling-policy.lua"
 RENDERER_PATH = ROOT / "scripts/render_kong_calling_routes.py"
 
 DIGEST = "b39cdffe56a8185c91174228f0423df68b1137f34875f6ee52f9914f904bf724"
-AUTHORITY = "appolon1908-hue/codestra-production-platform#257"
+AUTHORITY = "appolon1908/codestra-production-platform#257"
 
 EXPECTED_LOCK = {
     "version": "1.0.0",
@@ -36,21 +36,21 @@ EXPECTED_ROUTES = {
         "ratePerMinute": 60,
     },
     "codestra-calling-operation-read": {
-        "path": "~^/v1/telephony/operations/[0-9a-fA-F-]{36}$",
+        "path": "~/v1/telephony/operations/[0-9a-fA-F-]{36}$",
         "methods": ["GET"],
         "requiredScope": "telephony:status",
         "idempotencyRequired": False,
         "ratePerMinute": 240,
     },
     "codestra-calling-operation-cancel": {
-        "path": "~^/v1/telephony/operations/[0-9a-fA-F-]{36}/cancel$",
+        "path": "~/v1/telephony/operations/[0-9a-fA-F-]{36}/cancel$",
         "methods": ["POST"],
         "requiredScope": "telephony:command",
         "idempotencyRequired": True,
         "ratePerMinute": 60,
     },
     "codestra-calling-operation-reconcile": {
-        "path": "~^/v1/telephony/operations/[0-9a-fA-F-]{36}/reconcile$",
+        "path": "~/v1/telephony/operations/[0-9a-fA-F-]{36}/reconcile$",
         "methods": ["POST"],
         "requiredScope": "telephony:status",
         "idempotencyRequired": True,

@@ -235,8 +235,10 @@ def test_contract_routes_bind_exact_dedicated_security_authority():
             "rate-limiting",
             "request-size-limiting",
         } <= set(route["requiredPlugins"])
-        assert "post-function" in route["requiredPlugins"]
-        assert "pre-function" not in route["requiredPlugins"]
+        assert "codestra-authz" in route["requiredPlugins"]
+        assert "post-function" not in route["requiredPlugins"]
+        # Pre-auth is limited to header stripping; claim guards remain post-auth.
+        assert "pre-function" in route["requiredPlugins"]
 
 
 def test_callback_contract_rejects_security_plugin_config_drift():

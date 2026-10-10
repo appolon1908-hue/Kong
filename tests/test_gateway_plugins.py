@@ -30,6 +30,7 @@ def gateway():
         request = {
           get_method = function() return state.method or "POST" end,
           get_header = function(name) return state.headers[name] end,
+          get_headers = function() return state.headers end,
           get_raw_body = function(limit)
             if #state.body > limit then return nil, "too large" end
             return state.body
@@ -37,7 +38,7 @@ def gateway():
         },
         client = {
           get_credential = function() return state.authenticated and {} or nil end,
-          get_consumer = function() return nil end
+          get_consumer = function() return state.authenticated and {username = "gateway-client"} or nil end
         },
         service = {request = {
           clear_header = function(name) state.upstream[name] = nil end,
@@ -58,7 +59,8 @@ def handler(lua, name):
 
 def token(claims):
     payload = base64.urlsafe_b64encode(json.dumps(claims).encode()).decode().rstrip("=")
-    return "Bearer e30." + payload + ".c2lnbmF0dXJl"
+    header = base64.urlsafe_b64encode(json.dumps({"alg": "RS256", "kid": "fixture-key"}).encode()).decode().rstrip("=")
+    return "Bearer " + header + "." + payload + ".c2lnbmF0dXJl"
 
 
 def claims():
@@ -153,11 +155,12 @@ def webhook(gateway):
     state = gateway.globals().state
     secret = "test-only-key-material-for-local-fixtures"
     values = {"X-Webhook-Key-ID": "key-v1", "X-Webhook-Event-ID": "event-1", "X-Webhook-Timestamp": str(NOW)}
-    signed = f"v1\nkey-v1\n{NOW}\nevent-1\n{{}}".encode()
-    values["X-Webhook-Signature"] = "v1=" + hmac.new(secret.encode(), signed, hashlib.sha256).hexdigest()
+    signed = f"v2\nkey-v1\n{NOW}\nevent-1\nPOST\nproduction--odoo--events\n{{}}".encode()
+    values["X-Webhook-Signature"] = "v2=" + hmac.new(secret.encode(), signed, hashlib.sha256).hexdigest()
     for name, value in values.items():
         state.headers[name] = value
-    return gateway.table_from({"secret": secret, "key_id": "key-v1", "clock_skew_seconds": 300, "maximum_body_bytes": 1024})
+    return gateway.table_from({"secret": secret, "key_id": "key-v1", "route_id": "production--odoo--events",
+        "allowed_methods": ["POST"], "clock_skew_seconds": 300, "maximum_body_bytes": 1024}, recursive=True)
 
 
 def test_webhook_verifies_hmac_without_rewriting_signed_bytes(gateway):
@@ -171,7 +174,8 @@ def test_webhook_verifies_hmac_without_rewriting_signed_bytes(gateway):
 
 
 @pytest.mark.parametrize("header,value", [("X-Webhook-Key-ID", "other-key"), ("X-Webhook-Event-ID", "other-event"),
-    ("X-Webhook-Timestamp", str(NOW - 301)), ("X-Webhook-Signature", "v1=" + "0" * 64)])
+    ("X-Webhook-Timestamp", str(NOW - 301)), ("X-Webhook-Timestamp", str(NOW + 301)),
+    ("X-Webhook-Signature", "v2=" + "0" * 64), ("X-Webhook-Signature", None), ("X-Webhook-Event-ID", None)])
 def test_webhook_rejects_tampered_metadata(gateway, header, value):
     plugin = handler(gateway, "codestra-webhook-verifier")
     conf = webhook(gateway)
@@ -212,4 +216,250 @@ def test_nonfinite_token_time_is_rejected(gateway, value):
     plugin = handler(gateway, "codestra-authz")
     gateway.globals().state.headers["authorization"] = token(data)
     plugin.access(plugin, auth_config(gateway))
+    assert gateway.globals().state.status == 401
+
+@pytest.mark.parametrize("name", ["X-User-ID", "X-Username", "X-Email", "X-Roles", "X-Scopes",
+    "X-Authenticated-UserID", "X-Authenticated-User", "X-Authenticated-Tenant",
+    "X-Authenticated-Campaign", "X-Authenticated-Role", "X-Codestra-Gateway-Secret",
+    "X-Internal-Service", "X-Admin", "X-Codestra-Contract-Operation",
+    "X-Codestra-Expected-Azp", "X-Codestra-Required-Scope"])
+def test_context_strips_all_identity_authority_headers(gateway, name):
+    plugin = handler(gateway, "codestra-request-context")
+    gateway.globals().state.upstream[name] = "forged"
+    plugin.access(plugin, gateway.table_from({"require_correlation_id": False}))
+    assert gateway.globals().state.upstream[name] is None
+
+
+def test_optional_nbf_does_not_reject_valid_keycloak_token(gateway):
+    data = claims()
+    del data["nbf"]
+    gateway.globals().state.headers["authorization"] = token(data)
+    plugin = handler(gateway, "codestra-authz")
+    plugin.access(plugin, auth_config(gateway))
+    assert gateway.globals().state.status is None
+
+
+@pytest.mark.parametrize("iat,exp", [(NOW - 301, NOW + 1), (NOW - 60, NOW - 60)])
+def test_invalid_or_overlong_token_lifetime_denied(gateway, iat, exp):
+    data = claims()
+    data.update(iat=iat, exp=exp)
+    gateway.globals().state.headers["authorization"] = token(data)
+    plugin = handler(gateway, "codestra-authz")
+    plugin.access(plugin, auth_config(gateway))
+    assert gateway.globals().state.status == 401
+
+
+def test_bearer_failure_has_standard_challenge(gateway):
+    gateway.globals().state.authenticated = False
+    plugin = handler(gateway, "codestra-authz")
+    plugin.access(plugin, auth_config(gateway))
+    assert gateway.globals().state.status == 401
+    assert gateway.globals().state.response["WWW-Authenticate"] == 'Bearer realm="codestra", error="invalid_token"'
+
+
+@pytest.mark.parametrize("scope", [None, [], {}, 42, "*", "gateway.reading"])
+def test_missing_or_invalid_scope_never_authorizes(gateway, scope):
+    data = claims()
+    data["scope"] = scope
+    gateway.globals().state.headers["authorization"] = token(data)
+    plugin = handler(gateway, "codestra-authz")
+    plugin.access(plugin, auth_config(gateway))
+    assert gateway.globals().state.status == 403
+
+
+@pytest.mark.parametrize("secret", ["short", "{vault://env/kong-webhook-unresolved}"])
+def test_webhook_key_failure_is_closed(gateway, secret):
+    plugin = handler(gateway, "codestra-webhook-verifier")
+    conf = webhook(gateway)
+    conf.secret = secret
+    plugin.access(plugin, conf)
+    assert gateway.globals().state.status == 503
+
+def test_other_authentication_credential_cannot_substitute_for_oidc_consumer(gateway):
+    gateway.globals().state.headers["authorization"] = token(claims())
+    gateway.execute("kong.client.get_consumer = function() return nil end")
+    plugin = handler(gateway, "codestra-authz")
+    plugin.access(plugin, auth_config(gateway))
+    assert gateway.globals().state.status == 401
+
+
+def test_consumer_must_match_verified_token_azp(gateway):
+    gateway.globals().state.headers["authorization"] = token(claims())
+    gateway.execute('kong.client.get_consumer = function() return {username="another-client"} end')
+    plugin = handler(gateway, "codestra-authz")
+    plugin.access(plugin, auth_config(gateway))
+    assert gateway.globals().state.status == 403
+
+
+def test_tenant_quota_identity_is_minted_only_after_authorization(gateway):
+    plugin = handler(gateway, "codestra-authz")
+    gateway.globals().state.headers["authorization"] = token(claims())
+    gateway.globals().state.headers["X-Codestra-Tenant"] = "forged"
+    plugin.access(plugin, auth_config(gateway))
+    assert gateway.globals().kong.ctx.shared.codestra_authenticated_tenant == "tenant-1"
+    gateway.globals().state.authenticated = False
+    plugin.access(plugin, auth_config(gateway))
+    assert gateway.globals().state.status == 401
+    assert gateway.globals().kong.ctx.shared.codestra_authenticated_tenant is None
+
+
+@pytest.mark.parametrize("algorithm", ["none", "HS256", "RS512", None])
+def test_only_contracted_rs256_tokens_allowed(gateway, algorithm):
+    header = {"kid": "fixture-key"}
+    if algorithm:
+        header["alg"] = algorithm
+    encoded = base64.urlsafe_b64encode(json.dumps(header).encode()).decode().rstrip("=")
+    auth = token(claims()).split(".")
+    auth[0] = "Bearer " + encoded
+    gateway.globals().state.headers["authorization"] = ".".join(auth)
+    plugin = handler(gateway, "codestra-authz")
+    plugin.access(plugin, auth_config(gateway))
+    assert gateway.globals().state.status == 401
+
+
+def contract_config(lua, allowed=("gateway-client",)):
+    return lua.table_from({"mode": "contract", "operation_id": "list_callbacks", "expected_azp": "gateway-client",
+        "required_scope": "callbacks.read", "allowed_azps": list(allowed)}, recursive=True)
+
+
+def test_contract_mode_admits_only_reviewed_callers_and_mints_metadata(gateway):
+    plugin = handler(gateway, "codestra-authz")
+    state = gateway.globals().state
+    for name in ("X-Codestra-Tenant", "X-Admin", "X-Codestra-Contract-Operation", "X-Internal-Service"):
+        state.upstream[name] = "spoofed"
+    state.upstream["X-Consumer-Username"] = "gateway-client"
+    plugin.access(plugin, contract_config(gateway))
+    assert state.status is None
+    assert state.upstream["X-Codestra-Contract-Operation"] == "list_callbacks"
+    assert state.upstream["X-Codestra-Expected-Azp"] == "gateway-client"
+    assert state.upstream["X-Codestra-Required-Scope"] == "callbacks.read"
+    assert state.upstream["X-Codestra-Tenant"] is None and state.upstream["X-Admin"] is None
+    assert state.upstream["X-Internal-Service"] is None
+    assert state.upstream["X-Consumer-Username"] == "gateway-client"
+
+
+@pytest.mark.parametrize("allowed,authenticated", [(("other-client",), True), ((), True), (("gateway-client",), False)])
+def test_contract_mode_denies_unreviewed_closed_or_unauthenticated_callers(gateway, allowed, authenticated):
+    plugin = handler(gateway, "codestra-authz")
+    state = gateway.globals().state
+    state.authenticated = authenticated
+    state.upstream["X-Codestra-Contract-Operation"] = "spoofed"
+    plugin.access(plugin, contract_config(gateway, allowed))
+    assert state.status == 403 and state.error == "unauthorized_caller"
+    assert state.upstream["X-Codestra-Contract-Operation"] is None
+
+
+def test_contract_mode_strips_exactly_the_generator_untrusted_headers():
+    import importlib.util
+    import re
+    import sys
+    scripts = Path(__file__).resolve().parents[1] / "scripts"
+    sys.path.insert(0, str(scripts))
+    spec = importlib.util.spec_from_file_location("generate_middleware_routes_k7", scripts / "generate_middleware_routes.py")
+    generator = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(generator)
+    source = (ROOT / "codestra-authz" / "handler.lua").read_text()
+    block = source[source.index("local CONTRACT_UNTRUSTED_HEADERS"):source.index("local function contract_access")]
+    assert tuple(re.findall(r'"([^"]+)"', block)) == generator.UNTRUSTED_IDENTITY_HEADERS
+
+
+def test_contract_mode_schema_requires_its_fields_conditionally(gateway):
+    schema = gateway.execute((ROOT / "codestra-authz" / "schema.lua").read_text())
+    required = {}
+    for _, check in schema.entity_checks.items():
+        cond = check.conditional
+        required.setdefault(cond.if_match.eq, set()).add(cond.then_field.removeprefix("config."))
+    assert required["contract"] == {"operation_id", "expected_azp", "required_scope", "allowed_azps"}
+    assert required["token"] == {"issuer", "audience", "authorized_parties", "scopes", "roles", "tenant_claim"}
+
+
+TRACE = "00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01"
+PRESERVED = ("Authorization", "Idempotency-Key", "X-Correlation-ID", "traceparent", "tracestate")
+
+
+def run_context(lua, headers, upstream=None):
+    state = lua.globals().state
+    for name, value in headers.items():
+        state.headers[name] = value
+    for name, value in (upstream or headers).items():
+        state.upstream[name] = value
+    plugin = handler(lua, "codestra-request-context")
+    plugin.access(plugin, lua.table_from({"require_correlation_id": False}))
+    return state
+
+
+def test_context_strips_the_whole_codestra_namespace(gateway):
+    spoofed = {"X-Codestra-Future-Authority": "admin", "x-codestra-tenant-override": "t2", "X-Codestra-Scopes": "*"}
+    state = run_context(gateway, spoofed)
+    assert state.status is None
+    for name in spoofed:
+        assert state.upstream[name] is None, name
+
+
+def test_context_preserves_command_identity_and_trace_headers(gateway):
+    headers = {"Authorization": "Bearer a.b.c", "Idempotency-Key": "cmd-0001", "X-Correlation-ID": "corr-1",
+               "traceparent": TRACE, "tracestate": "congo=t61rcWkgMzE,rojo=00f067aa0ba902b7"}
+    state = run_context(gateway, headers)
+    assert state.status is None
+    for name in PRESERVED:
+        assert state.upstream[name] == headers[name], name
+
+
+@pytest.mark.parametrize("tracestate", ["=novalue", "Upper=1", "a=" + "x" * 300, ",".join(f"k{i}=v" for i in range(33)),
+                                        "k=bad,value", "k=a=b"])
+def test_context_drops_invalid_tracestate_but_keeps_the_trace(gateway, tracestate):
+    state = run_context(gateway, {"traceparent": TRACE, "tracestate": tracestate})
+    assert state.status is None
+    assert state.upstream["tracestate"] is None
+    assert state.upstream["traceparent"] == TRACE
+
+
+def test_context_never_attaches_client_tracestate_to_a_fresh_trace(gateway):
+    state = run_context(gateway, {"tracestate": "congo=t61rcWkgMzE"})
+    assert state.status is None
+    assert state.upstream["tracestate"] is None
+    assert state.upstream["traceparent"].startswith("00-")
+
+
+@pytest.mark.parametrize("name", ["X-Tenant-ID", "X-Codestra-Scopes", "X-Admin", "X-Internal-Service", "X-Codestra-Gateway-Secret"])
+def test_spoofed_privilege_headers_never_reach_middleware(gateway, name):
+    value = "tenant-1" if name == "X-Tenant-ID" else "escalate"
+    state = run_context(gateway, {name: value})
+    assert state.status is None
+    assert state.upstream[name] is None
+
+
+@pytest.mark.parametrize("method", ["GET", "PUT", "DELETE"])
+def test_webhook_rejects_a_method_outside_the_route_contract(gateway, method):
+    plugin = handler(gateway, "codestra-webhook-verifier")
+    conf = webhook(gateway)
+    gateway.globals().state.method = method
+    plugin.access(plugin, conf)
+    assert gateway.globals().state.status == 405
+
+
+def test_webhook_signature_is_bound_to_its_route(gateway):
+    plugin = handler(gateway, "codestra-webhook-verifier")
+    conf = webhook(gateway)
+    conf.route_id = "production--other--events"
+    plugin.access(plugin, conf)
+    assert gateway.globals().state.status == 401
+
+
+def test_webhook_signature_is_bound_to_its_method(gateway):
+    plugin = handler(gateway, "codestra-webhook-verifier")
+    conf = webhook(gateway)
+    conf.allowed_methods = gateway.table_from(["POST", "PUT"])
+    gateway.globals().state.method = "PUT"
+    plugin.access(plugin, conf)
+    assert gateway.globals().state.status == 401
+
+
+def test_webhook_rejects_the_retired_v1_scheme(gateway):
+    plugin = handler(gateway, "codestra-webhook-verifier")
+    conf = webhook(gateway)
+    signed = f"v1\nkey-v1\n{NOW}\nevent-1\n{{}}".encode()
+    secret = "test-only-key-material-for-local-fixtures"
+    gateway.globals().state.headers["X-Webhook-Signature"] = "v1=" + hmac.new(secret.encode(), signed, hashlib.sha256).hexdigest()
+    plugin.access(plugin, conf)
     assert gateway.globals().state.status == 401

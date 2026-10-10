@@ -14,22 +14,22 @@
   "authorities": {
     "edge": {
       "owner": "caddy",
-      "repository": "appolon1908-hue/Caddy",
+      "repository": "appolon1908/Caddy",
       "question": "HOW does traffic enter securely?"
     },
     "gateway": {
       "owner": "kong",
-      "repository": "appolon1908-hue/Kong",
+      "repository": "appolon1908/Kong",
       "question": "WHICH API/service route is reachable and which gateway prerequisites apply?"
     },
     "identity": {
       "owner": "keycloak",
-      "repository": "appolon1908-hue/Keycloak",
+      "repository": "appolon1908/Keycloak",
       "question": "WHO is the identity?"
     },
     "businessAuthorization": {
       "owner": "middleware",
-      "repository": "appolon1908-hue/Middleware-",
+      "repository": "appolon1908/Middleware-",
       "question": "MAY this identity execute this command on this resource in this environment?"
     },
     "businessState": {
@@ -141,7 +141,7 @@
         8096
       ],
       "canonicalPublicApiListener": 8095,
-      "disposition": "CONSOLIDATED by PR #105: every Middleware authority binds middleware-integration-api:8095; appolon-middleware-integration-api:8080 is retired and denied (no activatable route may target it); live n8n control-plane routes still bound to it are RETIRE_CANDIDATE with declared knownDrift, and the prepared provider-control contract must re-pin before activation; 8096 is the control-plane family."
+      "disposition": "CONSOLIDATED by PR #105: every Middleware authority binds middleware-integration-api:8095; appolon-middleware-integration-api:8080 is retired and denied (no activatable route may target it); live n8n control-plane routes still bound to it are RETIRE_CANDIDATE with declared knownDrift, and the prepared provider-control contract now pins middleware-integration-api:8095 as well; 8096 is the control-plane family."
     },
     "middlewareUpstreamAliases": [
       {
@@ -383,13 +383,6 @@
         "left": "codestra-platform-presence-list",
         "right": "middleware-get-agent-presence-platform-v1-agents--user-id--presence-get",
         "winner": "middleware-get-agent-presence-platform-v1-agents--user-id--presence-get",
-        "resolution": "SUCCESSOR_REPLACES_LEGACY_ON_APPLY",
-        "note": "The v2 regex route wins the router over codestra-platform-presence-list; the apply that activates it must delete codestra-platform-presence-list in the same change."
-      },
-      {
-        "left": "codestra-platform-presence-list",
-        "right": "middleware-get-provisioning-request-platform-v1-agent-provisioning-requests--request-id--get",
-        "winner": "middleware-get-provisioning-request-platform-v1-agent-provisioning-requests--request-id--get",
         "resolution": "SUCCESSOR_REPLACES_LEGACY_ON_APPLY",
         "note": "The v2 regex route wins the router over codestra-platform-presence-list; the apply that activates it must delete codestra-platform-presence-list in the same change."
       },
@@ -824,6 +817,26 @@
         "perMinute": null,
         "class": "NONE",
         "note": "constant 404 answered by request-termination before any proxying; edge (Caddy) rate limiting applies"
+      },
+      "PUBLIC_READ_60": {
+        "perMinute": 60,
+        "class": "PUBLIC"
+      },
+      "WEBHOOK_300": {
+        "perMinute": 300,
+        "class": "SERVICE"
+      },
+      "LOGIN_SENSITIVE_10": {
+        "perMinute": 10,
+        "class": "PUBLIC"
+      },
+      "OPERATOR_60": {
+        "perMinute": 60,
+        "class": "ADMIN"
+      },
+      "HIGH_COST_30": {
+        "perMinute": 30,
+        "class": "SERVICE"
       }
     },
     "requestSize": {
@@ -879,6 +892,9 @@
       "NONE_TERMINATED": {
         "maxBodyBytes": null,
         "note": "gateway-terminated 404 responder; the body is never read or forwarded"
+      },
+      "LARGE_METADATA_8MB": {
+        "maxBodyBytes": 8388608
       }
     },
     "health": {
@@ -892,6 +908,77 @@
       "PROMETHEUS_GLOBAL_ONLY": "global prometheus metrics; correlation handled by a session plugin or absent",
       "UNRECORDED_READBACK": "observed route; logging/metrics plugin configuration not captured",
       "DESIGN_ONLY": "design fragment; no observability contract"
+    },
+    "edgeTraffic": {
+      "rate": {
+        "public-read": {
+          "profile": "PUBLIC_READ_60",
+          "perSecond": 5
+        },
+        "authenticated-read": {
+          "profile": "AUTHENTICATED_READ_240",
+          "perSecond": 20
+        },
+        "authenticated-write": {
+          "profile": "AUTHENTICATED_STANDARD_120",
+          "perSecond": 10
+        },
+        "webhook": {
+          "profile": "WEBHOOK_300",
+          "perSecond": 20
+        },
+        "login-sensitive": {
+          "profile": "LOGIN_SENSITIVE_10",
+          "perSecond": 1
+        },
+        "operator": {
+          "profile": "OPERATOR_60",
+          "perSecond": 5
+        },
+        "high-cost": {
+          "profile": "HIGH_COST_30",
+          "perSecond": 2
+        }
+      },
+      "body": {
+        "small-api": "STANDARD_API_1MB",
+        "normal-api": "STANDARD_API_2MB",
+        "webhook": "WEBHOOK_1MB",
+        "large-metadata": "LARGE_METADATA_8MB",
+        "approved-upload": "UPLOAD_10MB"
+      },
+      "transport": {
+        "read-fast": {
+          "timeout": "FAST_SERVICE_API",
+          "retry": "TRANSPORT_CONNECT_ONLY_1"
+        },
+        "read-standard": {
+          "timeout": "STANDARD_API",
+          "retry": "TRANSPORT_CONNECT_ONLY_1"
+        },
+        "command-accept": {
+          "timeout": "CANONICAL_EDGE_5S",
+          "retry": "NONE"
+        },
+        "webhook": {
+          "timeout": "FAST_SERVICE_API",
+          "retry": "NONE"
+        },
+        "control-plane": {
+          "timeout": "STANDARD_API",
+          "retry": "NONE"
+        }
+      },
+      "limiter": {
+        "policy": "redis",
+        "faultTolerant": false,
+        "redisHost": "codestra-redis",
+        "redisPort": 6379,
+        "redisDatabase": 0,
+        "redisTimeoutMs": 2000,
+        "errorCode": 429
+      },
+      "middlewareSelection": "contract webhook entry -> webhook rate and body; privileged scope -> operator; GET -> authenticated-read with small-api; any other method -> authenticated-write with normal-api. The one shared Middleware service uses command-accept: retries 0, so Kong never replays a command."
     }
   },
   "authenticationClasses": {
@@ -1150,12 +1237,16 @@
       "priority"
     ],
     "globalPluginsAllowed": [
-      "prometheus"
+      "prometheus",
+      "codestra-private-surface"
     ],
     "authenticationMustBeExplicit": true,
     "preFunctionAllowedSources": [
       "config/kong-calling-routes.v1.json",
-      "config/kong-platform-api-read-routes.v1.json"
+      "config/kong-platform-api-read-routes.v1.json",
+      "config/kong-middleware-routes.production.yml",
+      "config/staging/kong-middleware-routes.staging.yml",
+      "config/kong-canonical-middleware-routes.json"
     ],
     "priorityReference": "Kong Gateway 3.x bundled plugin priorities; custom plugins declare PRIORITY in their handler"
   },
@@ -1209,6 +1300,10 @@
         "reason": "the registry itself"
       },
       {
+        "path": "config/kong-route-reconciliation.pas236.json",
+        "reason": "PAS-244 source-only reconciliation disposition manifest; validated by the deterministic reconciliation planner and tests, not an activatable Kong route source"
+      },
+      {
         "path": "config/kong-access-policy.v1.json",
         "reason": "Mission 2 access policy overlay keyed by routeId; validated by validate_access_policy against this registry"
       },
@@ -1227,6 +1322,10 @@
       {
         "path": "config/middleware-public-api-route-contract.v1.json",
         "reason": "Middleware's vendored contract, pinned by sha256 through config/kong-canonical-middleware-routes.json whose contractRoutes are registered"
+      },
+      {
+        "path": "config/middleware-public-api-route-contract.pin.json",
+        "reason": "identity of the vendored Middleware contract (repository, commit, digest, counts) read by the route generators and validators; carries no routes"
       },
       {
         "path": "config/staging/marketing-platform-edge-bindings.v1.yaml",
@@ -1251,6 +1350,18 @@
       {
         "path": "config/kong-webhook-registry.v1.json",
         "reason": "Lane C webhook ownership/certification registry; canonical/pending ingress routes remain sourced from the Middleware route authority and Kong declarative manifests."
+      },
+      {
+        "path": "config/kong-mcr-routes.v1.json",
+        "reason": "MCR-J source-only route contract (runtimeApplyAuthorized=false); validated by scripts/validate_kong_mcr_routes.py for Middleware :8095 upstream, zero overlap with the pinned Middleware contract and private-surface denial. Foundation route registration is required before any activation."
+      },
+      {
+        "path": "config/kong-mcr-routes.production.yml",
+        "reason": "MCR-J declarative fragment rendered from config/kong-mcr-routes.v1.json by scripts/render_kong_mcr_routes.py; not deployed and not activation-eligible until registered as a foundation source."
+      },
+      {
+        "path": "config/staging/kong-mcr-routes.staging.yml",
+        "reason": "MCR-J staging declarative fragment rendered from config/kong-mcr-routes.v1.json by scripts/render_kong_mcr_routes.py; not deployed and not activation-eligible until registered as a foundation source."
       }
     ]
   },
@@ -1422,7 +1533,7 @@
       "environment": "production",
       "role": "DEPLOYED_CANDIDATE",
       "activation": "SOURCE_CANDIDATE",
-      "notes": "Generated from the final 117-entry Middleware authority: 105 shared-edge routes on api.codestra.co -> middleware-integration-api:8095 plus 10 gateway-terminated denied aliases."
+      "notes": "Generated from the Middleware contract pinned in config/middleware-public-api-route-contract.pin.json: every shared-edge route on api.codestra.co -> middleware-integration-api:8095 plus gateway-terminated denied aliases."
     },
     {
       "path": "config/staging/kong-middleware-routes.staging.yml",
@@ -1430,7 +1541,7 @@
       "environment": "staging",
       "role": "DEPLOYED_CANDIDATE",
       "activation": "SOURCE_CANDIDATE",
-      "notes": "Staging twin of the final generated Middleware authority: 105 shared-edge routes plus 10 deny guards, staging issuer, same canonical 8095 upstream."
+      "notes": "Staging twin of the generated Middleware authority: every shared-edge route plus the deny guards, staging issuer, same canonical 8095 upstream."
     },
     {
       "path": "config/kong-platform-api-read-routes.v1.json",
@@ -1441,10 +1552,43 @@
       "notes": "PR #104 read-side platform API contract; superseded operation-for-operation by the v2 authority (PR #105), which also contradicts its service-token-only rule (browser-session on session context)."
     }
   ],
+  "upstreamRegistry": {
+    "requiredFields": [
+      "serviceId",
+      "owner",
+      "repository",
+      "environment",
+      "upstream",
+      "tlsRequired",
+      "timeoutProfile",
+      "retryProfile",
+      "healthProfile",
+      "routeFamilies"
+    ],
+    "routeFamilyDepth": 3,
+    "middlewareRepository": "appolon1908/Middleware-",
+    "attributedRepositories": [
+      "appolon1908/Middleware-",
+      "appolon1908/Kong"
+    ],
+    "unattributedRepository": "UNATTRIBUTED",
+    "port8080Dispositions": [
+      "DELETE",
+      "HISTORICAL",
+      "TEST_ONLY"
+    ],
+    "invariants": {
+      "middlewareUpstreamPort": 8095,
+      "legacy8080Upstreams": 0,
+      "unregisteredUpstreams": 0
+    },
+    "note": "Every Kong service is one upstream registry entry. Middleware-governed services bind the pinned contract repository on :8095; :8080 survives only on non-Middleware fixtures and legacy adapters, each classified for deletion or test-only use."
+  },
   "services": [
     {
       "serviceId": "codestra-control-plane",
       "owner": "platform-control-plane",
+      "repository": "appolon1908/Middleware-",
       "environment": "production",
       "purpose": "Communication control plane: message commands, events, results, reconciliation, platform admin readback.",
       "trafficClass": "COMMAND_API",
@@ -1454,7 +1598,17 @@
         "host": "codestra-control-plane",
         "port": 8096
       },
+      "tlsRequired": false,
       "healthProfile": "DNS_TARGET_PASSIVE",
+      "routeFamilies": [
+        "/api/v1/control",
+        "/api/v1/events",
+        "/api/v1/health",
+        "/api/v1/messages",
+        "/api/v1/reconciliation",
+        "/api/v1/results",
+        "/v1/admin/system"
+      ],
       "timeoutProfile": "STANDARD_API",
       "retryProfile": "NONE",
       "authenticationProfile": "SERVICE_AUTHENTICATED",
@@ -1477,6 +1631,7 @@
     {
       "serviceId": "codestra-callback-api",
       "owner": "middleware-integration",
+      "repository": "appolon1908/Middleware-",
       "environment": "production",
       "purpose": "Odoo callback read/control endpoints on the canonical Middleware public API.",
       "trafficClass": "COMMAND_API",
@@ -1486,7 +1641,12 @@
         "host": "codestra-middleware-integration-api-1",
         "port": 8095
       },
+      "tlsRequired": false,
       "healthProfile": "DNS_TARGET_PASSIVE",
+      "routeFamilies": [
+        "/api/v1/callbacks",
+        "/api/v1/control"
+      ],
       "timeoutProfile": "FAST_SERVICE_API",
       "retryProfile": "TRANSPORT_CONNECT_ONLY_1",
       "authenticationProfile": "SERVICE_AUTHENTICATED",
@@ -1513,6 +1673,7 @@
     {
       "serviceId": "codestra-campaign-automation-api",
       "owner": "middleware-integration",
+      "repository": "appolon1908/Middleware-",
       "environment": "production",
       "purpose": "Issue #58 canonical campaign routes: n8n policy check, n8n results, Odoo campaign readback.",
       "trafficClass": "COMMAND_API",
@@ -1522,7 +1683,12 @@
         "host": "middleware-integration-api",
         "port": 8095
       },
+      "tlsRequired": false,
       "healthProfile": "DNS_TARGET_PASSIVE",
+      "routeFamilies": [
+        "/api/v1/automation",
+        "/api/v1/integrations"
+      ],
       "timeoutProfile": "STANDARD_API",
       "retryProfile": "NONE",
       "authenticationProfile": "SERVICE_AUTHENTICATED",
@@ -1550,6 +1716,7 @@
     {
       "serviceId": "codestra-campaign-automation-api@staging",
       "owner": "middleware-integration",
+      "repository": "appolon1908/Middleware-",
       "environment": "staging",
       "purpose": "Staging overlay of the campaign automation service for the TEST_SYN edge certification.",
       "trafficClass": "COMMAND_API",
@@ -1559,7 +1726,11 @@
         "host": "middleware-integration-api",
         "port": 8095
       },
+      "tlsRequired": false,
       "healthProfile": "DNS_TARGET_PASSIVE",
+      "routeFamilies": [
+        "/api/v1/integrations"
+      ],
       "timeoutProfile": "STANDARD_API",
       "retryProfile": "NONE",
       "authenticationProfile": "SERVICE_AUTHENTICATED",
@@ -1581,6 +1752,7 @@
     {
       "serviceId": "codestra-middleware-intake",
       "owner": "middleware-integration",
+      "repository": "appolon1908/Middleware-",
       "environment": "production",
       "purpose": "SDK intake writes (leads, survey responses) for the sdk-intake service client.",
       "trafficClass": "COMMAND_API",
@@ -1590,7 +1762,12 @@
         "host": "codestra-middleware-integration-api-1",
         "port": 8095
       },
+      "tlsRequired": false,
       "healthProfile": "DNS_TARGET_PASSIVE",
+      "routeFamilies": [
+        "/v1/intake/leads",
+        "/v1/intake/surveys"
+      ],
       "timeoutProfile": "STANDARD_API",
       "retryProfile": "NONE",
       "authenticationProfile": "SERVICE_AUTHENTICATED",
@@ -1612,6 +1789,7 @@
     {
       "serviceId": "codestra-middleware-n8n-control-plane",
       "owner": "middleware-integration",
+      "repository": "appolon1908/Middleware-",
       "environment": "production",
       "purpose": "n8n automation command submission and operation readback through Middleware.",
       "trafficClass": "COMMAND_API",
@@ -1621,7 +1799,11 @@
         "host": "middleware-integration-api",
         "port": 8095
       },
+      "tlsRequired": false,
       "healthProfile": "DNS_TARGET_PASSIVE",
+      "routeFamilies": [
+        "/v1/integrations/n8n"
+      ],
       "timeoutProfile": "FAST_SERVICE_API",
       "retryProfile": "TRANSPORT_CONNECT_ONLY_1",
       "authenticationProfile": "SERVICE_AUTHENTICATED",
@@ -1649,6 +1831,7 @@
     {
       "serviceId": "codestra-middleware-n8n-control-plane@staging",
       "owner": "middleware-integration",
+      "repository": "appolon1908/Middleware-",
       "environment": "staging",
       "purpose": "Staging overlay of the n8n control plane service.",
       "trafficClass": "COMMAND_API",
@@ -1658,7 +1841,11 @@
         "host": "middleware-integration-api",
         "port": 8095
       },
+      "tlsRequired": false,
       "healthProfile": "DNS_TARGET_PASSIVE",
+      "routeFamilies": [
+        "/v1/integrations/n8n"
+      ],
       "timeoutProfile": "FAST_SERVICE_API",
       "retryProfile": "TRANSPORT_CONNECT_ONLY_1",
       "authenticationProfile": "SERVICE_AUTHENTICATED",
@@ -1681,6 +1868,7 @@
     {
       "serviceId": "codestra-calling-api",
       "owner": "middleware-telephony",
+      "repository": "appolon1908/Middleware-",
       "environment": "production",
       "purpose": "Telephony command, operation readback, cancel, reconcile and realtime session creation on the private telephony host.",
       "trafficClass": "COMMAND_API",
@@ -1690,7 +1878,13 @@
         "host": "codestra-middleware-integration-api-1",
         "port": 8095
       },
+      "tlsRequired": false,
       "healthProfile": "DNS_TARGET_PASSIVE",
+      "routeFamilies": [
+        "/api/v1/realtime",
+        "/v1/telephony/commands",
+        "/v1/telephony/operations"
+      ],
       "timeoutProfile": "STANDARD_API",
       "retryProfile": "NONE",
       "authenticationProfile": "INTERNAL",
@@ -1713,6 +1907,7 @@
     {
       "serviceId": "moneybee-api",
       "owner": "moneybee-platform",
+      "repository": "UNATTRIBUTED",
       "environment": "production",
       "purpose": "MoneyBee borrower identity bootstrap.",
       "trafficClass": "IDENTITY",
@@ -1722,7 +1917,11 @@
         "host": "moneybee-api",
         "port": 8000
       },
+      "tlsRequired": false,
       "healthProfile": "DNS_TARGET_PASSIVE",
+      "routeFamilies": [
+        "/api/v2/account"
+      ],
       "timeoutProfile": "STANDARD_API",
       "retryProfile": "NONE",
       "authenticationProfile": "AUTHENTICATED",
@@ -1745,16 +1944,22 @@
     {
       "serviceId": "provider-control-middleware",
       "owner": "middleware-integration",
+      "repository": "appolon1908/Middleware-",
       "environment": "production",
       "purpose": "Prepared, disabled provider-control command routes (AI, email, SMS, marketing, Odoo events, social) through Middleware.",
       "trafficClass": "COMMAND_API",
       "upstreamClass": "MIDDLEWARE_GOVERNED",
       "upstream": {
         "protocol": "http",
-        "host": "appolon-middleware-integration-api",
-        "port": 8080
+        "host": "middleware-integration-api",
+        "port": 8095
       },
+      "tlsRequired": false,
       "healthProfile": "DNS_TARGET_PASSIVE",
+      "routeFamilies": [
+        "/api/v1/control",
+        "/api/v1/odoo"
+      ],
       "timeoutProfile": "STANDARD_API",
       "retryProfile": "NONE",
       "authenticationProfile": "SERVICE_AUTHENTICATED",
@@ -1772,15 +1977,15 @@
         }
       ],
       "acceptedFindings": [
-        "RETIRED_UPSTREAM_ALIAS",
         "RETRIES_UNDECLARED",
         "TIMEOUTS_UNDECLARED"
       ],
-      "notes": "The prepared contract (and scripts/validate_provider_control_routes.py) still pin appolon-middleware-integration-api:8080, which PR #105 retired and denied; re-pinning to middleware-integration-api:8095 is a cross-repository contract change (Middleware PR 82 / Keycloak PR 60) and an activation prerequisite. PREPARED_DISABLED, so nothing activatable targets the retired alias."
+      "notes": "The prepared contract (and scripts/validate_provider_control_routes.py) pins the canonical middleware-integration-api:8095 listener; activation still depends on the reviewed Middleware PR 82 / Keycloak PR 60 identities. PREPARED_DISABLED, so nothing is activatable."
     },
     {
       "serviceId": "codestra-n8n-editor",
       "owner": "automation-platform",
+      "repository": "UNATTRIBUTED",
       "environment": "production",
       "purpose": "Keycloak browser-flow protection in front of the n8n Community Edition editor.",
       "trafficClass": "EDITOR_UI",
@@ -1790,7 +1995,11 @@
         "host": "codestra-n8n-main",
         "port": 5678
       },
+      "tlsRequired": false,
       "healthProfile": "DNS_TARGET_PASSIVE",
+      "routeFamilies": [
+        "/"
+      ],
       "timeoutProfile": "LONG_RUNNING_API",
       "retryProfile": "NONE",
       "authenticationProfile": "AUTHENTICATED",
@@ -1813,6 +2022,7 @@
     {
       "serviceId": "codestra-community-n8n-middleware",
       "owner": "middleware-integration",
+      "repository": "appolon1908/Middleware-",
       "environment": "production",
       "purpose": "Proposed TLS egress from community n8n to Middleware replacing the plain-http 8080 alias.",
       "trafficClass": "COMMAND_API",
@@ -1822,7 +2032,11 @@
         "host": "${MIDDLEWARE_TLS_HOST}",
         "port": 443
       },
+      "tlsRequired": true,
       "healthProfile": "DNS_TARGET_PASSIVE",
+      "routeFamilies": [
+        "/v1/integrations/n8n"
+      ],
       "timeoutProfile": "STANDARD_API",
       "retryProfile": "NONE",
       "authenticationProfile": "SERVICE_AUTHENTICATED",
@@ -1848,6 +2062,7 @@
     {
       "serviceId": "codestra-sms-standby",
       "owner": "gateway-standby",
+      "repository": "appolon1908/Kong",
       "environment": "production",
       "purpose": "Private standby rehearsal of the SMS command surface with delivery disabled.",
       "trafficClass": "STANDBY_REHEARSAL",
@@ -1857,7 +2072,12 @@
         "host": "codestra-kong-standby-auth",
         "port": 8080
       },
+      "tlsRequired": false,
+      "port8080Disposition": "TEST_ONLY",
       "healthProfile": "NONE_FIXTURE",
+      "routeFamilies": [
+        "/v1/sms"
+      ],
       "timeoutProfile": "STANDBY_FAST",
       "retryProfile": "NONE",
       "authenticationProfile": "INTERNAL",
@@ -1884,6 +2104,7 @@
     {
       "serviceId": "codestra-email-standby",
       "owner": "gateway-standby",
+      "repository": "appolon1908/Kong",
       "environment": "production",
       "purpose": "Private standby rehearsal of the email command surface with delivery disabled.",
       "trafficClass": "STANDBY_REHEARSAL",
@@ -1893,7 +2114,12 @@
         "host": "codestra-kong-standby-auth",
         "port": 8080
       },
+      "tlsRequired": false,
+      "port8080Disposition": "TEST_ONLY",
       "healthProfile": "NONE_FIXTURE",
+      "routeFamilies": [
+        "/v1/email"
+      ],
       "timeoutProfile": "STANDBY_FAST",
       "retryProfile": "NONE",
       "authenticationProfile": "INTERNAL",
@@ -1920,6 +2146,7 @@
     {
       "serviceId": "codestra-sms-webhook-standby",
       "owner": "gateway-standby",
+      "repository": "appolon1908/Kong",
       "environment": "production",
       "purpose": "Private standby rehearsal of signed SMS webhook ingest.",
       "trafficClass": "STANDBY_REHEARSAL",
@@ -1929,7 +2156,12 @@
         "host": "codestra-kong-standby-auth",
         "port": 8080
       },
+      "tlsRequired": false,
+      "port8080Disposition": "TEST_ONLY",
       "healthProfile": "NONE_FIXTURE",
+      "routeFamilies": [
+        "/v1/webhooks/sms"
+      ],
       "timeoutProfile": "STANDBY_FAST",
       "retryProfile": "NONE",
       "authenticationProfile": "INTERNAL",
@@ -1956,6 +2188,7 @@
     {
       "serviceId": "codestra-email-webhook-standby",
       "owner": "gateway-standby",
+      "repository": "appolon1908/Kong",
       "environment": "production",
       "purpose": "Private standby rehearsal of signed email webhook ingest.",
       "trafficClass": "STANDBY_REHEARSAL",
@@ -1965,7 +2198,12 @@
         "host": "codestra-kong-standby-auth",
         "port": 8080
       },
+      "tlsRequired": false,
+      "port8080Disposition": "TEST_ONLY",
       "healthProfile": "NONE_FIXTURE",
+      "routeFamilies": [
+        "/v1/webhooks/email"
+      ],
       "timeoutProfile": "STANDBY_FAST",
       "retryProfile": "NONE",
       "authenticationProfile": "INTERNAL",
@@ -1992,6 +2230,7 @@
     {
       "serviceId": "codestra-communication-control-plane",
       "owner": "platform-control-plane",
+      "repository": "appolon1908/Middleware-",
       "environment": "production",
       "purpose": "Legacy key-auth communication control plane routes superseded by codestra-control-plane.",
       "trafficClass": "COMMAND_API",
@@ -2001,7 +2240,13 @@
         "host": "codestra-integration-control-plane-api-1",
         "port": 8096
       },
+      "tlsRequired": false,
       "healthProfile": "DNS_TARGET_PASSIVE",
+      "routeFamilies": [
+        "/api/v1/control",
+        "/api/v1/messages",
+        "/api/v1/results"
+      ],
       "timeoutProfile": "KONG_DEFAULT_60S",
       "retryProfile": "UNRECORDED_READBACK",
       "authenticationProfile": "AUTHENTICATED",
@@ -2027,6 +2272,7 @@
     {
       "serviceId": "codestra-website-forms",
       "owner": "website",
+      "repository": "appolon1908/Middleware-",
       "environment": "production",
       "purpose": "Legacy website form submissions on the legacy host.",
       "trafficClass": "PUBLIC_FORM",
@@ -2036,7 +2282,15 @@
         "host": "codestra-integration-control-plane-api-1",
         "port": 8096
       },
+      "tlsRequired": false,
       "healthProfile": "DNS_TARGET_PASSIVE",
+      "routeFamilies": [
+        "/v1/forms/demo-request",
+        "/v1/forms/electronic-billing-application",
+        "/v1/forms/electronic-billing-registration",
+        "/v1/forms/pricing-request",
+        "/v1/forms/sales-contact"
+      ],
       "timeoutProfile": "KONG_DEFAULT_60S",
       "retryProfile": "UNRECORDED_READBACK",
       "authenticationProfile": "PUBLIC",
@@ -2061,6 +2315,7 @@
     {
       "serviceId": "codestra-website-api",
       "owner": "website",
+      "repository": "appolon1908/Middleware-",
       "environment": "production",
       "purpose": "Legacy website API on the legacy host; upstream fail-closed from a hard-coded private IP to Middleware.",
       "trafficClass": "PUBLIC_FORM",
@@ -2070,7 +2325,15 @@
         "host": "codestra-middleware-integration-api-1",
         "port": 8095
       },
+      "tlsRequired": false,
       "healthProfile": "DNS_TARGET_PASSIVE",
+      "routeFamilies": [
+        "/api/v1/analytics",
+        "/api/v1/contact-requests",
+        "/api/v1/demo-requests",
+        "/api/v1/localization",
+        "/api/v1/pricing-requests"
+      ],
       "timeoutProfile": "FAST_SERVICE_API",
       "retryProfile": "UNRECORDED_READBACK",
       "authenticationProfile": "PUBLIC",
@@ -2094,6 +2357,7 @@
     {
       "serviceId": "breero-production-api",
       "owner": "unassigned",
+      "repository": "appolon1908/Middleware-",
       "environment": "production",
       "purpose": "Tenant product API for api.breero.com; upstream fail-closed from scraper.internal.codestra.agency:8443 to Middleware.",
       "trafficClass": "TENANT_PRODUCT_API",
@@ -2103,7 +2367,12 @@
         "host": "codestra-middleware-integration-api-1",
         "port": 8095
       },
+      "tlsRequired": false,
       "healthProfile": "DNS_TARGET_PASSIVE",
+      "routeFamilies": [
+        "/api/v1",
+        "/health"
+      ],
       "timeoutProfile": "LEGACY_CONNECT_5S",
       "retryProfile": "UNRECORDED_READBACK",
       "authenticationProfile": "AUTHENTICATED",
@@ -2127,6 +2396,7 @@
     {
       "serviceId": "codestra-mail-control-plane",
       "owner": "unassigned",
+      "repository": "UNATTRIBUTED",
       "environment": "production",
       "purpose": "Unowned mail API exposed without any gateway authentication; activation blocked.",
       "trafficClass": "COMMAND_API",
@@ -2136,7 +2406,12 @@
         "host": "codestra-mail-api",
         "port": 8098
       },
+      "tlsRequired": false,
       "healthProfile": "DNS_TARGET_PASSIVE",
+      "routeFamilies": [
+        "/api/v1/admin",
+        "/api/v1/mail"
+      ],
       "timeoutProfile": "LEGACY_CONNECT_5S",
       "retryProfile": "UNRECORDED_READBACK",
       "authenticationProfile": "ADMIN_INTERNAL",
@@ -2161,6 +2436,7 @@
     {
       "serviceId": "codestra-crm-api",
       "owner": "legacy-shared-key-consumers",
+      "repository": "UNATTRIBUTED",
       "environment": "production",
       "purpose": "Legacy shared-key CRM API through the service auth adapter.",
       "trafficClass": "LEGACY_SHARED_KEY",
@@ -2170,7 +2446,12 @@
         "host": "codestra-kong-service-auth-adapter-1",
         "port": 8080
       },
+      "tlsRequired": false,
+      "port8080Disposition": "DELETE",
       "healthProfile": "DNS_TARGET_PASSIVE",
+      "routeFamilies": [
+        "/v1/crm"
+      ],
       "timeoutProfile": "LEGACY_FAST_5S",
       "retryProfile": "UNRECORDED_READBACK",
       "authenticationProfile": "AUTHENTICATED",
@@ -2194,6 +2475,7 @@
     {
       "serviceId": "codestra-sms-api",
       "owner": "legacy-shared-key-consumers",
+      "repository": "UNATTRIBUTED",
       "environment": "production",
       "purpose": "Legacy shared-key SMS API through the service auth adapter.",
       "trafficClass": "LEGACY_SHARED_KEY",
@@ -2203,7 +2485,12 @@
         "host": "codestra-kong-service-auth-adapter-1",
         "port": 8080
       },
+      "tlsRequired": false,
+      "port8080Disposition": "DELETE",
       "healthProfile": "DNS_TARGET_PASSIVE",
+      "routeFamilies": [
+        "/v1/sms"
+      ],
       "timeoutProfile": "FAST_SERVICE_API",
       "retryProfile": "UNRECORDED_READBACK",
       "authenticationProfile": "AUTHENTICATED",
@@ -2227,6 +2514,7 @@
     {
       "serviceId": "codestra-email-api",
       "owner": "legacy-shared-key-consumers",
+      "repository": "UNATTRIBUTED",
       "environment": "production",
       "purpose": "Legacy shared-key email API through the email reseller adapter.",
       "trafficClass": "LEGACY_SHARED_KEY",
@@ -2236,7 +2524,12 @@
         "host": "codestra-email-reseller-api-1",
         "port": 8080
       },
+      "tlsRequired": false,
+      "port8080Disposition": "DELETE",
       "healthProfile": "DNS_TARGET_PASSIVE",
+      "routeFamilies": [
+        "/v1/email"
+      ],
       "timeoutProfile": "KONG_DEFAULT_60S",
       "retryProfile": "UNRECORDED_READBACK",
       "authenticationProfile": "AUTHENTICATED",
@@ -2261,6 +2554,7 @@
     {
       "serviceId": "codestra-sms-dlr",
       "owner": "legacy-shared-key-consumers",
+      "repository": "UNATTRIBUTED",
       "environment": "production",
       "purpose": "Legacy Telnexa delivery-receipt ingest through the SMS API adapter.",
       "trafficClass": "WEBHOOK_INGEST",
@@ -2270,7 +2564,12 @@
         "host": "codestra-sms-api-api-1",
         "port": 8080
       },
+      "tlsRequired": false,
+      "port8080Disposition": "DELETE",
       "healthProfile": "DNS_TARGET_PASSIVE",
+      "routeFamilies": [
+        "/v1/sms/dlr"
+      ],
       "timeoutProfile": "KONG_DEFAULT_60S",
       "retryProfile": "UNRECORDED_READBACK",
       "authenticationProfile": "AUTHENTICATED",
@@ -2295,6 +2594,7 @@
     {
       "serviceId": "codestra-webhooks",
       "owner": "legacy-shared-key-consumers",
+      "repository": "appolon1908/Middleware-",
       "environment": "production",
       "purpose": "Legacy shared-key webhook ingest into the Middleware event gateway.",
       "trafficClass": "WEBHOOK_INGEST",
@@ -2304,7 +2604,11 @@
         "host": "codestra-middleware-event-gateway-1",
         "port": 8095
       },
+      "tlsRequired": false,
       "healthProfile": "DNS_TARGET_PASSIVE",
+      "routeFamilies": [
+        "/v1/webhooks"
+      ],
       "timeoutProfile": "KONG_DEFAULT_60S",
       "retryProfile": "UNRECORDED_READBACK",
       "authenticationProfile": "AUTHENTICATED",
@@ -2329,6 +2633,7 @@
     {
       "serviceId": "codestra-gateway-test",
       "owner": "unassigned",
+      "repository": "UNATTRIBUTED",
       "environment": "production",
       "purpose": "Test upstream left in production; retirement candidate.",
       "trafficClass": "TEST",
@@ -2338,7 +2643,12 @@
         "host": "kong-test-upstream",
         "port": 8080
       },
+      "tlsRequired": false,
+      "port8080Disposition": "DELETE",
       "healthProfile": "NONE_FIXTURE",
+      "routeFamilies": [
+        "/v1/test"
+      ],
       "timeoutProfile": "KONG_DEFAULT_60S",
       "retryProfile": "UNRECORDED_READBACK",
       "authenticationProfile": "AUTHENTICATED",
@@ -2363,6 +2673,7 @@
     {
       "serviceId": "codestra-token-validator",
       "owner": "identity-certification",
+      "repository": "UNATTRIBUTED",
       "environment": "production",
       "purpose": "Read-only token-validation certification probe.",
       "trafficClass": "PUBLIC_PROBE",
@@ -2372,7 +2683,12 @@
         "host": "identity-certification",
         "port": 8080
       },
+      "tlsRequired": false,
+      "port8080Disposition": "TEST_ONLY",
       "healthProfile": "DNS_TARGET_PASSIVE",
+      "routeFamilies": [
+        "/v1/identity-token-certification"
+      ],
       "timeoutProfile": "KONG_DEFAULT_60S",
       "retryProfile": "UNRECORDED_READBACK",
       "authenticationProfile": "PUBLIC",
@@ -2397,6 +2713,7 @@
     {
       "serviceId": "moneybee-bootstrap",
       "owner": "moneybee-platform",
+      "repository": "appolon1908/Middleware-",
       "environment": "staging",
       "purpose": "Gateway-platform integration example: MoneyBee bootstrap through Middleware over TLS.",
       "trafficClass": "IDENTITY",
@@ -2406,7 +2723,11 @@
         "host": "middleware.internal.codestra",
         "port": 443
       },
+      "tlsRequired": true,
       "healthProfile": "ACTIVE_HTTP_REQUIRED",
+      "routeFamilies": [
+        "/api/v2/account"
+      ],
       "timeoutProfile": "FAST_SERVICE_API",
       "retryProfile": "NONE",
       "authenticationProfile": "AUTHENTICATED",
@@ -2428,6 +2749,7 @@
     {
       "serviceId": "codestra-marketing",
       "owner": "marketing-platform",
+      "repository": "UNATTRIBUTED",
       "environment": "staging",
       "purpose": "Marketing platform stage-4 fragment upstream.",
       "trafficClass": "COMMAND_API",
@@ -2437,7 +2759,11 @@
         "host": "codestra-marketing",
         "port": 8000
       },
+      "tlsRequired": false,
       "healthProfile": "DNS_TARGET_PASSIVE",
+      "routeFamilies": [
+        "/v1/marketing"
+      ],
       "timeoutProfile": "KONG_DEFAULT_IMPLICIT",
       "retryProfile": "KONG_DEFAULT_IMPLICIT",
       "authenticationProfile": "AUTHENTICATED",
@@ -2463,6 +2789,7 @@
     {
       "serviceId": "codestra-ai",
       "owner": "marketing-platform",
+      "repository": "UNATTRIBUTED",
       "environment": "staging",
       "purpose": "AI platform stage-4 fragment upstream.",
       "trafficClass": "COMMAND_API",
@@ -2472,7 +2799,11 @@
         "host": "codestra-ai",
         "port": 8000
       },
+      "tlsRequired": false,
       "healthProfile": "DNS_TARGET_PASSIVE",
+      "routeFamilies": [
+        "/v1/ai"
+      ],
       "timeoutProfile": "KONG_DEFAULT_IMPLICIT",
       "retryProfile": "KONG_DEFAULT_IMPLICIT",
       "authenticationProfile": "AUTHENTICATED",
@@ -2498,6 +2829,7 @@
     {
       "serviceId": "codestra-communication",
       "owner": "marketing-platform",
+      "repository": "UNATTRIBUTED",
       "environment": "staging",
       "purpose": "Communication platform stage-4 fragment upstream.",
       "trafficClass": "COMMAND_API",
@@ -2507,7 +2839,11 @@
         "host": "codestra-communication",
         "port": 8000
       },
+      "tlsRequired": false,
       "healthProfile": "DNS_TARGET_PASSIVE",
+      "routeFamilies": [
+        "/v1/communications"
+      ],
       "timeoutProfile": "KONG_DEFAULT_IMPLICIT",
       "retryProfile": "KONG_DEFAULT_IMPLICIT",
       "authenticationProfile": "AUTHENTICATED",
@@ -2533,6 +2869,7 @@
     {
       "serviceId": "codestra-social",
       "owner": "marketing-platform",
+      "repository": "UNATTRIBUTED",
       "environment": "staging",
       "purpose": "Social platform stage-4 fragment upstream.",
       "trafficClass": "COMMAND_API",
@@ -2542,7 +2879,11 @@
         "host": "codestra-social",
         "port": 8000
       },
+      "tlsRequired": false,
       "healthProfile": "DNS_TARGET_PASSIVE",
+      "routeFamilies": [
+        "/v1/social"
+      ],
       "timeoutProfile": "KONG_DEFAULT_IMPLICIT",
       "retryProfile": "KONG_DEFAULT_IMPLICIT",
       "authenticationProfile": "AUTHENTICATED",
@@ -2568,6 +2909,7 @@
     {
       "serviceId": "codestra-design-cell-upstreams",
       "owner": "architecture",
+      "repository": "appolon1908/Middleware-",
       "environment": "production",
       "purpose": "Logical Middleware upstream families of the cell design (DESIGN_ONLY).",
       "trafficClass": "COMMAND_API",
@@ -2577,7 +2919,25 @@
         "host": "middleware-*",
         "port": null
       },
+      "tlsRequired": false,
       "healthProfile": "DNS_TARGET_PASSIVE",
+      "routeFamilies": [
+        "/internal/v1/automation",
+        "/v1",
+        "/v1/beyvra/automation",
+        "/v1/crawler",
+        "/v1/crm",
+        "/v1/email",
+        "/v1/forms",
+        "/v1/platform",
+        "/v1/sms",
+        "/v1/social",
+        "/v1/telephony",
+        "/v1/webhooks/email",
+        "/v1/webhooks/sms",
+        "/v1/webhooks/social",
+        "/v1/webhooks/telephony"
+      ],
       "timeoutProfile": "STANDARD_API",
       "retryProfile": "NONE",
       "authenticationProfile": "SERVICE_AUTHENTICATED",
@@ -2602,8 +2962,9 @@
     {
       "serviceId": "middleware-integration-api",
       "owner": "middleware-integration",
+      "repository": "appolon1908/Middleware-",
       "environment": "production",
-      "purpose": "Canonical Middleware public API edge: final 105 shared-edge operations from the protected 117-entry Middleware contract.",
+      "purpose": "Canonical Middleware public API edge: the shared-edge operations of the Middleware contract pinned in config/middleware-public-api-route-contract.pin.json.",
       "trafficClass": "COMMAND_API",
       "upstreamClass": "MIDDLEWARE_GOVERNED",
       "upstream": {
@@ -2611,7 +2972,52 @@
         "host": "middleware-integration-api",
         "port": 8095
       },
+      "tlsRequired": false,
       "healthProfile": "DNS_TARGET_PASSIVE",
+      "routeFamilies": [
+        "/api/v1/automation",
+        "/api/v1/callbacks",
+        "/api/v1/control",
+        "/api/v1/integrations",
+        "/api/v1/odoo",
+        "/platform/v1",
+        "/platform/v1/activity",
+        "/platform/v1/agent-provisioning",
+        "/platform/v1/agents",
+        "/platform/v1/calls",
+        "/platform/v1/campaigns",
+        "/platform/v1/commands",
+        "/platform/v1/connectors",
+        "/platform/v1/contacts",
+        "/platform/v1/dead-letters",
+        "/platform/v1/email",
+        "/platform/v1/hosts",
+        "/platform/v1/integrations",
+        "/platform/v1/kernel",
+        "/platform/v1/me",
+        "/platform/v1/operations",
+        "/platform/v1/opportunities",
+        "/platform/v1/queues",
+        "/platform/v1/rehearsals",
+        "/platform/v1/replays",
+        "/platform/v1/repositories",
+        "/platform/v1/runtime",
+        "/platform/v1/services",
+        "/platform/v1/session",
+        "/platform/v1/sms",
+        "/platform/v1/sync",
+        "/platform/v1/tasks",
+        "/platform/v1/telemetry",
+        "/platform/v1/telephony",
+        "/platform/v1/tenants",
+        "/platform/v1/tickets",
+        "/platform/v1/users",
+        "/v2/automation/approvals",
+        "/v2/automation/capabilities",
+        "/v2/automation/commands",
+        "/v2/automation/dead-letters",
+        "/v2/automation/jobs"
+      ],
       "timeoutProfile": "CANONICAL_EDGE_5S",
       "retryProfile": "NONE",
       "authenticationProfile": "AUTHENTICATED",
@@ -2634,6 +3040,7 @@
     {
       "serviceId": "middleware-integration-api@staging",
       "owner": "middleware-integration",
+      "repository": "appolon1908/Middleware-",
       "environment": "staging",
       "purpose": "Staging twin of the canonical Middleware public API edge for the TEST_SYN certification.",
       "trafficClass": "COMMAND_API",
@@ -2643,7 +3050,52 @@
         "host": "middleware-integration-api",
         "port": 8095
       },
+      "tlsRequired": false,
       "healthProfile": "DNS_TARGET_PASSIVE",
+      "routeFamilies": [
+        "/api/v1/automation",
+        "/api/v1/callbacks",
+        "/api/v1/control",
+        "/api/v1/integrations",
+        "/api/v1/odoo",
+        "/platform/v1",
+        "/platform/v1/activity",
+        "/platform/v1/agent-provisioning",
+        "/platform/v1/agents",
+        "/platform/v1/calls",
+        "/platform/v1/campaigns",
+        "/platform/v1/commands",
+        "/platform/v1/connectors",
+        "/platform/v1/contacts",
+        "/platform/v1/dead-letters",
+        "/platform/v1/email",
+        "/platform/v1/hosts",
+        "/platform/v1/integrations",
+        "/platform/v1/kernel",
+        "/platform/v1/me",
+        "/platform/v1/operations",
+        "/platform/v1/opportunities",
+        "/platform/v1/queues",
+        "/platform/v1/rehearsals",
+        "/platform/v1/replays",
+        "/platform/v1/repositories",
+        "/platform/v1/runtime",
+        "/platform/v1/services",
+        "/platform/v1/session",
+        "/platform/v1/sms",
+        "/platform/v1/sync",
+        "/platform/v1/tasks",
+        "/platform/v1/telemetry",
+        "/platform/v1/telephony",
+        "/platform/v1/tenants",
+        "/platform/v1/tickets",
+        "/platform/v1/users",
+        "/v2/automation/approvals",
+        "/v2/automation/capabilities",
+        "/v2/automation/commands",
+        "/v2/automation/dead-letters",
+        "/v2/automation/jobs"
+      ],
       "timeoutProfile": "CANONICAL_EDGE_5S",
       "retryProfile": "NONE",
       "authenticationProfile": "AUTHENTICATED",
@@ -2665,6 +3117,7 @@
     {
       "serviceId": "codestra-platform-api",
       "owner": "middleware-integration",
+      "repository": "appolon1908/Middleware-",
       "environment": "production",
       "purpose": "PR #104 read-side platform API (users, telephony, email, sms, calls, activity, presence, queues, session context).",
       "trafficClass": "READ_API",
@@ -2674,7 +3127,20 @@
         "host": "codestra-middleware-integration-api-1",
         "port": 8095
       },
+      "tlsRequired": false,
       "healthProfile": "DNS_TARGET_PASSIVE",
+      "routeFamilies": [
+        "/platform/v1/activity",
+        "/platform/v1/agents",
+        "/platform/v1/calls",
+        "/platform/v1/email",
+        "/platform/v1/me",
+        "/platform/v1/queues",
+        "/platform/v1/session",
+        "/platform/v1/sms",
+        "/platform/v1/telephony",
+        "/platform/v1/users"
+      ],
       "timeoutProfile": "STANDARD_API",
       "retryProfile": "KONG_DEFAULT_IMPLICIT",
       "authenticationProfile": "SERVICE_AUTHENTICATED",
@@ -3576,8 +4042,7 @@
       "disposition": "KEEP",
       "acceptedFindings": [
         "HOST_UNSPECIFIED",
-        "PLUGIN_SET_UNSPECIFIED",
-        "RETIRED_UPSTREAM_ALIAS"
+        "PLUGIN_SET_UNSPECIFIED"
       ],
       "audience": "middleware-api",
       "requiredScopes": [
@@ -3606,8 +4071,7 @@
       "disposition": "KEEP",
       "acceptedFindings": [
         "HOST_UNSPECIFIED",
-        "PLUGIN_SET_UNSPECIFIED",
-        "RETIRED_UPSTREAM_ALIAS"
+        "PLUGIN_SET_UNSPECIFIED"
       ],
       "audience": "middleware-api",
       "requiredScopes": [
@@ -3636,8 +4100,7 @@
       "disposition": "KEEP",
       "acceptedFindings": [
         "HOST_UNSPECIFIED",
-        "PLUGIN_SET_UNSPECIFIED",
-        "RETIRED_UPSTREAM_ALIAS"
+        "PLUGIN_SET_UNSPECIFIED"
       ],
       "audience": "middleware-api",
       "requiredScopes": [
@@ -3666,8 +4129,7 @@
       "disposition": "KEEP",
       "acceptedFindings": [
         "HOST_UNSPECIFIED",
-        "PLUGIN_SET_UNSPECIFIED",
-        "RETIRED_UPSTREAM_ALIAS"
+        "PLUGIN_SET_UNSPECIFIED"
       ],
       "audience": "middleware-api",
       "requiredScopes": [
@@ -3696,8 +4158,7 @@
       "disposition": "KEEP",
       "acceptedFindings": [
         "HOST_UNSPECIFIED",
-        "PLUGIN_SET_UNSPECIFIED",
-        "RETIRED_UPSTREAM_ALIAS"
+        "PLUGIN_SET_UNSPECIFIED"
       ],
       "audience": "middleware-api",
       "requiredScopes": [
@@ -3726,8 +4187,7 @@
       "disposition": "KEEP",
       "acceptedFindings": [
         "HOST_UNSPECIFIED",
-        "PLUGIN_SET_UNSPECIFIED",
-        "RETIRED_UPSTREAM_ALIAS"
+        "PLUGIN_SET_UNSPECIFIED"
       ],
       "audience": "middleware-api",
       "requiredScopes": [
@@ -4972,7 +5432,7 @@
       "trafficClass": "COMMAND_API",
       "authentication": "SERVICE_AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "SERVICE_STANDARD_120",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
       "requestSizeProfile": "STANDARD_API_2MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
@@ -5001,7 +5461,7 @@
       "trafficClass": "COMMAND_API",
       "authentication": "SERVICE_AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "SERVICE_STANDARD_120",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
       "requestSizeProfile": "STANDARD_API_2MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
@@ -5040,8 +5500,8 @@
       "trafficClass": "READ_API",
       "authentication": "SERVICE_AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "SERVICE_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -5069,8 +5529,8 @@
       "trafficClass": "READ_API",
       "authentication": "SERVICE_AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "SERVICE_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -5108,7 +5568,7 @@
       "trafficClass": "COMMAND_API",
       "authentication": "SERVICE_AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "SERVICE_STANDARD_120",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
       "requestSizeProfile": "STANDARD_API_2MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
@@ -5137,7 +5597,7 @@
       "trafficClass": "COMMAND_API",
       "authentication": "SERVICE_AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "SERVICE_STANDARD_120",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
       "requestSizeProfile": "STANDARD_API_2MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
@@ -5176,8 +5636,8 @@
       "trafficClass": "COMMAND_API",
       "authentication": "SERVICE_AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "SERVICE_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "WEBHOOK_300",
+      "requestSizeProfile": "WEBHOOK_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -5205,8 +5665,8 @@
       "trafficClass": "COMMAND_API",
       "authentication": "SERVICE_AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "SERVICE_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "WEBHOOK_300",
+      "requestSizeProfile": "WEBHOOK_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -5244,8 +5704,8 @@
       "trafficClass": "READ_API",
       "authentication": "SERVICE_AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "SERVICE_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -5273,8 +5733,8 @@
       "trafficClass": "READ_API",
       "authentication": "SERVICE_AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "SERVICE_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -5312,8 +5772,8 @@
       "trafficClass": "READ_API",
       "authentication": "SERVICE_AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "SERVICE_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -5341,8 +5801,8 @@
       "trafficClass": "READ_API",
       "authentication": "SERVICE_AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "SERVICE_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -5380,8 +5840,8 @@
       "trafficClass": "READ_API",
       "authentication": "SERVICE_AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "SERVICE_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -5409,8 +5869,8 @@
       "trafficClass": "READ_API",
       "authentication": "SERVICE_AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "SERVICE_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -5448,8 +5908,8 @@
       "trafficClass": "EVENT_INGEST",
       "authentication": "SERVICE_AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "SERVICE_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "WEBHOOK_300",
+      "requestSizeProfile": "WEBHOOK_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -5477,8 +5937,8 @@
       "trafficClass": "EVENT_INGEST",
       "authentication": "SERVICE_AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "SERVICE_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "WEBHOOK_300",
+      "requestSizeProfile": "WEBHOOK_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -5516,8 +5976,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -5545,8 +6005,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -5584,8 +6044,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -5613,8 +6073,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -5720,8 +6180,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -5749,8 +6209,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -6060,8 +6520,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -6089,8 +6549,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -6128,8 +6588,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -6157,8 +6617,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -6196,8 +6656,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -6225,8 +6685,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -6264,8 +6724,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -6293,8 +6753,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -6332,8 +6792,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -6361,8 +6821,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -6400,8 +6860,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -6429,8 +6889,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -6468,8 +6928,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -6497,8 +6957,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -6536,8 +6996,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -6565,8 +7025,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -6604,8 +7064,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -6633,8 +7093,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -6672,8 +7132,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -6701,8 +7161,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -6808,8 +7268,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -6837,8 +7297,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -6944,8 +7404,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -6973,8 +7433,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -7148,8 +7608,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -7177,8 +7637,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -7284,8 +7744,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -7313,8 +7773,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -7420,8 +7880,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -7449,8 +7909,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -7624,8 +8084,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -7653,8 +8113,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -7692,8 +8152,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -7721,8 +8181,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -7828,8 +8288,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -7857,8 +8317,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -7896,8 +8356,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -7925,8 +8385,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -7964,8 +8424,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -7993,8 +8453,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -8032,8 +8492,8 @@
       "trafficClass": "WEBHOOK_INGEST",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "WEBHOOK_300",
+      "requestSizeProfile": "WEBHOOK_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -8061,8 +8521,8 @@
       "trafficClass": "WEBHOOK_INGEST",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "WEBHOOK_300",
+      "requestSizeProfile": "WEBHOOK_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -8100,8 +8560,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -8129,8 +8589,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -8168,8 +8628,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -8197,8 +8657,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -8304,8 +8764,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -8333,8 +8793,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -8440,8 +8900,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -8469,8 +8929,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -8508,8 +8968,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -8537,8 +8997,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -8576,8 +9036,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -8605,8 +9065,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -8644,8 +9104,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -8673,8 +9133,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -8712,8 +9172,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -8741,8 +9201,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -8780,8 +9240,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -8809,8 +9269,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -8984,8 +9444,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -9013,8 +9473,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -9052,8 +9512,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -9081,8 +9541,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -9120,8 +9580,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -9149,8 +9609,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -9188,8 +9648,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -9217,8 +9677,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -9324,8 +9784,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -9353,8 +9813,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -9460,8 +9920,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -9489,8 +9949,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -9596,8 +10056,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -9625,8 +10085,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -9664,8 +10124,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -9693,8 +10153,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -9936,8 +10396,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -9965,8 +10425,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -10004,8 +10464,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -10033,8 +10493,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -10072,8 +10532,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -10101,8 +10561,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -10140,8 +10600,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -10169,8 +10629,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -10208,8 +10668,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -10237,8 +10697,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -10276,8 +10736,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -10305,8 +10765,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -10344,8 +10804,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -10373,8 +10833,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -10480,8 +10940,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -10509,8 +10969,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -10616,8 +11076,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -10645,8 +11105,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -10684,8 +11144,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -10713,8 +11173,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -10752,8 +11212,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -10781,8 +11241,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -10820,7 +11280,7 @@
       "trafficClass": "COMMAND_API",
       "authentication": "SERVICE_AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "SERVICE_STANDARD_120",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
       "requestSizeProfile": "STANDARD_API_2MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
@@ -10849,7 +11309,7 @@
       "trafficClass": "COMMAND_API",
       "authentication": "SERVICE_AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "SERVICE_STANDARD_120",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
       "requestSizeProfile": "STANDARD_API_2MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
@@ -10888,8 +11348,8 @@
       "trafficClass": "READ_API",
       "authentication": "SERVICE_AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "SERVICE_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -10917,8 +11377,8 @@
       "trafficClass": "READ_API",
       "authentication": "SERVICE_AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "SERVICE_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -10956,8 +11416,8 @@
       "trafficClass": "READ_API",
       "authentication": "SERVICE_AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "SERVICE_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -10985,8 +11445,8 @@
       "trafficClass": "READ_API",
       "authentication": "SERVICE_AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "SERVICE_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -11024,7 +11484,7 @@
       "trafficClass": "COMMAND_API",
       "authentication": "SERVICE_AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "SERVICE_STANDARD_120",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
       "requestSizeProfile": "STANDARD_API_2MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
@@ -11053,7 +11513,7 @@
       "trafficClass": "COMMAND_API",
       "authentication": "SERVICE_AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "SERVICE_STANDARD_120",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
       "requestSizeProfile": "STANDARD_API_2MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
@@ -11092,8 +11552,8 @@
       "trafficClass": "READ_API",
       "authentication": "SERVICE_AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "SERVICE_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -11121,8 +11581,8 @@
       "trafficClass": "READ_API",
       "authentication": "SERVICE_AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "SERVICE_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -11160,7 +11620,7 @@
       "trafficClass": "COMMAND_API",
       "authentication": "SERVICE_AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "SERVICE_STANDARD_120",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
       "requestSizeProfile": "STANDARD_API_2MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
@@ -11191,7 +11651,7 @@
       "trafficClass": "COMMAND_API",
       "authentication": "SERVICE_AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "SERVICE_STANDARD_120",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
       "requestSizeProfile": "STANDARD_API_2MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
@@ -11232,7 +11692,7 @@
       "trafficClass": "COMMAND_API",
       "authentication": "SERVICE_AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "SERVICE_STANDARD_120",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
       "requestSizeProfile": "STANDARD_API_2MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
@@ -11261,7 +11721,7 @@
       "trafficClass": "COMMAND_API",
       "authentication": "SERVICE_AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "SERVICE_STANDARD_120",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
       "requestSizeProfile": "STANDARD_API_2MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
@@ -11300,7 +11760,7 @@
       "trafficClass": "COMMAND_API",
       "authentication": "SERVICE_AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "SERVICE_STANDARD_120",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
       "requestSizeProfile": "STANDARD_API_2MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
@@ -11331,7 +11791,7 @@
       "trafficClass": "COMMAND_API",
       "authentication": "SERVICE_AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "SERVICE_STANDARD_120",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
       "requestSizeProfile": "STANDARD_API_2MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
@@ -11372,8 +11832,8 @@
       "trafficClass": "READ_API",
       "authentication": "SERVICE_AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "SERVICE_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -11401,8 +11861,8 @@
       "trafficClass": "READ_API",
       "authentication": "SERVICE_AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "SERVICE_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -11440,7 +11900,7 @@
       "trafficClass": "COMMAND_API",
       "authentication": "SERVICE_AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "SERVICE_STANDARD_120",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
       "requestSizeProfile": "STANDARD_API_2MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
@@ -11469,7 +11929,7 @@
       "trafficClass": "COMMAND_API",
       "authentication": "SERVICE_AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "SERVICE_STANDARD_120",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
       "requestSizeProfile": "STANDARD_API_2MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
@@ -11508,7 +11968,7 @@
       "trafficClass": "COMMAND_API",
       "authentication": "SERVICE_AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "SERVICE_STANDARD_120",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
       "requestSizeProfile": "STANDARD_API_2MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
@@ -11537,7 +11997,7 @@
       "trafficClass": "COMMAND_API",
       "authentication": "SERVICE_AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "SERVICE_STANDARD_120",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
       "requestSizeProfile": "STANDARD_API_2MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
@@ -11576,7 +12036,7 @@
       "trafficClass": "COMMAND_API",
       "authentication": "SERVICE_AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "SERVICE_STANDARD_120",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
       "requestSizeProfile": "STANDARD_API_2MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
@@ -11605,7 +12065,7 @@
       "trafficClass": "COMMAND_API",
       "authentication": "SERVICE_AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "SERVICE_STANDARD_120",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
       "requestSizeProfile": "STANDARD_API_2MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
@@ -11644,7 +12104,7 @@
       "trafficClass": "COMMAND_API",
       "authentication": "SERVICE_AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "SERVICE_STANDARD_120",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
       "requestSizeProfile": "STANDARD_API_2MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
@@ -11673,7 +12133,7 @@
       "trafficClass": "COMMAND_API",
       "authentication": "SERVICE_AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "SERVICE_STANDARD_120",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
       "requestSizeProfile": "STANDARD_API_2MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
@@ -12846,7 +13306,7 @@
       "trafficClass": "COMMAND_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
+      "rateLimitProfile": "OPERATOR_60",
       "requestSizeProfile": "STANDARD_API_2MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
@@ -12886,8 +13346,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "OPERATOR_60",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -12926,8 +13386,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "OPERATOR_60",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -12966,7 +13426,7 @@
       "trafficClass": "COMMAND_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
+      "rateLimitProfile": "OPERATOR_60",
       "requestSizeProfile": "STANDARD_API_2MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
@@ -13006,7 +13466,7 @@
       "trafficClass": "COMMAND_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
+      "rateLimitProfile": "OPERATOR_60",
       "requestSizeProfile": "STANDARD_API_2MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
@@ -13046,8 +13506,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "OPERATOR_60",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -13076,7 +13536,7 @@
       "trafficClass": "COMMAND_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
+      "rateLimitProfile": "OPERATOR_60",
       "requestSizeProfile": "STANDARD_API_2MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
@@ -13106,8 +13566,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "OPERATOR_60",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -13136,8 +13596,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "OPERATOR_60",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -13166,7 +13626,7 @@
       "trafficClass": "COMMAND_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
+      "rateLimitProfile": "OPERATOR_60",
       "requestSizeProfile": "STANDARD_API_2MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
@@ -13196,7 +13656,7 @@
       "trafficClass": "COMMAND_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
+      "rateLimitProfile": "OPERATOR_60",
       "requestSizeProfile": "STANDARD_API_2MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
@@ -13226,8 +13686,8 @@
       "trafficClass": "READ_API",
       "authentication": "AUTHENTICATED",
       "mechanism": "OIDC_BEARER",
-      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
-      "requestSizeProfile": "STANDARD_API_2MB",
+      "rateLimitProfile": "OPERATOR_60",
+      "requestSizeProfile": "STANDARD_API_1MB",
       "lifecycle": "CANONICAL",
       "activation": "SOURCE_CANDIDATE",
       "disposition": "KEEP",
@@ -13241,6 +13701,1910 @@
       "contractOperation": "get_timeline_platform_v1_operations__operation_id__timeline_get",
       "contractAuthentication": "service-or-user-jwt",
       "contractExpectedAzp": "platform-command-client"
+    },
+    {
+      "routeId": "middleware-adopt-agent-extension-platform-v1-agent-provisioning-adopt-extension-post",
+      "serviceId": "middleware-integration-api",
+      "environment": "production",
+      "bindings": [
+        {
+          "source": "config/kong-canonical-middleware-routes.json",
+          "route": "middleware-adopt-agent-extension-platform-v1-agent-provisioning-adopt-extension-post",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-routes.production.yml",
+          "route": "middleware-adopt-agent-extension-platform-v1-agent-provisioning-adopt-extension-post",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-authority.v2.json",
+          "route": "middleware-adopt-agent-extension-platform-v1-agent-provisioning-adopt-extension-post",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "COMMAND_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
+      "requestSizeProfile": "STANDARD_API_2MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "identity.request"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "adopt_agent_extension_platform_v1_agent_provisioning_adopt_extension_post",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "authorized-provisioning-client"
+    },
+    {
+      "routeId": "middleware-adopt-agent-extension-platform-v1-agent-provisioning-adopt-extension-post@staging",
+      "serviceId": "middleware-integration-api@staging",
+      "environment": "staging",
+      "bindings": [
+        {
+          "source": "config/staging/kong-middleware-routes.staging.yml",
+          "route": "middleware-adopt-agent-extension-platform-v1-agent-provisioning-adopt-extension-post",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "COMMAND_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
+      "requestSizeProfile": "STANDARD_API_2MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "identity.request"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "adopt_agent_extension_platform_v1_agent_provisioning_adopt_extension_post",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "authorized-provisioning-client"
+    },
+    {
+      "routeId": "middleware-provisioning-history-platform-v1-agent-provisioning-requests--request-id--history-get",
+      "serviceId": "middleware-integration-api",
+      "environment": "production",
+      "bindings": [
+        {
+          "source": "config/kong-canonical-middleware-routes.json",
+          "route": "middleware-provisioning-history-platform-v1-agent-provisioning-requests--request-id--history-get",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-routes.production.yml",
+          "route": "middleware-provisioning-history-platform-v1-agent-provisioning-requests--request-id--history-get",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-authority.v2.json",
+          "route": "middleware-provisioning-history-platform-v1-agent-provisioning-requests--request-id--history-get",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "READ_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "identity.request"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "provisioning_history_platform_v1_agent_provisioning_requests__request_id__history_get",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "authorized-provisioning-client"
+    },
+    {
+      "routeId": "middleware-provisioning-history-platform-v1-agent-provisioning-requests--request-id--history-get@staging",
+      "serviceId": "middleware-integration-api@staging",
+      "environment": "staging",
+      "bindings": [
+        {
+          "source": "config/staging/kong-middleware-routes.staging.yml",
+          "route": "middleware-provisioning-history-platform-v1-agent-provisioning-requests--request-id--history-get",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "READ_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "identity.request"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "provisioning_history_platform_v1_agent_provisioning_requests__request_id__history_get",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "authorized-provisioning-client"
+    },
+    {
+      "routeId": "middleware-reserve-agent-extension-platform-v1-agent-provisioning-reserve-extension-post",
+      "serviceId": "middleware-integration-api",
+      "environment": "production",
+      "bindings": [
+        {
+          "source": "config/kong-canonical-middleware-routes.json",
+          "route": "middleware-reserve-agent-extension-platform-v1-agent-provisioning-reserve-extension-post",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-routes.production.yml",
+          "route": "middleware-reserve-agent-extension-platform-v1-agent-provisioning-reserve-extension-post",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-authority.v2.json",
+          "route": "middleware-reserve-agent-extension-platform-v1-agent-provisioning-reserve-extension-post",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "COMMAND_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
+      "requestSizeProfile": "STANDARD_API_2MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "identity.request"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "reserve_agent_extension_platform_v1_agent_provisioning_reserve_extension_post",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "authorized-provisioning-client"
+    },
+    {
+      "routeId": "middleware-reserve-agent-extension-platform-v1-agent-provisioning-reserve-extension-post@staging",
+      "serviceId": "middleware-integration-api@staging",
+      "environment": "staging",
+      "bindings": [
+        {
+          "source": "config/staging/kong-middleware-routes.staging.yml",
+          "route": "middleware-reserve-agent-extension-platform-v1-agent-provisioning-reserve-extension-post",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "COMMAND_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
+      "requestSizeProfile": "STANDARD_API_2MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "identity.request"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "reserve_agent_extension_platform_v1_agent_provisioning_reserve_extension_post",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "authorized-provisioning-client"
+    },
+    {
+      "routeId": "middleware-issue-webrtc-ticket-platform-v1-agent-provisioning-webrtc-tickets-post",
+      "serviceId": "middleware-integration-api",
+      "environment": "production",
+      "bindings": [
+        {
+          "source": "config/kong-canonical-middleware-routes.json",
+          "route": "middleware-issue-webrtc-ticket-platform-v1-agent-provisioning-webrtc-tickets-post",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-routes.production.yml",
+          "route": "middleware-issue-webrtc-ticket-platform-v1-agent-provisioning-webrtc-tickets-post",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-authority.v2.json",
+          "route": "middleware-issue-webrtc-ticket-platform-v1-agent-provisioning-webrtc-tickets-post",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "COMMAND_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
+      "requestSizeProfile": "STANDARD_API_2MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "identity.request"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "issue_webrtc_ticket_platform_v1_agent_provisioning_webrtc_tickets_post",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "authorized-provisioning-client"
+    },
+    {
+      "routeId": "middleware-issue-webrtc-ticket-platform-v1-agent-provisioning-webrtc-tickets-post@staging",
+      "serviceId": "middleware-integration-api@staging",
+      "environment": "staging",
+      "bindings": [
+        {
+          "source": "config/staging/kong-middleware-routes.staging.yml",
+          "route": "middleware-issue-webrtc-ticket-platform-v1-agent-provisioning-webrtc-tickets-post",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "COMMAND_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
+      "requestSizeProfile": "STANDARD_API_2MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "identity.request"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "issue_webrtc_ticket_platform_v1_agent_provisioning_webrtc_tickets_post",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "authorized-provisioning-client"
+    },
+    {
+      "routeId": "middleware-disable-agent-platform-v1-agent-provisioning--request-id--disable-post",
+      "serviceId": "middleware-integration-api",
+      "environment": "production",
+      "bindings": [
+        {
+          "source": "config/kong-canonical-middleware-routes.json",
+          "route": "middleware-disable-agent-platform-v1-agent-provisioning--request-id--disable-post",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-routes.production.yml",
+          "route": "middleware-disable-agent-platform-v1-agent-provisioning--request-id--disable-post",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-authority.v2.json",
+          "route": "middleware-disable-agent-platform-v1-agent-provisioning--request-id--disable-post",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "COMMAND_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
+      "requestSizeProfile": "STANDARD_API_2MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "identity.request"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "disable_agent_platform_v1_agent_provisioning__request_id__disable_post",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "authorized-provisioning-client"
+    },
+    {
+      "routeId": "middleware-disable-agent-platform-v1-agent-provisioning--request-id--disable-post@staging",
+      "serviceId": "middleware-integration-api@staging",
+      "environment": "staging",
+      "bindings": [
+        {
+          "source": "config/staging/kong-middleware-routes.staging.yml",
+          "route": "middleware-disable-agent-platform-v1-agent-provisioning--request-id--disable-post",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "COMMAND_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
+      "requestSizeProfile": "STANDARD_API_2MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "identity.request"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "disable_agent_platform_v1_agent_provisioning__request_id__disable_post",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "authorized-provisioning-client"
+    },
+    {
+      "routeId": "middleware-provisioning-readback-platform-v1-agent-provisioning--request-id--readback-get",
+      "serviceId": "middleware-integration-api",
+      "environment": "production",
+      "bindings": [
+        {
+          "source": "config/kong-canonical-middleware-routes.json",
+          "route": "middleware-provisioning-readback-platform-v1-agent-provisioning--request-id--readback-get",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-routes.production.yml",
+          "route": "middleware-provisioning-readback-platform-v1-agent-provisioning--request-id--readback-get",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-authority.v2.json",
+          "route": "middleware-provisioning-readback-platform-v1-agent-provisioning--request-id--readback-get",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "READ_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "identity.request"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "provisioning_readback_platform_v1_agent_provisioning__request_id__readback_get",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "authorized-provisioning-client"
+    },
+    {
+      "routeId": "middleware-provisioning-readback-platform-v1-agent-provisioning--request-id--readback-get@staging",
+      "serviceId": "middleware-integration-api@staging",
+      "environment": "staging",
+      "bindings": [
+        {
+          "source": "config/staging/kong-middleware-routes.staging.yml",
+          "route": "middleware-provisioning-readback-platform-v1-agent-provisioning--request-id--readback-get",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "READ_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "identity.request"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "provisioning_readback_platform_v1_agent_provisioning__request_id__readback_get",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "authorized-provisioning-client"
+    },
+    {
+      "routeId": "middleware-release-agent-extension-platform-v1-agent-provisioning--request-id--release-extension-post",
+      "serviceId": "middleware-integration-api",
+      "environment": "production",
+      "bindings": [
+        {
+          "source": "config/kong-canonical-middleware-routes.json",
+          "route": "middleware-release-agent-extension-platform-v1-agent-provisioning--request-id--release-extension-post",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-routes.production.yml",
+          "route": "middleware-release-agent-extension-platform-v1-agent-provisioning--request-id--release-extension-post",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-authority.v2.json",
+          "route": "middleware-release-agent-extension-platform-v1-agent-provisioning--request-id--release-extension-post",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "COMMAND_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
+      "requestSizeProfile": "STANDARD_API_2MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "identity.request"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "release_agent_extension_platform_v1_agent_provisioning__request_id__release_extension_post",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "authorized-provisioning-client"
+    },
+    {
+      "routeId": "middleware-release-agent-extension-platform-v1-agent-provisioning--request-id--release-extension-post@staging",
+      "serviceId": "middleware-integration-api@staging",
+      "environment": "staging",
+      "bindings": [
+        {
+          "source": "config/staging/kong-middleware-routes.staging.yml",
+          "route": "middleware-release-agent-extension-platform-v1-agent-provisioning--request-id--release-extension-post",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "COMMAND_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
+      "requestSizeProfile": "STANDARD_API_2MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "identity.request"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "release_agent_extension_platform_v1_agent_provisioning__request_id__release_extension_post",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "authorized-provisioning-client"
+    },
+    {
+      "routeId": "middleware-create-repair-intent-platform-v1-agent-provisioning--request-id--repair-intents-post",
+      "serviceId": "middleware-integration-api",
+      "environment": "production",
+      "bindings": [
+        {
+          "source": "config/kong-canonical-middleware-routes.json",
+          "route": "middleware-create-repair-intent-platform-v1-agent-provisioning--request-id--repair-intents-post",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-routes.production.yml",
+          "route": "middleware-create-repair-intent-platform-v1-agent-provisioning--request-id--repair-intents-post",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-authority.v2.json",
+          "route": "middleware-create-repair-intent-platform-v1-agent-provisioning--request-id--repair-intents-post",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "COMMAND_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
+      "requestSizeProfile": "STANDARD_API_2MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "identity.request"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "create_repair_intent_platform_v1_agent_provisioning__request_id__repair_intents_post",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "authorized-provisioning-client"
+    },
+    {
+      "routeId": "middleware-create-repair-intent-platform-v1-agent-provisioning--request-id--repair-intents-post@staging",
+      "serviceId": "middleware-integration-api@staging",
+      "environment": "staging",
+      "bindings": [
+        {
+          "source": "config/staging/kong-middleware-routes.staging.yml",
+          "route": "middleware-create-repair-intent-platform-v1-agent-provisioning--request-id--repair-intents-post",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "COMMAND_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
+      "requestSizeProfile": "STANDARD_API_2MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "identity.request"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "create_repair_intent_platform_v1_agent_provisioning__request_id__repair_intents_post",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "authorized-provisioning-client"
+    },
+    {
+      "routeId": "middleware-sync-agent-platform-v1-agent-provisioning--request-id--sync-post",
+      "serviceId": "middleware-integration-api",
+      "environment": "production",
+      "bindings": [
+        {
+          "source": "config/kong-canonical-middleware-routes.json",
+          "route": "middleware-sync-agent-platform-v1-agent-provisioning--request-id--sync-post",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-routes.production.yml",
+          "route": "middleware-sync-agent-platform-v1-agent-provisioning--request-id--sync-post",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-authority.v2.json",
+          "route": "middleware-sync-agent-platform-v1-agent-provisioning--request-id--sync-post",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "COMMAND_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
+      "requestSizeProfile": "STANDARD_API_2MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "identity.request"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "sync_agent_platform_v1_agent_provisioning__request_id__sync_post",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "authorized-provisioning-client"
+    },
+    {
+      "routeId": "middleware-sync-agent-platform-v1-agent-provisioning--request-id--sync-post@staging",
+      "serviceId": "middleware-integration-api@staging",
+      "environment": "staging",
+      "bindings": [
+        {
+          "source": "config/staging/kong-middleware-routes.staging.yml",
+          "route": "middleware-sync-agent-platform-v1-agent-provisioning--request-id--sync-post",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "COMMAND_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
+      "requestSizeProfile": "STANDARD_API_2MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "identity.request"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "sync_agent_platform_v1_agent_provisioning__request_id__sync_post",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "authorized-provisioning-client"
+    },
+    {
+      "routeId": "middleware-revoke-webrtc-session-platform-v1-agent-provisioning--request-id--webrtc-revoke-post",
+      "serviceId": "middleware-integration-api",
+      "environment": "production",
+      "bindings": [
+        {
+          "source": "config/kong-canonical-middleware-routes.json",
+          "route": "middleware-revoke-webrtc-session-platform-v1-agent-provisioning--request-id--webrtc-revoke-post",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-routes.production.yml",
+          "route": "middleware-revoke-webrtc-session-platform-v1-agent-provisioning--request-id--webrtc-revoke-post",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-authority.v2.json",
+          "route": "middleware-revoke-webrtc-session-platform-v1-agent-provisioning--request-id--webrtc-revoke-post",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "COMMAND_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
+      "requestSizeProfile": "STANDARD_API_2MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "identity.request"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "revoke_webrtc_session_platform_v1_agent_provisioning__request_id__webrtc_revoke_post",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "authorized-provisioning-client"
+    },
+    {
+      "routeId": "middleware-revoke-webrtc-session-platform-v1-agent-provisioning--request-id--webrtc-revoke-post@staging",
+      "serviceId": "middleware-integration-api@staging",
+      "environment": "staging",
+      "bindings": [
+        {
+          "source": "config/staging/kong-middleware-routes.staging.yml",
+          "route": "middleware-revoke-webrtc-session-platform-v1-agent-provisioning--request-id--webrtc-revoke-post",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "COMMAND_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
+      "requestSizeProfile": "STANDARD_API_2MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "identity.request"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "revoke_webrtc_session_platform_v1_agent_provisioning__request_id__webrtc_revoke_post",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "authorized-provisioning-client"
+    },
+    {
+      "routeId": "middleware-get-operation-platform-v1-commands--operation-id--get",
+      "serviceId": "middleware-integration-api",
+      "environment": "production",
+      "bindings": [
+        {
+          "source": "config/kong-canonical-middleware-routes.json",
+          "route": "middleware-get-operation-platform-v1-commands--operation-id--get",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-routes.production.yml",
+          "route": "middleware-get-operation-platform-v1-commands--operation-id--get",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-authority.v2.json",
+          "route": "middleware-get-operation-platform-v1-commands--operation-id--get",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "READ_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "identity.request"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "get_operation_platform_v1_commands__operation_id__get",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "authorized-provisioning-client"
+    },
+    {
+      "routeId": "middleware-get-operation-platform-v1-commands--operation-id--get@staging",
+      "serviceId": "middleware-integration-api@staging",
+      "environment": "staging",
+      "bindings": [
+        {
+          "source": "config/staging/kong-middleware-routes.staging.yml",
+          "route": "middleware-get-operation-platform-v1-commands--operation-id--get",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "READ_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "identity.request"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "get_operation_platform_v1_commands__operation_id__get",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "authorized-provisioning-client"
+    },
+    {
+      "routeId": "middleware-cancel-operation-platform-v1-commands--operation-id--cancel-post",
+      "serviceId": "middleware-integration-api",
+      "environment": "production",
+      "bindings": [
+        {
+          "source": "config/kong-canonical-middleware-routes.json",
+          "route": "middleware-cancel-operation-platform-v1-commands--operation-id--cancel-post",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-routes.production.yml",
+          "route": "middleware-cancel-operation-platform-v1-commands--operation-id--cancel-post",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-authority.v2.json",
+          "route": "middleware-cancel-operation-platform-v1-commands--operation-id--cancel-post",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "COMMAND_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
+      "requestSizeProfile": "STANDARD_API_2MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "identity.request"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "cancel_operation_platform_v1_commands__operation_id__cancel_post",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "authorized-provisioning-client"
+    },
+    {
+      "routeId": "middleware-cancel-operation-platform-v1-commands--operation-id--cancel-post@staging",
+      "serviceId": "middleware-integration-api@staging",
+      "environment": "staging",
+      "bindings": [
+        {
+          "source": "config/staging/kong-middleware-routes.staging.yml",
+          "route": "middleware-cancel-operation-platform-v1-commands--operation-id--cancel-post",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "COMMAND_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
+      "requestSizeProfile": "STANDARD_API_2MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "identity.request"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "cancel_operation_platform_v1_commands__operation_id__cancel_post",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "authorized-provisioning-client"
+    },
+    {
+      "routeId": "middleware-get-timeline-platform-v1-commands--operation-id--history-get",
+      "serviceId": "middleware-integration-api",
+      "environment": "production",
+      "bindings": [
+        {
+          "source": "config/kong-canonical-middleware-routes.json",
+          "route": "middleware-get-timeline-platform-v1-commands--operation-id--history-get",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-routes.production.yml",
+          "route": "middleware-get-timeline-platform-v1-commands--operation-id--history-get",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-authority.v2.json",
+          "route": "middleware-get-timeline-platform-v1-commands--operation-id--history-get",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "READ_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "identity.request"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "get_timeline_platform_v1_commands__operation_id__history_get",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "authorized-provisioning-client"
+    },
+    {
+      "routeId": "middleware-get-timeline-platform-v1-commands--operation-id--history-get@staging",
+      "serviceId": "middleware-integration-api@staging",
+      "environment": "staging",
+      "bindings": [
+        {
+          "source": "config/staging/kong-middleware-routes.staging.yml",
+          "route": "middleware-get-timeline-platform-v1-commands--operation-id--history-get",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "READ_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "identity.request"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "get_timeline_platform_v1_commands__operation_id__history_get",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "authorized-provisioning-client"
+    },
+    {
+      "routeId": "middleware-replay-operation-platform-v1-commands--operation-id--replay-post",
+      "serviceId": "middleware-integration-api",
+      "environment": "production",
+      "bindings": [
+        {
+          "source": "config/kong-canonical-middleware-routes.json",
+          "route": "middleware-replay-operation-platform-v1-commands--operation-id--replay-post",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-routes.production.yml",
+          "route": "middleware-replay-operation-platform-v1-commands--operation-id--replay-post",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-authority.v2.json",
+          "route": "middleware-replay-operation-platform-v1-commands--operation-id--replay-post",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "COMMAND_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
+      "requestSizeProfile": "STANDARD_API_2MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "identity.request"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "replay_operation_platform_v1_commands__operation_id__replay_post",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "authorized-provisioning-client"
+    },
+    {
+      "routeId": "middleware-replay-operation-platform-v1-commands--operation-id--replay-post@staging",
+      "serviceId": "middleware-integration-api@staging",
+      "environment": "staging",
+      "bindings": [
+        {
+          "source": "config/staging/kong-middleware-routes.staging.yml",
+          "route": "middleware-replay-operation-platform-v1-commands--operation-id--replay-post",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "COMMAND_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
+      "requestSizeProfile": "STANDARD_API_2MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "identity.request"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "replay_operation_platform_v1_commands__operation_id__replay_post",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "authorized-provisioning-client"
+    },
+    {
+      "routeId": "middleware-get-command-result-platform-v1-commands--operation-id--result-get",
+      "serviceId": "middleware-integration-api",
+      "environment": "production",
+      "bindings": [
+        {
+          "source": "config/kong-canonical-middleware-routes.json",
+          "route": "middleware-get-command-result-platform-v1-commands--operation-id--result-get",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-routes.production.yml",
+          "route": "middleware-get-command-result-platform-v1-commands--operation-id--result-get",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-authority.v2.json",
+          "route": "middleware-get-command-result-platform-v1-commands--operation-id--result-get",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "READ_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "identity.request"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "get_command_result_platform_v1_commands__operation_id__result_get",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "authorized-provisioning-client"
+    },
+    {
+      "routeId": "middleware-get-command-result-platform-v1-commands--operation-id--result-get@staging",
+      "serviceId": "middleware-integration-api@staging",
+      "environment": "staging",
+      "bindings": [
+        {
+          "source": "config/staging/kong-middleware-routes.staging.yml",
+          "route": "middleware-get-command-result-platform-v1-commands--operation-id--result-get",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "READ_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "identity.request"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "get_command_result_platform_v1_commands__operation_id__result_get",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "authorized-provisioning-client"
+    },
+    {
+      "routeId": "middleware-retry-command-platform-v1-commands--operation-id--retry-post",
+      "serviceId": "middleware-integration-api",
+      "environment": "production",
+      "bindings": [
+        {
+          "source": "config/kong-canonical-middleware-routes.json",
+          "route": "middleware-retry-command-platform-v1-commands--operation-id--retry-post",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-routes.production.yml",
+          "route": "middleware-retry-command-platform-v1-commands--operation-id--retry-post",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-authority.v2.json",
+          "route": "middleware-retry-command-platform-v1-commands--operation-id--retry-post",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "COMMAND_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
+      "requestSizeProfile": "STANDARD_API_2MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "identity.request"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "retry_command_platform_v1_commands__operation_id__retry_post",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "authorized-provisioning-client"
+    },
+    {
+      "routeId": "middleware-retry-command-platform-v1-commands--operation-id--retry-post@staging",
+      "serviceId": "middleware-integration-api@staging",
+      "environment": "staging",
+      "bindings": [
+        {
+          "source": "config/staging/kong-middleware-routes.staging.yml",
+          "route": "middleware-retry-command-platform-v1-commands--operation-id--retry-post",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "COMMAND_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
+      "requestSizeProfile": "STANDARD_API_2MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "identity.request"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "retry_command_platform_v1_commands__operation_id__retry_post",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "authorized-provisioning-client"
+    },
+    {
+      "routeId": "middleware-connectors-catalog-platform-v1-connectors-get",
+      "serviceId": "middleware-integration-api",
+      "environment": "production",
+      "bindings": [
+        {
+          "source": "config/kong-canonical-middleware-routes.json",
+          "route": "middleware-connectors-catalog-platform-v1-connectors-get",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-routes.production.yml",
+          "route": "middleware-connectors-catalog-platform-v1-connectors-get",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-authority.v2.json",
+          "route": "middleware-connectors-catalog-platform-v1-connectors-get",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "READ_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "identity.request"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "connectors_catalog_platform_v1_connectors_get",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "authorized-provisioning-client"
+    },
+    {
+      "routeId": "middleware-connectors-catalog-platform-v1-connectors-get@staging",
+      "serviceId": "middleware-integration-api@staging",
+      "environment": "staging",
+      "bindings": [
+        {
+          "source": "config/staging/kong-middleware-routes.staging.yml",
+          "route": "middleware-connectors-catalog-platform-v1-connectors-get",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "READ_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "identity.request"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "connectors_catalog_platform_v1_connectors_get",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "authorized-provisioning-client"
+    },
+    {
+      "routeId": "middleware-connector-catalog-item-platform-v1-connectors--connector-id--get",
+      "serviceId": "middleware-integration-api",
+      "environment": "production",
+      "bindings": [
+        {
+          "source": "config/kong-canonical-middleware-routes.json",
+          "route": "middleware-connector-catalog-item-platform-v1-connectors--connector-id--get",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-routes.production.yml",
+          "route": "middleware-connector-catalog-item-platform-v1-connectors--connector-id--get",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-authority.v2.json",
+          "route": "middleware-connector-catalog-item-platform-v1-connectors--connector-id--get",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "READ_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "identity.request"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "connector_catalog_item_platform_v1_connectors__connector_id__get",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "authorized-provisioning-client"
+    },
+    {
+      "routeId": "middleware-connector-catalog-item-platform-v1-connectors--connector-id--get@staging",
+      "serviceId": "middleware-integration-api@staging",
+      "environment": "staging",
+      "bindings": [
+        {
+          "source": "config/staging/kong-middleware-routes.staging.yml",
+          "route": "middleware-connector-catalog-item-platform-v1-connectors--connector-id--get",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "READ_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "identity.request"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "connector_catalog_item_platform_v1_connectors__connector_id__get",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "authorized-provisioning-client"
+    },
+    {
+      "routeId": "middleware-connector-capabilities-platform-v1-connectors--connector-id--capabilities-get",
+      "serviceId": "middleware-integration-api",
+      "environment": "production",
+      "bindings": [
+        {
+          "source": "config/kong-canonical-middleware-routes.json",
+          "route": "middleware-connector-capabilities-platform-v1-connectors--connector-id--capabilities-get",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-routes.production.yml",
+          "route": "middleware-connector-capabilities-platform-v1-connectors--connector-id--capabilities-get",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-authority.v2.json",
+          "route": "middleware-connector-capabilities-platform-v1-connectors--connector-id--capabilities-get",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "READ_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "identity.request"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "connector_capabilities_platform_v1_connectors__connector_id__capabilities_get",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "authorized-provisioning-client"
+    },
+    {
+      "routeId": "middleware-connector-capabilities-platform-v1-connectors--connector-id--capabilities-get@staging",
+      "serviceId": "middleware-integration-api@staging",
+      "environment": "staging",
+      "bindings": [
+        {
+          "source": "config/staging/kong-middleware-routes.staging.yml",
+          "route": "middleware-connector-capabilities-platform-v1-connectors--connector-id--capabilities-get",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "READ_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "identity.request"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "connector_capabilities_platform_v1_connectors__connector_id__capabilities_get",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "authorized-provisioning-client"
+    },
+    {
+      "routeId": "middleware-connector-health-platform-v1-connectors--connector-id--health-get",
+      "serviceId": "middleware-integration-api",
+      "environment": "production",
+      "bindings": [
+        {
+          "source": "config/kong-canonical-middleware-routes.json",
+          "route": "middleware-connector-health-platform-v1-connectors--connector-id--health-get",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-routes.production.yml",
+          "route": "middleware-connector-health-platform-v1-connectors--connector-id--health-get",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-authority.v2.json",
+          "route": "middleware-connector-health-platform-v1-connectors--connector-id--health-get",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "READ_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "identity.request"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "connector_health_platform_v1_connectors__connector_id__health_get",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "authorized-provisioning-client"
+    },
+    {
+      "routeId": "middleware-connector-health-platform-v1-connectors--connector-id--health-get@staging",
+      "serviceId": "middleware-integration-api@staging",
+      "environment": "staging",
+      "bindings": [
+        {
+          "source": "config/staging/kong-middleware-routes.staging.yml",
+          "route": "middleware-connector-health-platform-v1-connectors--connector-id--health-get",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "READ_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "identity.request"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "connector_health_platform_v1_connectors__connector_id__health_get",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "authorized-provisioning-client"
+    },
+    {
+      "routeId": "middleware-connector-operator-readback-platform-v1-connectors--connector-id--readback-post",
+      "serviceId": "middleware-integration-api",
+      "environment": "production",
+      "bindings": [
+        {
+          "source": "config/kong-canonical-middleware-routes.json",
+          "route": "middleware-connector-operator-readback-platform-v1-connectors--connector-id--readback-post",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-routes.production.yml",
+          "route": "middleware-connector-operator-readback-platform-v1-connectors--connector-id--readback-post",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-authority.v2.json",
+          "route": "middleware-connector-operator-readback-platform-v1-connectors--connector-id--readback-post",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "COMMAND_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
+      "requestSizeProfile": "STANDARD_API_2MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "identity.request"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "connector_operator_readback_platform_v1_connectors__connector_id__readback_post",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "authorized-provisioning-client"
+    },
+    {
+      "routeId": "middleware-connector-operator-readback-platform-v1-connectors--connector-id--readback-post@staging",
+      "serviceId": "middleware-integration-api@staging",
+      "environment": "staging",
+      "bindings": [
+        {
+          "source": "config/staging/kong-middleware-routes.staging.yml",
+          "route": "middleware-connector-operator-readback-platform-v1-connectors--connector-id--readback-post",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "COMMAND_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
+      "requestSizeProfile": "STANDARD_API_2MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "identity.request"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "connector_operator_readback_platform_v1_connectors__connector_id__readback_post",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "authorized-provisioning-client"
+    },
+    {
+      "routeId": "middleware-connector-operator-reconcile-platform-v1-connectors--connector-id--reconcile-post",
+      "serviceId": "middleware-integration-api",
+      "environment": "production",
+      "bindings": [
+        {
+          "source": "config/kong-canonical-middleware-routes.json",
+          "route": "middleware-connector-operator-reconcile-platform-v1-connectors--connector-id--reconcile-post",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-routes.production.yml",
+          "route": "middleware-connector-operator-reconcile-platform-v1-connectors--connector-id--reconcile-post",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-authority.v2.json",
+          "route": "middleware-connector-operator-reconcile-platform-v1-connectors--connector-id--reconcile-post",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "COMMAND_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
+      "requestSizeProfile": "STANDARD_API_2MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "identity.request"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "connector_operator_reconcile_platform_v1_connectors__connector_id__reconcile_post",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "authorized-provisioning-client"
+    },
+    {
+      "routeId": "middleware-connector-operator-reconcile-platform-v1-connectors--connector-id--reconcile-post@staging",
+      "serviceId": "middleware-integration-api@staging",
+      "environment": "staging",
+      "bindings": [
+        {
+          "source": "config/staging/kong-middleware-routes.staging.yml",
+          "route": "middleware-connector-operator-reconcile-platform-v1-connectors--connector-id--reconcile-post",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "COMMAND_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
+      "requestSizeProfile": "STANDARD_API_2MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "identity.request"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "connector_operator_reconcile_platform_v1_connectors__connector_id__reconcile_post",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "authorized-provisioning-client"
+    },
+    {
+      "routeId": "middleware-list-dead-letters-platform-v1-dead-letters-get",
+      "serviceId": "middleware-integration-api",
+      "environment": "production",
+      "bindings": [
+        {
+          "source": "config/kong-canonical-middleware-routes.json",
+          "route": "middleware-list-dead-letters-platform-v1-dead-letters-get",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-routes.production.yml",
+          "route": "middleware-list-dead-letters-platform-v1-dead-letters-get",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-authority.v2.json",
+          "route": "middleware-list-dead-letters-platform-v1-dead-letters-get",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "READ_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "identity.request"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "list_dead_letters_platform_v1_dead_letters_get",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "authorized-provisioning-client"
+    },
+    {
+      "routeId": "middleware-list-dead-letters-platform-v1-dead-letters-get@staging",
+      "serviceId": "middleware-integration-api@staging",
+      "environment": "staging",
+      "bindings": [
+        {
+          "source": "config/staging/kong-middleware-routes.staging.yml",
+          "route": "middleware-list-dead-letters-platform-v1-dead-letters-get",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "READ_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "identity.request"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "list_dead_letters_platform_v1_dead_letters_get",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "authorized-provisioning-client"
+    },
+    {
+      "routeId": "middleware-get-dead-letter-platform-v1-dead-letters--operation-id--get",
+      "serviceId": "middleware-integration-api",
+      "environment": "production",
+      "bindings": [
+        {
+          "source": "config/kong-canonical-middleware-routes.json",
+          "route": "middleware-get-dead-letter-platform-v1-dead-letters--operation-id--get",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-routes.production.yml",
+          "route": "middleware-get-dead-letter-platform-v1-dead-letters--operation-id--get",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-authority.v2.json",
+          "route": "middleware-get-dead-letter-platform-v1-dead-letters--operation-id--get",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "READ_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "identity.request"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "get_dead_letter_platform_v1_dead_letters__operation_id__get",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "authorized-provisioning-client"
+    },
+    {
+      "routeId": "middleware-get-dead-letter-platform-v1-dead-letters--operation-id--get@staging",
+      "serviceId": "middleware-integration-api@staging",
+      "environment": "staging",
+      "bindings": [
+        {
+          "source": "config/staging/kong-middleware-routes.staging.yml",
+          "route": "middleware-get-dead-letter-platform-v1-dead-letters--operation-id--get",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "READ_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "identity.request"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "get_dead_letter_platform_v1_dead_letters__operation_id__get",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "authorized-provisioning-client"
+    },
+    {
+      "routeId": "middleware-recovery-history-platform-v1-operations--operation-id--recovery-history-get",
+      "serviceId": "middleware-integration-api",
+      "environment": "production",
+      "bindings": [
+        {
+          "source": "config/kong-canonical-middleware-routes.json",
+          "route": "middleware-recovery-history-platform-v1-operations--operation-id--recovery-history-get",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-routes.production.yml",
+          "route": "middleware-recovery-history-platform-v1-operations--operation-id--recovery-history-get",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-authority.v2.json",
+          "route": "middleware-recovery-history-platform-v1-operations--operation-id--recovery-history-get",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "READ_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "identity.request"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "recovery_history_platform_v1_operations__operation_id__recovery_history_get",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "authorized-provisioning-client"
+    },
+    {
+      "routeId": "middleware-recovery-history-platform-v1-operations--operation-id--recovery-history-get@staging",
+      "serviceId": "middleware-integration-api@staging",
+      "environment": "staging",
+      "bindings": [
+        {
+          "source": "config/staging/kong-middleware-routes.staging.yml",
+          "route": "middleware-recovery-history-platform-v1-operations--operation-id--recovery-history-get",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "READ_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_READ_240",
+      "requestSizeProfile": "STANDARD_API_1MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "identity.request"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "recovery_history_platform_v1_operations__operation_id__recovery_history_get",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "authorized-provisioning-client"
+    },
+    {
+      "routeId": "middleware-run-no-effect-rehearsal-platform-v1-rehearsals-no-effect-post",
+      "serviceId": "middleware-integration-api",
+      "environment": "production",
+      "bindings": [
+        {
+          "source": "config/kong-canonical-middleware-routes.json",
+          "route": "middleware-run-no-effect-rehearsal-platform-v1-rehearsals-no-effect-post",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-routes.production.yml",
+          "route": "middleware-run-no-effect-rehearsal-platform-v1-rehearsals-no-effect-post",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-authority.v2.json",
+          "route": "middleware-run-no-effect-rehearsal-platform-v1-rehearsals-no-effect-post",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "COMMAND_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "OPERATOR_60",
+      "requestSizeProfile": "STANDARD_API_2MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "platform.command.replay"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "run_no_effect_rehearsal_platform_v1_rehearsals_no_effect_post",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "platform-command-client"
+    },
+    {
+      "routeId": "middleware-run-no-effect-rehearsal-platform-v1-rehearsals-no-effect-post@staging",
+      "serviceId": "middleware-integration-api@staging",
+      "environment": "staging",
+      "bindings": [
+        {
+          "source": "config/staging/kong-middleware-routes.staging.yml",
+          "route": "middleware-run-no-effect-rehearsal-platform-v1-rehearsals-no-effect-post",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "COMMAND_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "OPERATOR_60",
+      "requestSizeProfile": "STANDARD_API_2MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "platform.command.replay"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "run_no_effect_rehearsal_platform_v1_rehearsals_no_effect_post",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "platform-command-client"
+    },
+    {
+      "routeId": "middleware-get-no-effect-rehearsal-platform-v1-rehearsals--rehearsal-id--get",
+      "serviceId": "middleware-integration-api",
+      "environment": "production",
+      "bindings": [
+        {
+          "source": "config/kong-canonical-middleware-routes.json",
+          "route": "middleware-get-no-effect-rehearsal-platform-v1-rehearsals--rehearsal-id--get",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-routes.production.yml",
+          "route": "middleware-get-no-effect-rehearsal-platform-v1-rehearsals--rehearsal-id--get",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-authority.v2.json",
+          "route": "middleware-get-no-effect-rehearsal-platform-v1-rehearsals--rehearsal-id--get",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "READ_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "OPERATOR_60",
+      "requestSizeProfile": "STANDARD_API_1MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "platform.command.read"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "get_no_effect_rehearsal_platform_v1_rehearsals__rehearsal_id__get",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "platform-command-client"
+    },
+    {
+      "routeId": "middleware-get-no-effect-rehearsal-platform-v1-rehearsals--rehearsal-id--get@staging",
+      "serviceId": "middleware-integration-api@staging",
+      "environment": "staging",
+      "bindings": [
+        {
+          "source": "config/staging/kong-middleware-routes.staging.yml",
+          "route": "middleware-get-no-effect-rehearsal-platform-v1-rehearsals--rehearsal-id--get",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "READ_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "OPERATOR_60",
+      "requestSizeProfile": "STANDARD_API_1MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "platform.command.read"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "get_no_effect_rehearsal_platform_v1_rehearsals__rehearsal_id__get",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "platform-command-client"
+    },
+    {
+      "routeId": "middleware-cancel-replay-platform-v1-replays--replay-id--cancel-post",
+      "serviceId": "middleware-integration-api",
+      "environment": "production",
+      "bindings": [
+        {
+          "source": "config/kong-canonical-middleware-routes.json",
+          "route": "middleware-cancel-replay-platform-v1-replays--replay-id--cancel-post",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-routes.production.yml",
+          "route": "middleware-cancel-replay-platform-v1-replays--replay-id--cancel-post",
+          "role": "DESIRED"
+        },
+        {
+          "source": "config/kong-middleware-authority.v2.json",
+          "route": "middleware-cancel-replay-platform-v1-replays--replay-id--cancel-post",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "COMMAND_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
+      "requestSizeProfile": "STANDARD_API_2MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "identity.request"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "cancel_replay_platform_v1_replays__replay_id__cancel_post",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "authorized-provisioning-client"
+    },
+    {
+      "routeId": "middleware-cancel-replay-platform-v1-replays--replay-id--cancel-post@staging",
+      "serviceId": "middleware-integration-api@staging",
+      "environment": "staging",
+      "bindings": [
+        {
+          "source": "config/staging/kong-middleware-routes.staging.yml",
+          "route": "middleware-cancel-replay-platform-v1-replays--replay-id--cancel-post",
+          "role": "DESIRED"
+        }
+      ],
+      "trafficClass": "COMMAND_API",
+      "authentication": "AUTHENTICATED",
+      "mechanism": "OIDC_BEARER",
+      "rateLimitProfile": "AUTHENTICATED_STANDARD_120",
+      "requestSizeProfile": "STANDARD_API_2MB",
+      "lifecycle": "CANONICAL",
+      "activation": "SOURCE_CANDIDATE",
+      "disposition": "KEEP",
+      "acceptedFindings": [],
+      "audience": "middleware-api",
+      "requiredScopes": [
+        "identity.request"
+      ],
+      "scopeAuthority": "config/kong-middleware-authority.v2.json",
+      "contractOperation": "cancel_replay_platform_v1_replays__replay_id__cancel_post",
+      "contractAuthentication": "service-or-user-jwt",
+      "contractExpectedAzp": "authorized-provisioning-client"
     }
   ],
   "plugins": [
@@ -13253,16 +15617,20 @@
         "ROUTE"
       ],
       "owner": "gateway-platform",
-      "purpose": "Raw request-metadata guards only (correlation header presence); never claims or scopes.",
+      "purpose": "Raw request metadata guards and client-supplied identity-header stripping before authentication; never reads claims or credentials.",
       "securityImpact": "HIGH",
       "orderingDependency": "Runs before every authentication plugin; must not read credentials or claims.",
       "environments": [
+        "staging",
         "production"
       ],
       "configurationSources": [
         "config/kong-calling-routes.v1.json",
         "config/kong-production-route-inventory.v2.json",
-        "config/kong-platform-api-read-routes.v1.json"
+        "config/kong-platform-api-read-routes.v1.json",
+        "config/kong-middleware-routes.production.yml",
+        "config/staging/kong-middleware-routes.staging.yml",
+        "config/kong-canonical-middleware-routes.json"
       ]
     },
     {
@@ -13284,7 +15652,11 @@
       ],
       "configurationSources": [
         "deploy/kong/plugins/codestra-request-context/handler.lua",
-        "scripts/gateway_integrations.py"
+        "scripts/gateway_integrations.py",
+        "scripts/generate_middleware_routes.py",
+        "config/kong-canonical-middleware-routes.json",
+        "config/kong-middleware-routes.production.yml",
+        "config/staging/kong-middleware-routes.staging.yml"
       ]
     },
     {
@@ -13586,7 +15958,7 @@
         "ROUTE"
       ],
       "owner": "gateway-platform",
-      "purpose": "Route authorization prerequisites after openid-connect: issuer, audience, authorized party, time claims, scopes, realm roles, tenant.",
+      "purpose": "Route authorization after openid-connect. Contract mode (the 133 generated Middleware routes): reviewed concrete caller set and minted X-Codestra-Contract-* metadata. Token mode (integration templates): issuer, audience, authorized party, time claims, scopes, realm roles, tenant.",
       "securityImpact": "CRITICAL",
       "orderingDependency": "Requires openid-connect (1050) to have accepted the request; never verifies signatures itself.",
       "environments": [
@@ -13599,7 +15971,10 @@
         "config/integrations/policies/public-oidc-api.json",
         "config/integrations/policies/internal-service-jwt.json",
         "config/integrations/policies/private-mtls-api.json",
-        "config/integrations/policies/websocket-api.json"
+        "config/integrations/policies/websocket-api.json",
+        "config/kong-middleware-routes.production.yml",
+        "config/staging/kong-middleware-routes.staging.yml",
+        "config/kong-canonical-middleware-routes.json"
       ]
     },
     {
@@ -13706,7 +16081,6 @@
       "configurationSources": [
         "deploy/kong/control-plane.yml",
         "config/kong-production-route-inventory.v2.json",
-        "config/kong-canonical-middleware-routes.json",
         "config/kong-callback-routes.json",
         "config/kong-campaign-automation-routes.json",
         "config/staging/kong-campaign-automation-routes.json",
@@ -13715,9 +16089,58 @@
         "config/staging/kong-n8n-control-plane-routes.json",
         "config/kong-moneybee-identity-routes.json",
         "config/kong-calling-routes.v1.json",
+        "config/kong-platform-api-read-routes.v1.json"
+      ]
+    },
+    {
+      "plugin": "codestra-private-surface",
+      "kind": "custom",
+      "authentication": false,
+      "priority": 100004,
+      "allowedScopes": [
+        "GLOBAL",
+        "ROUTE"
+      ],
+      "owner": "gateway-platform",
+      "purpose": "Reject management/private paths and encoded bypasses before authentication; private overrides require governed source restrictions.",
+      "securityImpact": "HIGH",
+      "orderingDependency": "Before all authentication",
+      "environments": [
+        "staging",
+        "production"
+      ],
+      "configurationSources": [
+        "scripts/gateway_integrations.py",
+        "scripts/generate_middleware_routes.py",
+        "config/kong-canonical-middleware-routes.json",
         "config/kong-middleware-routes.production.yml",
         "config/staging/kong-middleware-routes.staging.yml",
-        "config/kong-platform-api-read-routes.v1.json"
+        "deploy/kong/plugins/codestra-private-surface/handler.lua"
+      ]
+    },
+    {
+      "plugin": "codestra-resource-guard",
+      "kind": "custom",
+      "authentication": false,
+      "priority": 800,
+      "allowedScopes": [
+        "ROUTE"
+      ],
+      "owner": "gateway-platform",
+      "purpose": "Bound in-flight requests per route per worker, global verified-tenant Redis quotas, and gateway error responses.",
+      "securityImpact": "HIGH",
+      "orderingDependency": "After codestra-authz; tenant quota reads only verified shared context",
+      "environments": [
+        "staging",
+        "production"
+      ],
+      "configurationSources": [
+        "scripts/gateway_integrations.py",
+        "scripts/generate_middleware_routes.py",
+        "config/kong-canonical-middleware-routes.json",
+        "config/kong-middleware-routes.production.yml",
+        "config/staging/kong-middleware-routes.staging.yml",
+        "deploy/kong/plugins/codestra-resource-guard/handler.lua"
       ]
     }
   ],

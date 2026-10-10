@@ -54,6 +54,12 @@ from urllib.parse import urlsplit
 
 import yaml
 
+try:
+    from scripts.validate_kong_runtime_mode import validate_authority as validate_runtime_authority
+except ModuleNotFoundError:
+    # Direct CLI invocation places scripts/, rather than the repo root, on sys.path.
+    from validate_kong_runtime_mode import validate_authority as validate_runtime_authority
+
 ROOT = Path(__file__).resolve().parents[1]
 FOUNDATION = ROOT / "config/kong-gateway-foundation.v1.json"
 SCHEMA = "codestra.kong.gateway-foundation.v1"
@@ -61,9 +67,10 @@ ACCESS_POLICY = "config/kong-access-policy.v1.json"
 ACCESS_POLICY_SCHEMA = "codestra.kong.access-policy.v1"
 AUTH_PROFILES = "config/kong-authentication-profiles.v1.json"
 AUTH_PROFILES_SCHEMA = "codestra.kong.authentication-profiles.v1"
-FINAL_MIDDLEWARE_SOURCE_SHA = "2862af0aa97367b18cb360af69212abe4243a1ac"
-FINAL_MIDDLEWARE_CONTRACT_SHA256 = "9c32daecd4a15104c6f9ff60ce19c8f7e78707fb31d9fd9fcb55b1b8dfa3512b"
-FINAL_MIDDLEWARE_ROUTE_COUNTS = {"shared_edge": 105, "denied": 10, "private_only": 2}
+_CONTRACT_PIN = json.loads((Path(__file__).resolve().parents[1] / "config/middleware-public-api-route-contract.pin.json").read_text(encoding="utf-8"))
+FINAL_MIDDLEWARE_SOURCE_SHA = _CONTRACT_PIN["commit"]
+FINAL_MIDDLEWARE_CONTRACT_SHA256 = _CONTRACT_PIN["contractSha256"]
+FINAL_MIDDLEWARE_ROUTE_COUNTS = dict(_CONTRACT_PIN["classificationCounts"])
 CANONICAL_MIDDLEWARE_HOST = "middleware-integration-api"
 CANONICAL_MIDDLEWARE_PORT = 8095
 PROVIDER_HOST_MARKERS = ("odoo", "n8n", "telnexa", "klyrow", "vicidial", "postly", "kyqra")
@@ -239,8 +246,12 @@ EXPECTED_AZP_LUA = re.compile(r'local expected_azp = ("(?:[^"\\]|\\.)*")')
 
 
 def _post_function_expected_azp(plugins: list[dict]) -> str | None:
-    """The azp the generated post-function forwards as X-Codestra-Expected-Azp."""
+    """The azp the generated contract step (codestra-authz contract mode, or a
+    post-function guard) forwards as X-Codestra-Expected-Azp."""
     for plugin in plugins or []:
+        config = plugin.get("config", {}) or {}
+        if plugin.get("name") == "codestra-authz" and config.get("mode") == "contract":
+            return config.get("expected_azp")
         if plugin.get("name") == "post-function":
             for chunk in (plugin.get("config", {}) or {}).get("access", []) or []:
                 match = EXPECTED_AZP_LUA.search(str(chunk))
@@ -357,6 +368,7 @@ def load_production_inventory(path: str, doc: dict) -> SourceDocument:
 
 def load_canonical_middleware_contract(path: str, doc: dict) -> SourceDocument:
     out = SourceDocument(path=path, format="canonical-middleware-contract")
+    out.global_plugins = tuple(sorted(doc.get("globalPlugins", [])))
     for route in doc["contractRoutes"]:
         out.routes[route["name"]] = SourceRoute(
             source=path, name=route["name"], hosts=_tuple(route["hosts"]), paths=_tuple(route["paths"]),
@@ -378,7 +390,8 @@ def load_canonical_middleware_contract(path: str, doc: dict) -> SourceDocument:
         # no upstream); host and transport come from the generated manifest.
         out.routes[route["name"]] = SourceRoute(
             source=path, name=route["name"], paths=(route["path"],), methods=_methods(route["method"]),
-            regex_priority=route.get("regexPriority", 0) or 0, plugins=("request-termination",),
+            regex_priority=route.get("regexPriority", 0) or 0,
+            plugins=tuple(sorted(set(out.global_plugins) | {"request-termination"})),
         )
     return out
 
@@ -789,8 +802,34 @@ def literal_prefix(path: str) -> str:
     body = path[1:]
     if body.startswith("^"):
         body = body[1:]
-    match = re.match(r"[A-Za-z0-9/._-]*", body)
-    return match.group(0) if match else ""
+    # An escaped punctuation character (``\-``, ``\.``) is a literal, as the
+    # route generators emit for hyphenated segments. A literal followed by a
+    # quantifier is optional, so the guaranteed prefix ends before it.
+    literal: list[str] = []
+    index = 0
+    while index < len(body):
+        char = body[index]
+        if char == "\\" and index + 1 < len(body) and not body[index + 1].isalnum():
+            char, width = body[index + 1], 2
+        elif re.fullmatch(r"[A-Za-z0-9/._-]", char):
+            width = 1
+        else:
+            break
+        if index + width < len(body) and body[index + width] in "?*{":
+            break
+        literal.append(char)
+        index += width
+    return "".join(literal)
+
+
+def route_family(path: str, depth: int = 3) -> str:
+    """The first ``depth`` complete literal segments of a route path: the unit the
+    upstream registry groups a service's routes by."""
+    prefix = literal_prefix(path)
+    if is_regex_path(path) and prefix != path[1:].lstrip("^").rstrip("$"):
+        prefix = prefix[: prefix.rfind("/") + 1]
+    segments = [segment for segment in prefix.split("/") if segment]
+    return "/" + "/".join(segments[:depth])
 
 
 def route_priority(route: SourceRoute) -> tuple[int, int, int, int, int]:
@@ -1126,7 +1165,14 @@ def validate_source_discovery(foundation: dict, root: Path = ROOT) -> None:
         for match in sorted(root.glob(pattern)):
             if match.is_file():
                 found.add(match.relative_to(root).as_posix())
-    unregistered = sorted(found - registered - set(excluded))
+    # K1 is a typed runtime authority, not a route/plugin manifest. Validate it
+    # rather than silently excluding it from the route-source discovery gate.
+    runtime_path = "config/kong-runtime-config-mode.v1.json"
+    try:
+        validate_runtime_authority(load_json(root / runtime_path))
+    except (ValueError, OSError) as error:
+        raise FoundationError(f"K1 runtime authority invalid: {error}") from error
+    unregistered = sorted(found - registered - set(excluded) - {runtime_path})
     _require(not unregistered, f"unregistered Kong source files (register them in sources[] or exclude with a reason): {unregistered}")
     stale = sorted(set(excluded) - found)
     _require(not stale, f"sourceDiscovery exclusions for files that no longer exist: {stale}")
@@ -1259,6 +1305,73 @@ def validate_services(foundation: dict, documents: dict[str, SourceDocument]) ->
     stale = {(d["subject"], d["field"]) for d in foundation["knownDrift"] if d["kind"] == "service"} - seen_drift
     _require(not stale, f"stale knownDrift entries: {sorted(stale)}")
     return services
+
+
+def validate_upstream_registry(foundation: dict, services: dict[str, dict], materialized: dict[str, SourceRoute]) -> dict[str, Any]:
+    """Every upstream is one registry entry with repository, TLS requirement and
+    route families; Middleware upstreams bind :8095 and nothing Middleware-governed
+    may still target :8080."""
+    registry = foundation["upstreamRegistry"]
+    middleware_classes = set(foundation["debtRules"]["middlewareUpstreamClasses"])
+    retired = retired_middleware_aliases(foundation)
+    repositories = set(registry["attributedRepositories"]) | {registry["unattributedRepository"]}
+    families: dict[str, set[str]] = {service_id: set() for service_id in services}
+    unregistered: list[str] = []
+    for entry in foundation["routes"]:
+        service_id = entry.get("serviceId")
+        route = materialized[entry["routeId"]]
+        if service_id is None or service_id not in services:
+            if service_id is not None or route.upstream_host is not None:
+                unregistered.append(entry["routeId"])
+            continue
+        for path in route.paths or ():
+            families[service_id].add(route_family(path, registry["routeFamilyDepth"]))
+    _require(len(unregistered) == registry["invariants"]["unregisteredUpstreams"],
+             f"routes target upstreams outside the registry: {sorted(unregistered)}")
+    legacy_8080: list[str] = []
+    residue_8080: dict[str, str] = {}
+    unattributed: list[str] = []
+    for service_id, entry in services.items():
+        for key in registry["requiredFields"]:
+            _require(key in entry, f"upstream registry entry {service_id} lacks {key}")
+        upstream = entry["upstream"]
+        host, port = upstream.get("host"), upstream.get("port")
+        _require(entry["repository"] in repositories, f"upstream registry entry {service_id} names unknown repository {entry['repository']!r}")
+        if entry["upstreamClass"] in middleware_classes:
+            _require(entry["repository"] == registry["middlewareRepository"],
+                     f"Middleware upstream {service_id} must belong to {registry['middlewareRepository']}")
+        if entry["repository"] == registry["unattributedRepository"]:
+            unattributed.append(service_id)
+        _require(entry["tlsRequired"] is (upstream.get("protocol") == "https"),
+                 f"upstream registry entry {service_id}: tlsRequired disagrees with protocol {upstream.get('protocol')!r}")
+        if not entry["tlsRequired"] and host:
+            _require("." not in host and not host.startswith("$"),
+                     f"plaintext upstream {service_id} must be a private network service name, not {host!r}")
+        expected_families = sorted(families[service_id])
+        _require(entry["routeFamilies"] == expected_families,
+                 f"upstream registry entry {service_id}: routeFamilies {entry['routeFamilies']} != bound routes {expected_families}")
+        if (host, port) in retired or (entry["upstreamClass"] in middleware_classes and port == 8080):
+            legacy_8080.append(service_id)
+        if port == 8080:
+            _require(entry.get("port8080Disposition") in registry["port8080Dispositions"],
+                     f"upstream {service_id} on :8080 must be classified {registry['port8080Dispositions']}")
+            _require(entry["lifecycle"] != "CANONICAL", f"canonical upstream {service_id} must not target :8080")
+            residue_8080[service_id] = entry["port8080Disposition"]
+        else:
+            _require("port8080Disposition" not in entry, f"upstream {service_id} is not on :8080 but carries port8080Disposition")
+        if (entry["upstreamClass"] in ("MIDDLEWARE_GOVERNED", "MIDDLEWARE_EVENT_GATEWAY")
+                and entry["lifecycle"] not in ("DESIGN_ONLY", "RETIRE_CANDIDATE")):
+            _require(port == registry["invariants"]["middlewareUpstreamPort"],
+                     f"Middleware upstream {service_id} must target :{registry['invariants']['middlewareUpstreamPort']}, not :{port}")
+    _require(len(legacy_8080) == registry["invariants"]["legacy8080Upstreams"],
+             f"Middleware upstreams still target :8080 or a retired alias: {sorted(legacy_8080)}")
+    return {
+        "middlewareUpstreamPort": registry["invariants"]["middlewareUpstreamPort"],
+        "legacy8080Upstreams": len(legacy_8080),
+        "unregisteredUpstreams": len(unregistered),
+        "residual8080": dict(sorted(residue_8080.items())),
+        "unattributed": sorted(unattributed),
+    }
 
 
 def _plain(value: Any) -> Any:
@@ -1545,12 +1658,14 @@ def validate_node(foundation: dict, root: Path = ROOT) -> None:
     compose = load_yaml(root / node["compose"])
     gateway = compose["services"][node["composeService"]]
     environment = gateway["environment"]
-    _require(environment.get("KONG_ADMIN_LISTEN") == "127.0.0.1:8001", "Admin API must remain container-loopback only")
+    _require(environment.get("KONG_ADMIN_LISTEN") == "off", "Admin API must remain disabled on data planes")
     _require(environment.get("KONG_ADMIN_GUI_LISTEN") == "off", "Kong Manager must remain off")
     ports = [str(p) for p in gateway.get("ports", [])]
     _require(all(p.startswith("127.0.0.1:") for p in ports), "every published port must bind host loopback")
     _require(not any(":8001" in p or ":8100" in p or ":8002" in p for p in ports), "Admin, Manager and Status must not be published")
-    _require(environment.get("KONG_PG_SSL") == "on" and environment.get("KONG_PG_SSL_VERIFY") == "on", "database TLS verification must be enabled")
+    _require(environment.get("KONG_ROLE") == "data_plane" and environment.get("KONG_DATABASE") == "off",
+             "K1 requires a hybrid data plane")
+    _require(not any(key.startswith("KONG_PG_") for key in environment), "data plane database settings forbidden")
     _require("@${KONG_IMAGE_DIGEST:?" in gateway.get("image", ""), "gateway image must use an immutable digest")
     _require(str(environment.get("KONG_TRUSTED_IPS", "")).startswith("${KONG_TRUSTED_IPS:?"), "trusted_ips must be required from the deployment with no default")
     _require(environment.get("KONG_REAL_IP_HEADER") == "X-Forwarded-For" and environment.get("KONG_REAL_IP_RECURSIVE") == "on",
@@ -1568,7 +1683,7 @@ def validate_node(foundation: dict, root: Path = ROOT) -> None:
     _require("healthcheck" in gateway, "a health check is required")
     _require("docker.sock" not in json.dumps(gateway), "the Docker socket must never be mounted")
     _require(not gateway.get("privileged") and not gateway.get("network_mode"), "privileged and host networking are forbidden")
-    for secret in ("kong_license", "kong_database_runtime_password"):
+    for secret in ("kong_license", "cluster_ca", "dp_cert", "dp_key"):
         _require(secret in gateway.get("secrets", []), f"secret {secret} must be mounted as a file")
     for name, definition in compose.get("secrets", {}).items():
         _require(set(definition) == {"file"} and definition["file"].startswith("/etc/codestra/secrets/"), f"secret {name} must be a root-owned host file path")
@@ -1576,7 +1691,13 @@ def validate_node(foundation: dict, root: Path = ROOT) -> None:
         _require(network.get("external") is True, "every network must be an existing external network")
     conf = (root / node["confExample"]).read_text(encoding="utf-8")
     settings = dict(re.findall(r"^([a-z_]+)\s*=\s*(\S+)", conf, flags=re.MULTILINE))
-    for key, expected in node["confMustEqual"].items():
+    # Frozen K1 mode authority supersedes the earlier node's combined DB/Admin
+    # topology only; all route, identity and sandbox foundation policy remains.
+    expected_conf = dict(node["confMustEqual"])
+    expected_conf.pop("pg_ssl", None)
+    expected_conf.pop("pg_ssl_verify", None)
+    expected_conf.update(admin_listen="off", role="data_plane", database="off", cluster_mtls="pki")
+    for key, expected in expected_conf.items():
         _require(settings.get(key) == expected, f"kong.conf.example {key} must be {expected!r} (found {settings.get(key)!r})")
     # env template completeness
     declared = set(re.findall(r"^([A-Z0-9_]+)=", (root / node["runtimeEnvExample"]).read_text(encoding="utf-8"), flags=re.MULTILINE))
@@ -1616,6 +1737,7 @@ def validate_foundation(root: Path = ROOT, foundation_path: Path | None = None) 
     materialized = validate_routes(foundation, documents, services)
     routes = _index(foundation["routes"], "routeId")
     overlaps = validate_precedence(foundation, routes, materialized)
+    upstream_registry = validate_upstream_registry(foundation, services, materialized)
     validate_plugins(foundation, documents)
     validate_environments(foundation, documents)
     validate_node(foundation, root)
@@ -1628,6 +1750,7 @@ def validate_foundation(root: Path = ROOT, foundation_path: Path | None = None) 
         "foundation": foundation, "documents": documents, "services": services,
         "routes": routes, "materialized": materialized, "overlaps": overlaps,
         "profiles": profiles, "policy": policy, "secret_scan": secret_hits,
+        "upstreamRegistry": upstream_registry,
     }
 
 
@@ -1855,6 +1978,27 @@ def validate_token_settings(documents: dict[str, SourceDocument], profiles: dict
         for plugin in plugin_blocks:
             config = plugin.get("config", {}) or {}
             if plugin.get("name") == "openid-connect":
+                if path in {
+                    "config/kong-middleware-routes.production.yml",
+                    "config/staging/kong-middleware-routes.staging.yml",
+                    "kong/plugins/oidc/keycloak.yml",
+                }:
+                    _require(config.get("verify_signature") is True, f"{path}: token signature verification required")
+                    _require(config.get("verify_claims") is True and config.get("ssl_verify") is True,
+                             f"{path}: claim and TLS verification required")
+                    _require(config.get("audience_required") == config.get("audience"),
+                             f"{path}: token audience enforcement required")
+                    issuer = str(config.get("issuer", "")).removesuffix("/.well-known/openid-configuration")
+                    _require(config.get("issuers_allowed") == [issuer], f"{path}: exact token issuer required")
+                    _require(config.get("consumer_by") == ["username"] and config.get("consumer_optional") is False,
+                             f"{path}: mandatory consumer mapping required")
+                    _require(config.get("bearer_token_param_type") == ["header"],
+                             f"{path}: header-only bearer required")
+                    _require(config.get("cache_ttl") == 300 and config.get("cache_ttl_max") == 300
+                             and config.get("rediscovery_lifetime") == 30 and config.get("leeway") == 0,
+                             f"{path}: bounded identity cache and rediscovery required")
+                    _require(not config.get("extra_jwks_uris") and not config.get("ignore_signature"),
+                             f"{path}: additional identity authority forbidden")
                 _require(str(config.get("cache_tokens_salt", "")).startswith("{vault://env/"), f"{path}: openid-connect must reference cache_tokens_salt through the vault")
                 if document.format == "kong-declarative":
                     _require(bool(config.get("scopes_required")) and all(s not in ("*", "") for s in config["scopes_required"]),
@@ -2125,13 +2269,17 @@ def _fmt(values: Any) -> str:
 
 
 def render_services(result: dict) -> str:
-    rows = ["| Service | Env | Owner | Class | Upstream | Timeout | Retry | Auth | Rate | Size | Health | Lifecycle | Disposition | Findings |",
-            "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |"]
+    rows = ["| Service | Env | Owner | Repository | Class | Upstream | TLS | Route families | Timeout | Retry | Auth | Rate | Size | Health | Lifecycle | Disposition | Findings |",
+            "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |"]
     for entry in sorted(result["services"].values(), key=lambda e: (e["environment"], e["serviceId"])):
         up = entry["upstream"]
+        families = entry["routeFamilies"]
         rows.append("| " + " | ".join([
-            f"`{entry['serviceId']}`", entry["environment"], entry["owner"], entry["upstreamClass"],
-            f"`{up['protocol']}://{up['host']}:{up['port']}`", entry["timeoutProfile"], entry["retryProfile"],
+            f"`{entry['serviceId']}`", entry["environment"], entry["owner"], entry["repository"], entry["upstreamClass"],
+            f"`{up['protocol']}://{up['host']}:{up['port']}`" + (f" ({entry['port8080Disposition']})" if "port8080Disposition" in entry else ""),
+            "required" if entry["tlsRequired"] else "private network",
+            (_fmt(families) if len(families) <= 6 else f"{len(families)} families"),
+            entry["timeoutProfile"], entry["retryProfile"],
             entry["authenticationProfile"], entry["rateLimitProfile"], entry["requestSizeProfile"], entry["healthProfile"],
             entry["lifecycle"], entry["disposition"], ", ".join(entry["acceptedFindings"]) or "—",
         ]) + " |")
@@ -2234,6 +2382,10 @@ def main(argv: list[str] | None = None) -> int:
     dependency = m1_dependency_status(result["foundation"])
     print(f"M1_DEPENDENCY={dependency['state']} TRANSITIONAL_8080_ALIASES={len(dependency['transitional8080Aliases'])} "
           f"RETIRED_ALIAS_RESIDUE={len(dependency['residueServices'])}+{len(dependency['residueRoutes'])}")
+    upstreams = result["upstreamRegistry"]
+    print(f"MIDDLEWARE_UPSTREAM_PORT={upstreams['middlewareUpstreamPort']} LEGACY_8080_UPSTREAMS={upstreams['legacy8080Upstreams']} "
+          f"UNREGISTERED_UPSTREAMS={upstreams['unregisteredUpstreams']} RESIDUAL_8080={len(upstreams['residual8080'])} "
+          f"UNATTRIBUTED_UPSTREAMS={len(upstreams['unattributed'])}")
     if args.v3_phase != "none":
         v3 = validate_v3_certification(result, args.v3_phase)
         print(f"V3_PHASE={v3['phase']}")

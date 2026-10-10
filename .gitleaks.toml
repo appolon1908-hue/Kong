@@ -2,7 +2,7 @@
 # `gitleaks git` / `gitleaks dir` from the repository root; the pinned version
 # is set in .github/workflows/security.yml).
 #
-# The default rule set stays fully enabled. The single allowlist below exempts
+# The default rule set stays fully enabled. The first narrow allowlist below exempts
 # one JSON key whose values are not credentials: `authenticationProfile` in
 # config/kong-access-policy.v1.json names an entry of the authentication-profile
 # catalogue (config/kong-authentication-profiles.v1.json), and
@@ -20,3 +20,8 @@ useDefault = true
 description = "authenticationProfile values are validator-enforced catalogue identifiers, never credentials"
 regexTarget = "line"
 regexes = ['''^\s*"authenticationProfile":\s*"[A-Z][A-Z0-9_]*"\s*,?\s*$''']
+
+[[allowlists]]
+description = "Exact canonical Keycloak repository identity checked by the provider-control validator"
+regexTarget = "line"
+regexes = ['''^\s*"keycloakRepository":\s*"appolon1908/Keycloak"\s*,?\s*$''']

@@ -25,6 +25,11 @@ import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
 PARITY_PATH = ROOT / "config" / "kong-cross-repo-parity.v1.json"
+# Caddy rows name the gateway by this repository's current full name; the
+# release registry contract is the single authority for that identity.
+KONG_REPOSITORY = json.loads(
+    (ROOT / "config" / "kong-release-registry-contract.v1.json").read_text(encoding="utf-8")
+)["repository"]["fullName"]
 
 
 class ParityError(ValueError):
@@ -76,7 +81,7 @@ def validate_config(config: dict[str, Any]) -> None:
         if name not in sources:
             raise ParityError(f"missing source pin: {name}")
     final = sources["middleware"]["contract_sha256"]
-    if final != "9c32daecd4a15104c6f9ff60ce19c8f7e78707fb31d9fd9fcb55b1b8dfa3512b":
+    if final != json.loads((ROOT / "config" / "middleware-public-api-route-contract.pin.json").read_text(encoding="utf-8"))["contractSha256"]:
         raise ParityError("unexpected final Middleware digest")
     if sources["kong"]["final_contract_sha256"] != final:
         raise ParityError("Kong final digest target differs from Middleware")
@@ -254,7 +259,7 @@ def validate_caddy(config: dict[str, Any], repo: Path) -> dict[str, Any]:
     by_path = {str(row.get("path")): row for row in entries}
     for path in source["required_public_namespaces"]:
         row = by_path.get(path)
-        if not row or row.get("classification") != "CANONICAL" or row.get("gateway") != "ingtrader21-spec/Kong":
+        if not row or row.get("classification") != "CANONICAL" or row.get("gateway") != KONG_REPOSITORY:
             raise ParityError(f"Caddy canonical Kong namespace missing: {path}")
         if row.get("legacy_fallback") is not False:
             raise ParityError(f"Caddy namespace may fall back to legacy: {path}")

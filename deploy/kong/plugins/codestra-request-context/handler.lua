@@ -3,11 +3,43 @@ local Handler = { PRIORITY = 100002, VERSION = "1.0.0" }
 local identity_headers = {
   "X-Authenticated-Client", "X-Authenticated-Subject", "X-Authenticated-Email",
   "X-Tenant-ID", "X-Consumer-ID", "X-Consumer-Username", "X-Credential-Identifier",
-  "X-Anonymous-Consumer", "X-Codestra-Tenant", "X-Codestra-Scopes"
+  "X-Anonymous-Consumer", "X-Codestra-Tenant", "X-Codestra-Scopes",
+  "X-User-ID", "X-Username", "X-Email", "X-Roles", "X-Scopes",
+  "X-Authenticated-UserID", "X-Authenticated-User", "X-Authenticated-Tenant",
+  "X-Authenticated-Campaign", "X-Authenticated-Role", "X-Codestra-Gateway-Secret",
+  "X-Internal-Service", "X-Admin", "X-Codestra-Contract-Operation",
+  "X-Codestra-Expected-Azp", "X-Codestra-Required-Scope"
 }
 local function safe_id(value)
   return type(value) == "string" and #value >= 1 and #value <= 128
     and value:match("^[A-Za-z0-9][A-Za-z0-9._:-]*$") ~= nil
+end
+-- Every X-Codestra-* header is gateway-minted; none may arrive from a client,
+-- including names this release does not know yet.
+local function strip_codestra_namespace()
+  for name in pairs(kong.request.get_headers(1000) or {}) do
+    if type(name) == "string" and name:lower():sub(1, 11) == "x-codestra-" then
+      kong.service.request.clear_header(name)
+    end
+  end
+end
+-- W3C trace-context tracestate: at most 32 list members and 512 characters.
+local function valid_tracestate(value)
+  if type(value) ~= "string" or #value > 512 then return false end
+  local members = 0
+  for member in (value .. ","):gmatch("([^,]*),") do
+    member = member:match("^[ \t]*(.-)[ \t]*$")
+    if member ~= "" then
+      members = members + 1
+      local key, item = member:match("^([^=]+)=(.+)$")
+      if members > 32 or not key or #key > 256 or #item > 256
+        or not key:match("^[a-z0-9][a-z0-9_%-%*/@]*$")
+        or item:find("[^\32-\43\45-\60\62-\126]") or item:sub(-1) == " " then
+        return false
+      end
+    end
+  end
+  return members > 0
 end
 function Handler:access(conf)
   if conf.not_after and ngx.time() >= conf.not_after then
@@ -19,6 +51,7 @@ function Handler:access(conf)
   end
   kong.ctx.shared.codestra_requested_tenant = tenant
   for _, name in ipairs(identity_headers) do kong.service.request.clear_header(name) end
+  strip_codestra_namespace()
   local correlation = kong.request.get_header("X-Correlation-ID")
   if not correlation then
     if conf.require_correlation_id and kong.request.get_method() ~= "OPTIONS" then
@@ -48,7 +81,13 @@ function Handler:access(conf)
       or trace ~= trace:lower() or (flags ~= "00" and flags ~= "01") then
       return kong.response.exit(400, { error = "invalid_traceparent" })
     end
+    local state = kong.request.get_header("tracestate")
+    if state ~= nil and not valid_tracestate(state) then
+      kong.service.request.clear_header("tracestate")
+    end
   else
+    -- A fresh trace has no vendor state; a client tracestate cannot ride on it.
+    kong.service.request.clear_header("tracestate")
     local trace_id = uuid():gsub("-", "")
     local parent_id = uuid():gsub("-", ""):sub(1, 16)
     kong.service.request.set_header("traceparent", "00-" .. trace_id .. "-" .. parent_id .. "-00")
