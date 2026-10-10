@@ -130,7 +130,7 @@ def test_canonical_manifest_uses_exact_n8n_security_authority():
         assert route["servicePort"] == 8095
         assert route["securityAuthority"] == "config/kong-middleware-authority.v2.json"
         assert "openid-connect" in route["requiredPlugins"]
-        assert "post-function" in route["requiredPlugins"]
+        assert "codestra-authz" in route["requiredPlugins"]
         # Pre-auth is limited to header stripping; claim guards remain post-auth.
         assert "pre-function" in route["requiredPlugins"]
 

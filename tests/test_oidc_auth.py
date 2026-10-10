@@ -69,7 +69,8 @@ def test_only_health_is_allowed_as_an_auth_exception_in_this_contract():
 
 def test_canonical_generator_enforces_token_audience_and_verification():
     from scripts.generate_middleware_routes import route_plugins
-    row = {"audience": "middleware-api", "scope": "gateway.read",
+    row = {"method": "GET", "path": "/v2/automation/results/{command_id}",
+           "audience": "middleware-api", "scope": "gateway.read",
            "operation_id": "test", "calling_client": "n8n-automation"}
     oidc = next(p for p in route_plugins(row, "https://auth.codestra.co/realms/codestra") if p["name"] == "openid-connect")["config"]
     assert oidc["audience_required"] == ["middleware-api"]
@@ -102,7 +103,8 @@ def test_canonical_token_validation_rejects_security_downgrade(tmp_path, field, 
     from types import SimpleNamespace
     from scripts.validate_kong_foundation import validate_token_settings, FoundationError
     from scripts.generate_middleware_routes import route_plugins
-    row = {"audience": "middleware-api", "scope": "gateway.read",
+    row = {"method": "GET", "path": "/v2/automation/results/{command_id}",
+           "audience": "middleware-api", "scope": "gateway.read",
            "operation_id": "test", "calling_client": "n8n-automation"}
     plugins = route_plugins(row, "https://auth.codestra.co/realms/codestra")
     next(p for p in plugins if p["name"] == "openid-connect")["config"][field] = value
@@ -116,16 +118,17 @@ def test_canonical_token_validation_rejects_security_downgrade(tmp_path, field, 
 
 def test_concrete_canonical_caller_has_native_azp_guard():
     from scripts.generate_middleware_routes import route_plugins
-    row = {"audience": "middleware-api", "scope": "n8n.results.read",
+    row = {"method": "GET", "path": "/v2/automation/results/{command_id}",
+           "audience": "middleware-api", "scope": "n8n.results.read",
            "operation_id": "read-n8n-result", "calling_client": "n8n-automation"}
     oidc = next(p for p in route_plugins(row, "https://auth.codestra.co/realms/codestra") if p["name"] == "openid-connect")["config"]
     assert oidc["roles_claim"] == ["azp"]
     assert oidc["roles_required"] == ["n8n-automation"]
 
 
-def test_canonical_post_function_enforces_concrete_caller_and_fails_closed_on_family():
+def test_canonical_authz_plugin_enforces_concrete_caller_and_fails_closed_on_family():
     from lupa import LuaRuntime
-    from scripts.generate_middleware_routes import post_function
+    from scripts.generate_middleware_routes import contract_authz
     base = {"operation_id": "read-n8n-result", "scope": "n8n.results.read"}
     for caller, consumer, expected in [
         ("n8n-automation", "n8n-automation", None),
@@ -134,7 +137,8 @@ def test_canonical_post_function_enforces_concrete_caller_and_fails_closed_on_fa
         ("never-registered", "n8n-automation", 403),
     ]:
         lua = LuaRuntime(unpack_returned_tuples=True)
-        lua.execute("""state={upstream={},status=nil}
+        lua.execute("""package.preload["cjson.safe"]=function() return {} end
+          state={upstream={},status=nil}
           kong={
             client={get_consumer=function() return {username=caller} end},
             service={request={
@@ -145,7 +149,9 @@ def test_canonical_post_function_enforces_concrete_caller_and_fails_closed_on_fa
           }""")
         lua.globals().caller = consumer
         lua.globals().state.upstream["X-Codestra-Contract-Operation"] = "forged"
-        lua.execute(post_function({**base, "calling_client": caller}))
+        conf = lua.table_from(contract_authz({**base, "calling_client": caller})["config"], recursive=True)
+        plugin = lua.execute((ROOT / "deploy/kong/plugins/codestra-authz/handler.lua").read_text())
+        plugin.access(plugin, conf)
         assert lua.globals().state.status == expected
         if expected:
             assert lua.globals().state.upstream["X-Codestra-Contract-Operation"] is None
@@ -155,11 +161,14 @@ def test_canonical_post_function_enforces_concrete_caller_and_fails_closed_on_fa
 def test_canonical_actor_evidence_is_required_by_native_oidc():
     from scripts.generate_middleware_routes import route_plugins
     issuer = "https://auth.codestra.co/realms/codestra"
-    service = {"audience": "middleware-api", "scope": "n8n.results.read",
+    service = {"method": "GET", "path": "/v2/automation/results/{command_id}",
+           "audience": "middleware-api", "scope": "n8n.results.read",
                "operation_id": "read-n8n-result", "calling_client": "n8n-automation"}
-    human = {"audience": "middleware-api", "scope": "email.production.write",
+    human = {"method": "GET", "path": "/v2/automation/results/{command_id}",
+           "audience": "middleware-api", "scope": "email.production.write",
              "operation_id": "grant-email-production", "calling_client": "production-operator"}
-    replay = {"audience": "middleware-api", "scope": "platform.command.replay",
+    replay = {"method": "GET", "path": "/v2/automation/results/{command_id}",
+           "audience": "middleware-api", "scope": "platform.command.replay",
               "operation_id": "replay-operation", "calling_client": "platform-command-client"}
     service_oidc = next(p for p in route_plugins(service, issuer) if p["name"] == "openid-connect")["config"]
     assert service_oidc["groups_claim"] == ["amr"]
@@ -177,7 +186,8 @@ def test_canonical_actor_evidence_is_required_by_native_oidc():
 def test_canonical_pre_auth_strips_forged_consumer_headers_before_oidc():
     from lupa import LuaRuntime
     from scripts.generate_middleware_routes import route_plugins
-    row = {"audience": "middleware-api", "scope": "n8n.results.read",
+    row = {"method": "GET", "path": "/v2/automation/results/{command_id}",
+           "audience": "middleware-api", "scope": "n8n.results.read",
            "operation_id": "read-n8n-result", "calling_client": "n8n-automation"}
     plugins = route_plugins(row, "https://auth.codestra.co/realms/codestra")
     source = next(p for p in plugins if p["name"] == "pre-function")["config"]["access"][0]
@@ -205,4 +215,4 @@ def test_canonical_sanitizer_never_authorizes_before_oidc():
         assert forbidden not in source
     foundation = json.loads((ROOT / "config/kong-gateway-foundation.v1.json").read_text())
     priorities = {plugin["plugin"]: plugin["priority"] for plugin in foundation["plugins"]}
-    assert priorities["pre-function"] > priorities["openid-connect"] > priorities["post-function"]
+    assert priorities["pre-function"] > priorities["openid-connect"] > priorities["codestra-authz"]

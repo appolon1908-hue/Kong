@@ -1327,8 +1327,8 @@
     },
     {
       "path": "tests/test_kong_n8n_control_plane.py",
-      "sha256": "dada89713d6dc5bcc0f46b0edd3888fbecaf4cc52677f111bfd0c29b48f73499",
-      "size": 8753
+      "sha256": "4215c8a984e0fa5b1ef27e7f0b7a3337bb723ac463276f7f6c641cbe94781a05",
+      "size": 8754
     },
     {
       "path": "tests/test_kong_n8n_editor_route.py",
@@ -1447,8 +1447,8 @@
     },
     {
       "path": "tests/test_mcr_j_contract.py",
-      "sha256": "5c04388b2e36046ee647033b753e21bd3f789a1baee5924e2d64bda61efd51ed",
-      "size": 14720
+      "sha256": "4f158c156fb6dcc5118ff4307b4e7aaf96210f8270fe473bd563cdb50652cad1",
+      "size": 15015
     },
     {
       "path": "tests/test_moneybee_identity_edge.py",
@@ -1462,8 +1462,8 @@
     },
     {
       "path": "tests/test_oidc_auth.py",
-      "sha256": "8c84f8a6cca2b59ff9938b59256ce53d5cba0f7cf2e372c79b64530d8dc4a933",
-      "size": 11292
+      "sha256": "37474cd3360f5c1ac64a9d4682a1aca3ba1684c37fcfc4f050d2ea83667af3de",
+      "size": 12056
     },
     {
       "path": "tests/test_public_readonly_canary.py",
@@ -1582,7 +1582,7 @@
     }
   ],
   "generated_at": "2026-08-26T21:10:25.642865+00:00",
-  "manifest_generation_id": "6fda487390459eae1a1c504a91a20a04d3a3580eafbc41a7efe366b896d9d1fe",
+  "manifest_generation_id": "ef9c9f855c5ac9b35722e9be80f36e2db2d72ccd007a034104bf6c27e5b1c9f5",
   "production_state_changed": false,
   "schema": "codestra.kong.repository-migration.v1",
   "source_files": [

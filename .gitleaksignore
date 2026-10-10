@@ -7,7 +7,9 @@ aa4e996e79ad0f4f3ba33edac86ed93bfcec3c72:scripts/generate_kong_postman.py:generi
 83cdbe5cc10edbb15ca79264ba1fb5fbd49af4d0:scripts/validate_kong_v3_identity_security.py:generic-api-key:22
 83cdbe5cc10edbb15ca79264ba1fb5fbd49af4d0:config/kong-access-policy.v1.json:generic-api-key:8378
 # Owner-migration commit 7a29be2 (chore/canonical-owner-appolon1908-20261002): each line is
-# "keycloakRepository": "appolon1908/Keycloak", a repository name, not a credential.
+# Keycloak dependency metadata names a Git repository, not a credential.
 7a29be26516f2772d165da9313c0b3b4f951c751:config/kong-access-policy.v1.json:generic-api-key:8533
 7a29be26516f2772d165da9313c0b3b4f951c751:config/kong-provider-control-routes.v1.json:generic-api-key:8
 7a29be26516f2772d165da9313c0b3b4f951c751:scripts/validate_provider_control_routes.py:generic-api-key:25
+# Historical ignore-file comment naming the Keycloak repository, not a credential.
+44f88129bb0a04bd13dd8b5b70930be703a758f2:.gitleaksignore:generic-api-key:10

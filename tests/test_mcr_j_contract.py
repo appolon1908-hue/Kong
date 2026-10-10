@@ -161,19 +161,22 @@ def check_manifest(manifest, environment, docs, contract):
         assert oidc["consumer_claim"] == ["azp"], "AZP claim drift"
         assert not oidc.get("anonymous"), "anonymous fallback"
         guard = plugins["codestra-authz"]["config"]
-        assert guard["mode"] == "contract"
+        assert guard["mode"] == "contract", "identity sanitization missing"
         caller = row["calling_client"]
         if not isinstance(caller, str):
             caller = json.dumps(caller, sort_keys=True, separators=(",", ":"))
         assert guard["operation_id"] == row["operation_id"], "trusted metadata drift"
         assert guard["expected_azp"] == caller, "trusted metadata drift"
         assert guard["required_scope"] == row["scope"], "trusted metadata drift"
-        strip = re.search(r"for _, name in ipairs\(\{(.*?)\}\) do\s+kong.service.request.clear_header\(name\)\s+end", guard, re.S)
+        handler = (ROOT / "deploy/kong/plugins/codestra-authz/handler.lua").read_text()
+        strip = re.search(r"local CONTRACT_UNTRUSTED_HEADERS = \{(.*?)\}", handler, re.S)
         assert strip, "identity sanitization missing"
         assert set(contract["generatedGuardClears"]) <= set(re.findall(r'"([^"]+)"', strip[1])), "identity sanitization incomplete"
+        clearing = "for _, name in ipairs(CONTRACT_UNTRUSTED_HEADERS) do\n    kong.service.request.clear_header(name)\n  end"
+        assert clearing in handler, "identity sanitization missing"
         for header, variable in contract["generatedGuardOverwrites"].items():
-            mint = f"kong.service.request.set_header('{header}', {variable})"
-            assert mint in guard and strip.end() < guard.index(mint), "identity propagation order drift"
+            mint = f'kong.service.request.set_header("{header}", conf.{variable})'
+            assert mint in handler and handler.index(clearing) < handler.index(mint), "identity propagation order drift"
         for path in contract["forbiddenPublicProbes"]:
             assert re.match(route["paths"][0][1:], path) is None, f"private surface exposed: {path}"
     denied = {route_name(r): r for r in docs["source"]["routes"] if r["classification"] == "denied"}
