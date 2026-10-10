@@ -77,8 +77,8 @@
     },
     {
       "path": ".github/workflows/validate.yml",
-      "sha256": "9a76a18a26b01be0a974ce5dec71036e3411b28ef49dc58d25215a37a15aa5e8",
-      "size": 8982
+      "sha256": "6768bab2a902270cceb08dc76393936acb4998fb6a8de13f7e739200a7516900",
+      "size": 8931
     },
     {
       "path": ".github/workflows/workstation-governance.yml",
@@ -382,7 +382,7 @@
     },
     {
       "path": "deploy/kong-production-standby/auth-middleware/requirements.txt",
-      "sha256": "382707083450f4da08872d52fcba56347052ee55cc3f5c6f4cc0541cc7a7c57d",
+      "sha256": "766ce9aedcbcf9c755197850f906db9c02d2ee5cc63881597c9599d2e3913b22",
       "size": 79
     },
     {
@@ -1382,7 +1382,7 @@
     }
   ],
   "generated_at": "2026-08-26T21:10:25.642865+00:00",
-  "manifest_generation_id": "e361c0c25d1d495619afd7570da87d59bd48c3b260d585ca73371aad3e224e1e",
+  "manifest_generation_id": "5c5d06d99467d57cfa5cc96ec04a06a84e91e3d9aba8fc5d85e14a738e590042",
   "production_state_changed": false,
   "schema": "codestra.kong.repository-migration.v1",
   "source_files": [
